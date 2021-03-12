@@ -1,0 +1,118 @@
+#
+# PUNCTUAL TIDAL HARMONIC ANALYSIS 
+# by 
+# AC Goglio (CMCC)
+# annachiara.goglio@cmcc.it
+#
+# ==============================
+# TASKS:
+#
+# This section of the package includes the following tasks: 
+#
+# - Pre-processing of tide-gauges sea level data downloaded from EMODnet (counts and fills the GAPs in the time series; removes time-series with a num of gaps higher then a threshold )
+# - Diagnostic analysis on tide-gauge data (plot comparisons between modelled and observed time-series, spectra and empirical distribution; quality flag checks;)
+# - Evaluation of the harmonic analysis fit skill through signal-to-noise analysis and comparison between two different fit methods
+# - mapping and listing the resulting tide-gauges datasets 
+# - computing Amplitude and Phase in tide-gauges location by means of ttide software (Foreman fit method) 
+# - mod/obs/TPXO model comparison in terms of harmonic analysis results 
+# - Comparisons of the results with respect to literature [Palma et al. and Tsimplis et al.] and to TPXO model in terms of 
+#    - amplitude differences statistics
+#    - phase differences statistic 
+#    - linear regressions
+#    - vectorial distances
+#    - RMSmisfits  
+#
+# ===============================
+# HOW TO SET AND RUN THE WHOLE PROCEDURE:
+#
+# ---------- SELECTION OF TIDE GAUGES DATASETS -------------
+#
+# 1) built a csv file (or modify emodnet_TGb_all.coo) with the following infos:
+#    TG lat ; TG lon ; TG name ; TG obs path tpl ; TG obs filename tpl ; flag tpxo comp ; flag lit comp
+#    where
+#    - TG lat and TG lon --> the coordinate found in the metadata of the obs that will be used to extract the time-series from the model. 
+#      Before doing this a land-over-sea procedure is applyed to the model field. 
+#      The user can choose (in the p_extr.ini file) to extract the time series of the nearest grid points (suggested) or 
+#      to interpolate the field from the 4 nearest grid points.
+#    - TG name --> the name that is used by the whole procedure to identify the tide-gauges. 
+#      WARNING: The same nomenclature MUST be used in the lit_tpxo.py file. Is thus suggested to use the EMODnet one.
+#    - TG obs path tpl --> the obs file path template    
+#      WARNING: the path must link to a single tide-gauge (can be include date template if obs are stored by date but only in this format: %YYYYMM%)
+#    - TG obs filename tpl --> the template of the obs file name
+#      WARNING: it MUST contain the date-template string %YYYYMM% that will be replaced to extract single months
+#    - flag tpxo comp --> MUST be 0 or 1, if =1 the tide gauge is added to the dataset to be compared with TPXO model outputs. 
+#      WARNING: if =1 the TPXO Amplitude and Phase values MUST be stored in the lit_tpxo.py file and identified with the same name 
+#    - flag lit comp --> MUST be 0 or 1, if =1 the tide gauge is added to the dataset to be compared with literature results.
+#      WARNING: if =1 the Amplitude and Phase values form LITERATURE MUST be stored in the lit_tpxo.py file and identified with the same name
+#
+# 2) include literature and tpxo values to be compared in the lit_tpxo.py file
+#    In this file the values from Palma et al. 2020 and Tsimplis et al. 1995 and from TPXO model are stored as python lists.
+#    WARNING: the tide-gauges are identified by name, thus the name MUST be the same as TG name in the .coo file 
+#    WARNING: The database can be extended but be aware that the literature one should cover both references and CANNOT have gaps. 
+#
+#
+# ----------- EXTRACTION AND PRE-PROCESSING OF TIDE GAUGES TIME SERIES ------------ 
+#
+# INFO: This script is based on Climate Data Operators (CDO)!
+# WARNING You can extract time series by means of your own scripts keeping in mind that the name of the obs/mod MUST be respectively %tgname%_obs.nc and %tgname%_mod_eas6.nc where %tgname% MUST be the one listed in the .coo file. Moreover remember to fill the GAPs (missing time records) in the obs files
+# Only one period per run can be extracted. 
+# The suggestion is to extract all the OBS time-series for all the tide-gauges with a number of GAPs lower than 10% and then choose for each time-serie the period with the lower num of NANs 
+#
+# 3) set the p_extr.ini file following the instructions in the file
+# 4) run the runpextr.sh that submits the extraction job (you do NOT need to modify anything in this scripts!)
+#
+#
+# ------------ FOREMAN FIT, ANALYSIS AND PLOT OF THE HARMONIC ANALYSIS RESULTS -------------
+#
+# INFO: This script is based on the ttide software (a modified copy of the code is included in a specific directory)
+# WARNING: the python script requires specific libraries: have a look to the imported ones in the first lines 
+#          and conda-install in your environment the required ones!
+# The idea is to define the best time-series dataset looking at the time-series diagnostic results and then link these in a new directory and run the analysis on this last only. The script is conceived to handle time-series covering different time-periods but ONLY one period per tide-gauge can be included in the analysis. 
+#
+# 5) load the python environment:
+# module load anaconda 
+# source activate "your-virtual-environment"
+#
+# 2) set (following the instructions in the file) and run the fit_plot.py script
+#
+# =============================
+#  OUTPUTS:
+#
+#  In the output directory you will find three directories: lit, anatpxo and all. Each directory contains the results of the analysis on the related dataset of tide-gauges, respectively the one in common with literature, the one available for comparisons with TPXO model and the whole set. Some analysis can be performed only for one subset and others for everyone. 
+#
+#  1) time series diagnostics:
+#
+#  ts_%tgname%_%startdate%_%enddate%.png --> obs time series along with their quality flag (generated, if required, by the extraction job)
+#
+#  ts_%tgname%.png  --> mod and obs time series for each tide-gauge (generated by ana_plot script)
+#  spt_%tgname%.png --> mod and obs spectra for each tide-gauge (generated by ana_plot script)
+#  edf_%tgname%.png --> mod and obs empirical distribution funtions for each tide-gauge (generated by ana_plot script)
+#
+#  %dataset%_SNRtab.txt --> List (Tex style) of the signal-to-noise ration resulting from the harmonic analysis fit applied to the time-series for each tidal component. The idea is that low values (the threshold dipends on the tidal component) of this parameters can correspond to low observation quality, especiallyif the correspondent model values are higher. This cannot be included in the selection procedure but can give a clue in detecting bad quality time-series (generated by ana_plot script)
+#
+#  2) datasets infos
+#
+#  %dataset%_TGtab.txt --> List (Tex style) of tide-gauges ordered by increasing longitude (tg name,tg label and sub-region color, coordinates and start date-time of the time series used for the harmonic analysis)
+#  %dataset%_tg.jpg --> map with tide-gauges locations
+#
+#  3) Single tidal component analysis
+#
+#  amp_stats.txt table --> Table (Tex style) statistics on amplidutes (mean, 95th per and max of absolute mod/obs bias and of relative mod/obs bias )
+#  pha_stats.txt table --> Table (Tex style) statistics on phases (mean, 95th per and max of absolute mod/obs bias )
+#  linreg_stats.txt --> Table (Tex style) linear regression parameters for amplidude and phases  
+#  stats_lit.txt --> Table: Comparison between harmonc analysis mod/obs vectorial distances and literature results in terms of mean and max vectorial distances on the common dataset (WARNING: ONLY for lit dataset!!)
+#
+#  tab_%tidalcomp%.txt --> Table (Tex style) with the comparison, for each tide-gauge, between model/obs/literature where available/tpxo amplitude, phase and vectorial distances + global RMSmisfit
+#  %tidalcomp%_A(tpxo).jpg --> Plot: comparison between obs/mod(/tpxo) amplitudes per tide-gauge (upper pannel) and differences (lower pannel)
+#  %tidalcomp%_P(tpxo).jpg --> Plot: comparison between obs/mod(/tpxo) phases per tide-gauge (upper pannel) and differences (lower pannel)
+#  %tidalcomp%_linreg.jpg --> Plot: linear regression mod/obs for amplitudes (upper pannel) and phases (lower pannel)
+#
+#  %tidalcomp%_fitdiag.jpg --> Plot: signal-to-noise ratio resulting from the harmonic analysis fit 
+#
+# 4) Global harmonic analysis results
+#
+# GLOBAL_A.jpg --> Plot: Contribution of single tidal components to the whole amplitude per tide-gauge (for both M=mod and O=obs)
+# GLOBAL_P.jpg --> Plot: Contribution of single tidal components to the whole phase per tide-gauge (for both M=mod and O=obs)
+# GLOBAL_d_Foreman.jpg --> Plot: comparison between obs/mod vectorial distances 
+# GLOBAL_RMSd.jpg --> Plot: obs/mod Root Mean Square Misfits computed on the whole set of tide-gauges
+#

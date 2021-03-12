@@ -1,0 +1,101 @@
+#
+# AREAL TIDAL HARMONIC ANALYSIS 
+# by 
+# AC Goglio (CMCC)
+# annachiara.goglio@cmcc.it
+#
+# ==============================
+# TASKS:
+#
+# This section of the package includes the following tasks:
+#
+# - Extraction of sea level field time-serie on the whole domain from eas6 hourly outputs
+# - Areal harmonic analysis: Foreman fit applied to the whole domain
+# - Visualization of the areal harmonic analysis results (Amplitude and phase maps )
+#   (Includes the possibility to apply the same palette as literature [Palma et al., Agresti et al., Arabelos et al.])
+# - Comparisons with respect to TPXO model in terms of:
+#    - Maps of TPXO model amplitude and phase on the TPXO grid
+#    - Maps of TPXO model amplitude and phase on the EAS system grid (TPXO is interpolated on the med 24 grid)
+#    - Amplitude difference (Maps per tidal component) 
+#    - Root Mean square differences between amplitudes computation (for points with bathymetry higher than a user-fixed threshold)
+#    - Vectoria differences (Maps per tidal component)
+#    - Root Mean Square misfits computation
+#    - Do-Seong F, E and Ea Envelope Form Factors (Maps for both datasets)
+#    - Comparison between eas system and TPXO model bathymetries 
+#
+# ===============================
+# HOW TO RUN THE WHOLE PROCEDURE:
+#
+# --------- EXTRACTION ----------
+#
+# INFO: This script is based on Climate Data Operators (CDO)!
+#
+# 1) set the map_extr.ini file following the instructions in the file
+# 2) run the runmapextr.sh that submits the extraction job (you do NOT need to modify anything in this scripts!)
+#
+#
+# --------- FOREMAN FIT ---------  
+#
+# INFO: This script is based on the ttide software (a modified copy of the code is included in a specific directory)
+# WARNING: the python script requires specific libraries: have a look to the imported ones in the first lines 
+#          and conda-install in your environment the required ones!
+#
+# 3) load the python environment:
+# module load anaconda 
+# source activate "your-virtual-environment"
+#
+# 4) set (following the instructions in the file) and run the fit_marea.py script
+# WARNING: since the run time on the whole domains requires a few hours, 
+# it is suggested to run the script in a job (e.g. fit.job, feel free to modify and use it! ) 
+#
+# --------- ANALYSIS AND VISUALIZATION OF THE RESULTS -----------
+#
+# WARNING: the python script requires specific libraries: have a look to the imported ones in the first lines 
+#          and conda-install in your environment the required ones!
+# WARNING: in most of this tasks the TPXO is interpolated from its original grid to the eas system 1/24 grid
+#
+# 5) load the python environment:
+# module load anaconda 
+# source activate "your-virtual-environment"
+#
+# 6) set (following the instructions in the file) and run the ana_plot.py script
+#
+# ===============================
+# OUTPUTS:
+#
+# 1) Intermediate files (outputs of the extraction process):
+#
+# map2D_0_sossheig_%startdate%_%endate%_mod_eas6.nc --> contains the extracted sea level field
+# amppha2D_0_sossheig_%startdate%_%endate%_mod_eas6.nc_ini --> this file is the template file for the harmonic analysis output
+# WARNING: do not remove this files until you have completed the fit!
+#
+# 2) Harmonic analysis output (outputs of the Foreman fit):
+#
+# amppha2D_0_sossheig_%startdate%_%endate%_mod_eas6.nc --> this is the file storing the harmonic analysis results, 
+#                                                          namely the fields of amplitudes and phases for each tidal component
+#
+# 3) Plots and tables (outputs of the analysis script):
+#
+#  amppha2D_0_%tidalcomponent%_Amp_%startdate%_%endate%_mod_eas6_%palettetype%.jpg --> Amplitude and/or phase maps per tidal component
+#                                                                                      where %palettetype% can be
+#										        * AmpPha to plot amplitude/phase maps
+#											* Pha to compare phase maps wrt Palma et al
+#											* Amp to compare amplitude maps wrt Palma et al 
+#											* Amp_Ar to compare amplitude maps wrt Arabelos et al
+#											* Pha_Ar to compare phase maps wrt Arabelos et al 
+#											* AmpPha_Ag to compare amplitude/phase maps wrt Agresti 
+#
+# h_2D_0_%startdate%_%endate%_tpxo9_atlas_30_v2_%tidalcomponent%_Amp_nopha.jpg --> TPXO model Amplitude and/or Phase maps per tidal component on TPXO grid
+# interp_tpxo2med24_%tidalcomponent%.jpg --> TPXO model Amplitude and/or Phase maps per tidal component on EAS system grid 
+#
+# diff_tpxomed24_%tidalcomponent%.jpg --> Maps of amplitude differences between eas system and TPXO model
+# RMSE_stats.txt --> List of eas/TPXO Amplitude Root Mean Square Error per tidal component
+#
+# vecdist_tpxomed24_%tidalcomponent%.jpg --> Maps of vectorial distances between eas system and TPXO model
+# RMSd_stats.txt --> List of eas/TPXO Root Mean Square Misfits per tidal component
+#
+# diff_bathy_tpxomed24.jpg --> Difference between TPXO and eas system bathymetries
+#
+# amppha2D_0_%DoSeong-Factor%_%startdate%_%endate%_mod_eas6.jpg --> Plot of F, E and Ea Do-Seong factors for eas system
+# amppha2D_0_%DoSeong-Factor%_%startdate%_%endate%_tpxo9_atlas_30_v2.jpg --> Plot of F, E and Ea Do-Seong factors for TPXO system
+#
