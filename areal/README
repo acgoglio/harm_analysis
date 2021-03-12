@@ -23,6 +23,8 @@
 #    - Do-Seong F, E and Ea Envelope Form Factors (Maps for both datasets)
 #    - Comparison between eas system and TPXO model bathymetries 
 #
+# NOTE: for most of the tasks the original TPXO model files are needed!
+#
 # ===============================
 # HOW TO RUN THE WHOLE PROCEDURE:
 #

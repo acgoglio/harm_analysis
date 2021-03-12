@@ -1,15 +1,16 @@
 # harm_analysis 
-# repository
+# repository:
 #
 # by AC Goglio (CMCC)
 # annachiara.goglio@cmcc.it
 # 
 # The aim of this code is to perform a validation of EAS system outputs in terms of tidal harmonic analysis. 
 #
-# The harmonic analysis implemented in this package is based on the Foreman fit method [Foreman,] and employs the ttide package [].
+# The harmonic analysis implemented in this package is based on the Foreman fit method [Foreman et al.; 1991] 
+# and employs the ttide package [Pawlowicz et al; 2002].
 #
-# The validation is composed by several analysis and comparisons including comparisons with respect to TPXO model [] 
-# and with respect to results from the following papers [Palma et al. 2020], [Tsimplis et al;] and [Arabelos et al,] 
+# The validation is composed by several analysis and comparisons including comparisons with respect to TPXO model [Egbert et al; 2002] 
+# and with respect to results from the following papers [Palma et al. 2020], [Tsimplis et al; 1995], [Agresti; 2018] and [Arabelos et al,2011] 
 #
 # The validation procedure, along with the code structure, is diveded in two sections:
 # 1) The PUNCTUAL harmonic analysis, concerning tide-gauge mod/obs/literature comparisons in tide-gauge locations
@@ -51,6 +52,6 @@
 #    - Root Mean square differences between amplitudes computation (for points with bathymetry higher than a user-fixed threshold)
 #    - Vectoria differences (Maps per tidal component)
 #    - Root Mean Square misfits computation
-#    - Do-Seong F, E and Ea Envelope Form Factors (Maps for both datasets)
+#    - Do-Seong F, E and Ea Envelope Form Factors (Do-Seong; 2020) (Maps for both datasets)
 #    - Comparison between eas system and TPXO model bathymetries 
 #
