@@ -68,7 +68,7 @@ ampha_var='AmpPha' # NEEDED if ampha_flag=1;
 # ) Pha_Ar to compare phase maps wrt Arabelos et al 
 # ) AmpPha_Ag to compare amplitude/phase maps wrt Agresti 
 
-ampha_tpxo=1
+ampha_tpxo=0
 # For TPXO9 Amplitude/Phase maps on TPXO grid (1 map per tidal component)
 
 doseong_flag=0 # TO compute Do-Seong factor for EAS system
@@ -89,7 +89,7 @@ diff_tpxoeas_flag=0
 vectorial_dist_flag=0
 # For vectorial distances between eas and tpxo9 on MED24 grid
 
-bathy_diff_flag=0
+bathy_diff_flag=1
 # For diffs between bathymethries eas vs tpxo on MED24 grid
 
 ########################################################
@@ -951,7 +951,8 @@ if bathy_diff_flag ==  1:
             mask = np.abs(vals) == thresh
             vals_ma = np.ma.masked_where(mask, vals)
 
-            bathy_range=[-180,-140,-100,-60,-20,20,60,100,140,180]
+            rel_bathy_range=[-20,-15,-10,-5,5,10,15,20]
+            abs_bathy_range=[-180,-140,-100,-60,-20,20,60,100,140,180]
 
             # Do the same for TPXO grid files
             nc2open=tpxo9_path+'grid_tpxo9_atlas_30_v2.nc'
@@ -1023,22 +1024,22 @@ if bathy_diff_flag ==  1:
 
             # Plot the diffs
 
-            # Plot the map and save in the path/name
-            plotname=workdir_path+'diff_bathy_tpxomed24.jpg'
+            # Plot the absolute diff map and save in the path/name
+            plotname=workdir_path+'diff_abs_bathy_tpxomed24.jpg'
             print ('Plot path/name: ',plotname)
 
             fig, ax = plt.subplots(1, 3, sharey=True,figsize=(14,4)) 
             fig.subplots_adjust(wspace=0)
             plt.rc('font', size=12)
             # Plot Title
-            plt.suptitle ('Bathymetry Diff: MED24 - TPXO9  --- MED24 grid ')
+            plt.suptitle ('Bathymetry Abs Diff: MED24 - TPXO9  --- MED24 grid ')
 
             plt.rcParams["axes.linewidth"]  = 1.25
             # Plot the map and add the amphidromes
             plt.subplot(1,3,1)
             plt.ylim(30, 46)
             plt.xlim(-20, 0)
-            cs = plt.contourf(x,y,np.squeeze(vals)-np.squeeze(var_new),bathy_range,cmap='bwr',extend='both') 
+            cs = plt.contourf(x,y,np.squeeze(vals)-np.squeeze(var_new),abs_bathy_range,cmap='bwr',extend='both') 
             contourf1 = plt.contourf(x,y,np.abs(np.squeeze(vals_bathy)),[0.00000,0.00000001], colors='gray') 
             contour2 = plt.contour(x,y,np.squeeze(vals_bathy),[0.00000,0.00000001],colors='black')
             ax[0].set_xticks(np.arange(340,360,10))
@@ -1052,14 +1053,56 @@ if bathy_diff_flag ==  1:
             plt.ylim(30, 46)
             plt.xlim(0, 40)
             plt.tick_params(labelcolor='none', top=False, bottom=True, left=False, right=False)
-            cs = plt.contourf(x,y,np.squeeze(vals)-np.squeeze(var_new2),bathy_range,cmap='bwr',extend='both') 
+            cs = plt.contourf(x,y,np.squeeze(vals)-np.squeeze(var_new2),abs_bathy_range,cmap='bwr',extend='both') 
             contourf1 = plt.contourf(x,y,np.abs(np.squeeze(vals_bathy)),[0.00000,0.00000001], colors='gray') 
             contour2 = plt.contour(x,y,np.squeeze(vals_bathy),[0,0.0000001],colors='black')
             ax[1].get_yaxis().set_visible(False)
             plt.grid(color='black',linestyle='--')
             max_p=np.max(np.abs(np.abs(np.squeeze(vals))-np.abs(np.squeeze(var_new2))))
             cbar = plt.colorbar(cs,extend='both')
-            cbar.set_label('Bathymetry diff [m]')
+            cbar.set_label('Bathymetry abs diff [m]')
+
+            # Save and close 
+            plt.savefig(plotname)
+            plt.clf()
+
+            # Plot the RELATIVE DIFF map and save in the path/name
+            plotname=workdir_path+'diff_rel_bathy_tpxomed24.jpg'
+            print ('Plot path/name: ',plotname)
+
+            fig, ax = plt.subplots(1, 3, sharey=True,figsize=(14,4))
+            fig.subplots_adjust(wspace=0)
+            plt.rc('font', size=12)
+            # Plot Title
+            plt.suptitle ('Bathymetry Relative Diff: (MED24 - TPXO9)*100/MED24  --- MED24 grid ')
+
+            plt.rcParams["axes.linewidth"]  = 1.25
+            # Plot the map and add the amphidromes
+            plt.subplot(1,3,1)
+            plt.ylim(30, 46)
+            plt.xlim(-20, 0)
+            cs = plt.contourf(x,y,(np.squeeze(vals)-np.squeeze(var_new))*100.0/np.squeeze(vals),rel_bathy_range,cmap='bwr',extend='both')
+            contourf1 = plt.contourf(x,y,np.abs(np.squeeze(vals_bathy)),[0.00000,0.00000001], colors='gray')
+            contour2 = plt.contour(x,y,np.squeeze(vals_bathy),[0.00000,0.00000001],colors='black')
+            ax[0].set_xticks(np.arange(340,360,10))
+            plt.tick_params(labelcolor='none', top=False, bottom=True, left=False, right=False)
+            plt.grid(color='black',linestyle='--')
+            max_n=np.max(np.abs(np.abs(np.squeeze(vals))-np.abs(np.squeeze(var_new))))
+            #
+            var_new2 = f_tmp(x,y)
+            #
+            plt.subplot(1,3,(2,3))
+            plt.ylim(30, 46)
+            plt.xlim(0, 40)
+            plt.tick_params(labelcolor='none', top=False, bottom=True, left=False, right=False)
+            cs = plt.contourf(x,y,(np.squeeze(vals)-np.squeeze(var_new2))*100.0/np.squeeze(vals),rel_bathy_range,cmap='bwr',extend='both')
+            contourf1 = plt.contourf(x,y,np.abs(np.squeeze(vals_bathy)),[0.00000,0.00000001], colors='gray')
+            contour2 = plt.contour(x,y,np.squeeze(vals_bathy),[0,0.0000001],colors='black')
+            ax[1].get_yaxis().set_visible(False)
+            plt.grid(color='black',linestyle='--')
+            max_p=np.max(np.abs(np.abs(np.squeeze(vals))-np.abs(np.squeeze(var_new2))))
+            cbar = plt.colorbar(cs,extend='both')
+            cbar.set_label('Bathymetry rel diff [%]')
 
             # Save and close 
             plt.savefig(plotname)
