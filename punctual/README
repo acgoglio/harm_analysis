@@ -27,7 +27,7 @@
 #
 # ---------- SELECTION OF TIDE GAUGES DATASETS -------------
 #
-# 1) built a csv file (or modify emodnet_TGb_all.coo) with the following infos:
+# 1) built a csv file (or modify emodnet_TG_all.coo or emodnet_TGb_all.coo) with the following infos:
 #    TG lat ; TG lon ; TG name ; TG obs path tpl ; TG obs filename tpl ; flag tpxo comp ; flag lit comp
 #    where
 #    - TG lat and TG lon --> the coordinate found in the metadata of the obs that will be used to extract the time-series from the model. 

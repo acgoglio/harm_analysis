@@ -123,26 +123,35 @@ def which_region(longitude,latitude):
        elif longitude < 16.500 and longitude > 14.500 and latitude < 38.200 and latitude > 37.800:
            color=subregions_color[2]
        # GIBRALTAR STRAIT AREA:
-       elif longitude < -1.800 and longitude > -6.000:
+       elif longitude < -1.800 and longitude > -6.000 and latitude < 37.2630:
            color=subregions_color[0]
+       # GIBRALTAR ATLANTIC BOX SIDE
+       elif longitude < -6.000 and latitude < 37.2630:
+           color=subregions_color[6]
+       # PORUGAL ATLANTIC BOX
+       elif longitude < -6.000 and latitude > 37.2630 and latitude < 43.2100:
+           color=subregions_color[7]
+       # BISCAY BAY ATLANTIC BOX
+       elif longitude < 0.000 and latitude > 43.2100:
+           color=subregions_color[5]
        # OTHER MED REGIONS
        else:
            color=subregions_color[4]
        return color
 
 # Signal-to-noise ration threshold
-# WARNING: if any components shows a fit snr greater than this the fit is not perfomed
-snr_thershold=10
+# WARNING: if any component shows a fit snr lower than this the fit is not perfomed
+snr_thershold=0.1
 
 # FLAG or loop on analysis type
 # Options:
 # lit       --> Compare the common datasets with respect to literature 
 # anatpxo   --> Apply all the analysis and compare datasets with TPXO model results
 # all       --> Linear regression concerning all avalilable tide-gauges
-for anatype_flag in ('lit','anatpxo','all'):
+for anatype_flag in ('all','lit','anatpxo'):
 
    # Buil the dir and move in it
-   workdir_path = workdir+'/'+anatype_flag+'/'
+   workdir_path = workdir+'/'+anatype_flag+'_'+where_box+'/'
    try:
        os.stat(workdir_path)
    except:
@@ -170,6 +179,7 @@ for anatype_flag in ('lit','anatpxo','all'):
    if where_box=='AtlBox':
       tpxo_flag = 0
       flag_15stats = 0
+      anatype_flag = 'all'
    
    # ======== EMODnet TG ========== 
    
@@ -221,8 +231,15 @@ for anatype_flag in ('lit','anatpxo','all'):
 
             tg_col.append(which_region(tg_inlon[idx_tg],tg_inlat[idx_tg]))
    
-   #elif where_box == 'AtlBox':
-    
+   elif where_box == 'AtlBox':
+
+       if anatype_flag=='all':
+         tg_name=tg_inname
+         tg_lon=tg_inlon
+         tg_lat=tg_inlat
+
+         for idx_tg in range (0,len(tg_inname)):
+            tg_col.append(which_region(tg_inlon[idx_tg],tg_inlat[idx_tg]))
    
    
    tg_num=len(tg_name)
@@ -627,7 +644,7 @@ for anatype_flag in ('lit','anatpxo','all'):
        rate_s=3600 # Hourly data
        spect_log=1 # log scale
        smooth_flag=1 # to smooth the spectrum
-       spt_max=100000
+       spt_max=10000 # Max Spt
 
        # Compute the periodgrams
        spt_nc_obs=abs(np.fft.fft(xin_obs_sub[np.logical_not(np.isnan(xin_obs_sub))]))
@@ -636,8 +653,8 @@ for anatype_flag in ('lit','anatpxo','all'):
        freq_mod = abs(np.fft.fftfreq(xin_mod_sub[np.logical_not(np.isnan(xin_mod_sub))].shape[-1],rate_s))
 
        # Create the plot
-       plt.figure(figsize=(20,10))
-       plt.rc('font', size=9)
+       plt.figure(figsize=(16,8))
+       plt.rc('font', size=10)
        plt.grid ()
 
        plt.xlim(0.0000001,0.00015)
@@ -650,7 +667,7 @@ for anatype_flag in ('lit','anatpxo','all'):
        elif spect_log == 0 :
           plt.ylabel ('Spectrum Amplitude')
           plt.ylim(1,20000)
-       plt.title ('SSH'+' Spectrum - TG: '+tg_name[stn]+' Period: '+str(tg_sdate[stn])+' Lon/Lat: '+str(tg_lon[stn])+'/'+str(tg_lat[stn]))
+       plt.title ('SSH'+' Spectrum - TG: '+tg_name[stn]+' Period: '+str(tg_sdate[stn])+' Lon/Lat: '+str(tg_lon[stn])+'/'+str(tg_lat[stn])+'\n')
        # Add tidal constituents freqs
        if spect_log == 0 :
           text_vertical_position=[50000,48000,50000,48000,44000,42000,42000,44000]
@@ -1220,7 +1237,7 @@ for anatype_flag in ('lit','anatpxo','all'):
        diffA_mo_Earea=diffA_mo[howmany_Oarea+howmany_Marea+howmany_Garea+howmany_Aarea+howmany_Tarea+howmany_TAarea+howmany_TGarea:howmany_Oarea+howmany_Marea+howmany_Garea+howmany_Aarea+howmany_Tarea+howmany_TAarea+howmany_TGarea+howmany_Earea]
    
    
-       pdiffA_mo=(y_textA-x_textA)*100.0/x_textA
+       pdiffA_mo=(y_textA-x_textA)*100.0/(0.5+x_textA) # do not consider values below 0.5 cm
        mean_diffA=np.mean(diffA_mo)
    
        # STATISTICS x TAB AMP
@@ -1248,10 +1265,10 @@ for anatype_flag in ('lit','anatpxo','all'):
        y_textP=TOT_P_mod
        if cos_pha == 0:
           diffP_mo=y_textP-x_textP
-          pdiffP_mo=(y_textP-x_textP)*100.0/x_textP
+          pdiffP_mo=(y_textP-x_textP)*100.0/(10+x_textP) # do not consider values below 10 deg
        elif cos_pha == 1:
           diffP_mo=np.cos(np.array(y_textP)*np.pi/180)-np.cos(np.array(x_textP)*np.pi/180)
-          pdiffP_mo=(np.cos(np.array(y_textP)*np.pi/180)-np.cos(np.array(x_textP))*np.pi/180)*100.0/np.cos(np.array(x_textP)*np.pi/180)
+          pdiffP_mo=(np.cos(np.array(y_textP)*np.pi/180)-np.cos(np.array(x_textP))*np.pi/180)*100.0/(np.cos(np.array(x_textP)*np.pi/180)+np.cos(10*np.pi/180))
    
        diffP_mo_Oarea=diffP_mo[0:howmany_Oarea]
        diffP_mo_Marea=diffP_mo[howmany_Oarea:howmany_Oarea+howmany_Marea]

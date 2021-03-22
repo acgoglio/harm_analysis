@@ -1074,14 +1074,14 @@ if bathy_diff_flag ==  1:
             fig.subplots_adjust(wspace=0)
             plt.rc('font', size=12)
             # Plot Title
-            plt.suptitle ('Bathymetry Relative Diff: (MED24 - TPXO9)*100/MED24  --- MED24 grid ')
+            plt.suptitle ('Bathymetry Relative Diff: (MED24 - TPXO9)*100/(50+MED24)  --- MED24 grid ')
 
             plt.rcParams["axes.linewidth"]  = 1.25
             # Plot the map and add the amphidromes
             plt.subplot(1,3,1)
             plt.ylim(30, 46)
             plt.xlim(-20, 0)
-            cs = plt.contourf(x,y,(np.squeeze(vals)-np.squeeze(var_new))*100.0/np.squeeze(vals),rel_bathy_range,cmap='bwr',extend='both')
+            cs = plt.contourf(x,y,(np.squeeze(vals)-np.squeeze(var_new))*100.0/(50+np.squeeze(vals)),rel_bathy_range,cmap='bwr',extend='both') # do not consider diffs below 50 m
             contourf1 = plt.contourf(x,y,np.abs(np.squeeze(vals_bathy)),[0.00000,0.00000001], colors='gray')
             contour2 = plt.contour(x,y,np.squeeze(vals_bathy),[0.00000,0.00000001],colors='black')
             ax[0].set_xticks(np.arange(340,360,10))
@@ -1095,7 +1095,7 @@ if bathy_diff_flag ==  1:
             plt.ylim(30, 46)
             plt.xlim(0, 40)
             plt.tick_params(labelcolor='none', top=False, bottom=True, left=False, right=False)
-            cs = plt.contourf(x,y,(np.squeeze(vals)-np.squeeze(var_new2))*100.0/np.squeeze(vals),rel_bathy_range,cmap='bwr',extend='both')
+            cs = plt.contourf(x,y,(np.squeeze(vals)-np.squeeze(var_new2))*100.0/(50+np.squeeze(vals)),rel_bathy_range,cmap='bwr',extend='both') # do not consider diffs below 50 m
             contourf1 = plt.contourf(x,y,np.abs(np.squeeze(vals_bathy)),[0.00000,0.00000001], colors='gray')
             contour2 = plt.contour(x,y,np.squeeze(vals_bathy),[0,0.0000001],colors='black')
             ax[1].get_yaxis().set_visible(False)
