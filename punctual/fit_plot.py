@@ -49,9 +49,9 @@ from lit_tpxo import *
 #---------------------
 # Work dir path:
 # WARNING: the inputs must be here, the outputs will be moved to subdirs   
-workdir= '/work/oda/ag15419/tmp/ttide/BEST10_qf_fit/' 
+workdir= '/work/oda/ag15419/tmp/medicane_ianos/' 
 # input files:
-emodnettg_coo_file = '/users_home/oda/ag15419/harm_analysis/punctual/emodnet_TGb_all.coo'
+emodnettg_coo_file = '/users_home/oda/ag15419/harm_analysis/punctual/emodnet_TGmedianos.coo'
 model_bathy='/work/oda/ag15419/PHYSW24_DATA/TIDES/DATA0/bathy_meter.nc'
 #
 # Option for phase plots

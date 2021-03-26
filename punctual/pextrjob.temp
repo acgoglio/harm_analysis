@@ -106,37 +106,66 @@ set -x
 
 # Read point coo ( and set job array )
     
-     echo "Reading STZ coordinates.."
-
      declare -a COO_TS_LAT
      declare -a COO_TS_LON
      declare -a COO_TS_NAME
 
-     echo "Reading STZ coordinates.."
+     echo "Reading STZ coordinates in $TS_COOFILE file.."
+
      COO_IDX=0
      while read COOFILE_LINE; do
        if [[ ${COOFILE_LINE:0:1} != "#" ]]; then
-          COO_TS_LAT[${COO_IDX}]=$( echo $COOFILE_LINE | cut -f 1 -d";" )
-          COO_TS_LON[${COO_IDX}]=$( echo $COOFILE_LINE | cut -f 2 -d";" )
-          COO_TS_NAME[${COO_IDX}]=$( echo $COOFILE_LINE | cut -f 3 -d";" )
-          echo "STZ NAME: ${COO_TS_NAME[${COO_IDX}]} "
-          echo "LAT/LON: ${COO_TS_LAT[${COO_IDX}]}/${COO_TS_LON[${COO_IDX}]}"
-          if [[ $OBS_FLAG == 1 ]]; then
-            OBS_PATH[${COO_IDX}]=$( echo $COOFILE_LINE | cut -f 4 -d";" )
-            OBS_NAME[${COO_IDX}]=$( echo $COOFILE_LINE | cut -f 5 -d";" )
-            echo "OBS_FILES: ${OBS_PATH[$COO_IDX]}/${OBS_NAME[$COO_IDX]}"
-          elif [[ $OBS_FLAG == 2 ]]; then
-            OBS_PATH[${COO_IDX}]=$( echo $COOFILE_LINE | cut -f 4 -d";" )
-            OBS_NAME[${COO_IDX}]=$( echo $COOFILE_LINE | cut -f 5 -d";" )
-            echo "OBS_FILES: ${OBS_PATH[$COO_IDX]}/${OBS_NAME[$COO_IDX]}"
+          if [[ ${SUBREGION_FLAG} == 0 ]]; then
+             COO_TS_LAT[${COO_IDX}]=$( echo $COOFILE_LINE | cut -f 1 -d";" )
+             COO_TS_LON[${COO_IDX}]=$( echo $COOFILE_LINE | cut -f 2 -d";" )
+             COO_TS_NAME[${COO_IDX}]=$( echo $COOFILE_LINE | cut -f 3 -d";" )
+             echo "STZ NAME: ${COO_TS_NAME[${COO_IDX}]} "
+             echo "LAT/LON: ${COO_TS_LAT[${COO_IDX}]}/${COO_TS_LON[${COO_IDX}]}"
+             if [[ $OBS_FLAG == 1 ]]; then
+               OBS_PATH[${COO_IDX}]=$( echo $COOFILE_LINE | cut -f 4 -d";" )
+               OBS_NAME[${COO_IDX}]=$( echo $COOFILE_LINE | cut -f 5 -d";" )
+               echo "OBS_FILES: ${OBS_PATH[$COO_IDX]}/${OBS_NAME[$COO_IDX]}"
+             elif [[ $OBS_FLAG == 2 ]]; then
+               OBS_PATH[${COO_IDX}]=$( echo $COOFILE_LINE | cut -f 4 -d";" )
+               OBS_NAME[${COO_IDX}]=$( echo $COOFILE_LINE | cut -f 5 -d";" )
+               echo "OBS_FILES: ${OBS_PATH[$COO_IDX]}/${OBS_NAME[$COO_IDX]}"
+             elif [[ $OBS_FLAG == 3 ]]; then
+               OBS_PATH[${COO_IDX}]=$( echo $COOFILE_LINE | cut -f 4 -d";" )
+               OBS_NAME[${COO_IDX}]=$( echo $COOFILE_LINE | cut -f 5 -d";" )
+               echo "OBS_FILES: ${OBS_PATH[$COO_IDX]}/${OBS_NAME[$COO_IDX]}"
+             fi
+             COO_IDX=$(( $COO_IDX + 1 ))
+          elif [[ ${SUBREGION_FLAG} == 1 ]]; then
+               TOBECK_LAT=$( echo $COOFILE_LINE | cut -f 1 -d";" )
+               TOBECK_LON=$( echo $COOFILE_LINE | cut -f 2 -d";" )
+               if [[ $TOBECK_LAT -le $SUBREGION_MAX_LAT ]] && [[ $TOBECK_LAT -ge $SUBREGION_MIN_LAT ]] && [[ $TOBECK_LON -le $SUBREGION_MAX_LON ]] && [[ $TOBECK_LON -ge $SUBREGION_MIN_LON ]]; then
+                  COO_TS_LAT[${COO_IDX}]=$( echo $COOFILE_LINE | cut -f 1 -d";" )
+                  COO_TS_LON[${COO_IDX}]=$( echo $COOFILE_LINE | cut -f 2 -d";" )
+                  COO_TS_NAME[${COO_IDX}]=$( echo $COOFILE_LINE | cut -f 3 -d";" )
+                  echo "STZ NAME: ${COO_TS_NAME[${COO_IDX}]} "
+                  echo "LAT/LON: ${COO_TS_LAT[${COO_IDX}]}/${COO_TS_LON[${COO_IDX}]}"
+                  if [[ $OBS_FLAG == 1 ]]; then
+                    OBS_PATH[${COO_IDX}]=$( echo $COOFILE_LINE | cut -f 4 -d";" )
+                    OBS_NAME[${COO_IDX}]=$( echo $COOFILE_LINE | cut -f 5 -d";" )
+                    echo "OBS_FILES: ${OBS_PATH[$COO_IDX]}/${OBS_NAME[$COO_IDX]}"
+                  elif [[ $OBS_FLAG == 2 ]]; then
+                    OBS_PATH[${COO_IDX}]=$( echo $COOFILE_LINE | cut -f 4 -d";" )
+                    OBS_NAME[${COO_IDX}]=$( echo $COOFILE_LINE | cut -f 5 -d";" )
+                    echo "OBS_FILES: ${OBS_PATH[$COO_IDX]}/${OBS_NAME[$COO_IDX]}"
+                  elif [[ $OBS_FLAG == 3 ]]; then
+                    OBS_PATH[${COO_IDX}]=$( echo $COOFILE_LINE | cut -f 4 -d";" )
+                    OBS_NAME[${COO_IDX}]=$( echo $COOFILE_LINE | cut -f 5 -d";" )
+                    echo "OBS_FILES: ${OBS_PATH[$COO_IDX]}/${OBS_NAME[$COO_IDX]}"
+                  fi
+                  COO_IDX=$(( $COO_IDX + 1 ))
+               fi
           fi
-       COO_IDX=$(( $COO_IDX + 1 ))
        fi 
      done < $TS_COOFILE
 
-     echo "COO NUM = ${#COO_TS_NAME}"
+     echo "COO NUM = ${#COO_TS_NAME[@]}"
 
-# Extract values from model outputs (netCDF)
+################# MODEL EXTRACTION ####################
 
  if [[ $MOD_FLAG == 1 ]]; then
 
@@ -195,17 +224,24 @@ set -x
       done
   
         # Mean comp
-        cdo mergetime tsext_tmp_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}_*.nc tsext_tmp_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}.nc
-        cdo timmean tsext_tmp_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}.nc mean_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}.nc
-        cdo sub tsext_tmp_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}.nc mean_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}.nc zero_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}.nc
+        if [[ ${RM_MEAN_FLAG} == 1 ]]; then
+           cdo mergetime tsext_tmp_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}_*.nc tsext_tmp_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}.nc
+           cdo timmean tsext_tmp_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}.nc mean_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}.nc
+           cdo sub tsext_tmp_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}.nc mean_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}.nc zero_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}.nc
 
-        cdo mergetime zero_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}*.nc $NC_TS_OUTFILE
+           cdo mergetime zero_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}*.nc $NC_TS_OUTFILE
+           
+           rm -v miss_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}.nc
+           rm -v mean_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}.nc
+           rm -v tsext_tmp_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}*.nc
+           rm -v zero_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}.nc
 
-        rm -v miss_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}.nc
-        rm -v mean_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}.nc
-        rm -v tsext_tmp_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}*.nc
-        rm -v zero_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}.nc
+        elif [[ ${RM_MEAN_FLAG} == 0 ]]; then  
+           cdo mergetime tsext_tmp_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}_*.nc $NC_TS_OUTFILE
 
+           rm -v miss_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}.nc
+           rm -v tsext_tmp_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}*.nc
+        fi
 
 
      TS_IDX=$(( $TS_IDX + 1 ))
@@ -215,23 +251,28 @@ set -x
 
    IDX_IN=$(( $IDX_IN + 1 ))
    done
+
    # Clean links to the mod
    for TOBERM in $(ls ${EXT_INS}); do
        rm -v $TOBERM
    done
  fi
 
-  echo "Obs extraction.."
+ ############################## OBS EXTRACTION ########################
+ if [[ $OBS_FLAG != 0 ]]; then
+    echo "Obs extraction.."
+ fi
 
-  if [[ $OBS_FLAG == 1 ]]; then
 
-# Extract values from netCDF TG obs (EMODnet database)
+ if [[ $OBS_FLAG == 1 ]]; then
+
+ # Extract values from netCDF TG obs (EMODnet database)
 
     echo "------ OBS Extraction ------"
 
     # Inizialize missing perc file
-    MISSING_PERC_FILENAME="missing_perc_${ANA_STARTDATE:0:6}_${ANA_ENDDATE:0:6}.txt"
-    echo "# Percentage of missing value per TG in ${ANA_STARTDATE:0:6} - ${ANA_ENDDATE:0:6}" > ${ANA_WORKDIR}/${MISSING_PERC_FILENAME}
+    MISSING_PERC_FILENAME="missing_perc_${ANA_STARTDATE:0:8}_${ANA_ENDDATE:0:8}.txt"
+    echo "# Percentage of missing value per TG in ${ANA_STARTDATE:0:8} - ${ANA_ENDDATE:0:8}" > ${ANA_WORKDIR}/${MISSING_PERC_FILENAME}
 
     for O_VAR in ${OBS_VAR[@]}; do 
 
@@ -288,21 +329,41 @@ set -x
              cdo seldate,${ANA_STARTDATE:0:4}-${ANA_STARTDATE:4:2}-${ANA_STARTDATE:6:2}T00:00:00,${ANA_ENDDATE:0:4}-${ANA_ENDDATE:4:2}-${ANA_ENDDATE:6:2}T23:59:59 mergedall_obs.nc merged_obs.nc
              cdo seldate,${ANA_STARTDATE:0:4}-${ANA_STARTDATE:4:2}-${ANA_STARTDATE:6:2}T00:00:00,${ANA_ENDDATE:0:4}-${ANA_ENDDATE:4:2}-${ANA_ENDDATE:6:2}T23:59:59 mergedallqf_obs.nc qf_${O_STZ}.nc
              #cdo seldate,${ANA_STARTDATE:0:4}-${ANA_STARTDATE:4:2}-${ANA_STARTDATE:6:2}T00:00:00,${ANA_ENDDATE:0:4}-${ANA_ENDDATE:4:2}-${ANA_ENDDATE:6:2}T23:59:59 mergedallposqf_obs.nc mergedposqf_obs.nc
+
+             if [[ $OBS_ORIGINAL_FLAG == 1 ]]; then
+
+               cp merged_obs.nc or_${NCOBS_OUTFILE}
+
+             fi
+
              # Compute the hourly mean if freq is higher
              cdo hourmean merged_obs.nc hmeaned_obs.nc
-             # Compute the global mean and subtract it 
-             cdo timmean hmeaned_obs.nc obs_mean.nc
-             cdo sub hmeaned_obs.nc obs_mean.nc $NCOBS_OUTFILE
-             # Clean workdir
-             rm  ncobs_tmp_*.nc
-             rm  mergedall_obs.nc
-             rm  merged_obs.nc
-             rm  hmeaned_obs.nc
-             rm  obs_mean.nc
-             rm  sossobs_tmp_*.nc
-             rm  mergedallqf_obs.nc
-             rm sossobsqf_tmp_*.nc
 
+             if [[ ${OBS_RMMEAN_FLAG} == 1  ]]; then
+                # Compute the global mean and subtract it 
+                cdo timmean hmeaned_obs.nc obs_mean.nc
+                cdo sub hmeaned_obs.nc obs_mean.nc ${NCOBS_OUTFILE}
+                # Clean workdir
+                rm  ncobs_tmp_*.nc
+                rm  mergedall_obs.nc
+                rm  merged_obs.nc
+                rm  hmeaned_obs.nc
+                rm  obs_mean.nc
+                rm  sossobs_tmp_*.nc
+                rm  mergedallqf_obs.nc
+                rm sossobsqf_tmp_*.nc
+
+             elif [[ ${OBS_RMMEAN_FLAG} == 0  ]]; then
+                mv hmeaned_obs.nc ${NCOBS_OUTFILE} 
+                # Clean workdir
+                rm  ncobs_tmp_*.nc
+                rm  mergedall_obs.nc
+                rm  merged_obs.nc
+                rm  sossobs_tmp_*.nc
+                rm  mergedallqf_obs.nc
+                rm sossobsqf_tmp_*.nc
+             fi
+      
              # Compute and write the percentage of missing time steps
              TOT_FOUND_PERTG=$( ncdump -h $NCOBS_OUTFILE | grep "UNLIMITED" | cut -f 2 -d"(" | cut -f 1 -d" ")
              PERCENT_PERTG=$(( ((${FOUNDNOTFOUND_NUM}*24)-${TOT_FOUND_PERTG})*100/(${FOUNDNOTFOUND_NUM}*24) | bc -l ))
@@ -420,7 +481,7 @@ EOF
         
     done
 
-  elif [[ $OBS_FLAG == 2 ]]; then
+ elif [[ $OBS_FLAG == 2 ]]; then
 
     echo "------ ISPRA OBS Extraction ------"
 
@@ -479,7 +540,6 @@ EOF
              done
              #
              if [[ ${LAST_HOUR_INFILE} -lt ${ID_DATE:0:8}2359 ]] && [[ ${NEXT_HOUR_INFILE} -lt ${ID_DATE:0:8}2359 ]] ; then
-                echo "PROVA CICLO"
                 if [[ ${LAST_HOUR_INFILE} -gt ${NEXT_HOUR_INFILE} ]]; then
                    IDX_CORR=$( date -u -d "${LAST_HOUR_INFILE:0:8} ${LAST_HOUR_INFILE:8:4} 1 min" +%Y%m%d%H%M )
                 else
@@ -499,7 +559,57 @@ EOF
          done
 
     done
-                                                                                                                                                       
+
+ elif [[ $OBS_FLAG == 3 ]]; then
+
+    echo "------ JRC OBS Extraction ------"
+
+    for O_VAR in ${OBS_VAR[@]}; do
+
+        echo "Obs Var: $O_VAR"
+        STZ_IDX=0
+        while [[ $STZ_IDX -lt $COO_IDX ]]; do
+         O_STZ=${COO_TS_NAME[$STZ_IDX]}
+         O_PATH=${OBS_PATH[$STZ_IDX]}
+         O_NAME=${OBS_NAME[$STZ_IDX]}
+
+         if [[ $O_PATH != "NaN" ]] && [[ $O_NAME != "NaN" ]] ; then
+
+          OBS_OUTFILE_PRE="obs"
+          OBS_OUTFILE_TPL="${OBS_OUTFILE_PRE}_%STZ%.csv"
+
+          OBS_OUTFILE=$( echo "$OBS_OUTFILE_TPL" | sed -e "s/%FIELD%/${O_VAR}/g" -e "s/%STZ%/${O_STZ}/g" )
+          echo "idNum;station;year;month;day;hour;minu;sec;value" > $OBS_OUTFILE
+          ID_LINE=1
+          JRC_STARTDATE=$( date -u -d "${ANA_STARTDATE:0:8} 0000 -60 min" +%Y%m%d%H%M)
+          JRC_ENDDATE=$( date -u -d "${ANA_ENDDATE:0:8} 2359 -60 min" +%Y%m%d%H%M)
+          # WARNING: the JRC provides a single file with all the period..
+          # WARNING: the JRC provides times in UTC not CET! 
+          OBS_FILE=$( echo "${O_PATH}/${O_NAME}")
+          # Loop on files.csv (WARNING: there is only one file!!!)
+          for OBS_FOUND in $( ls $OBS_FILE ); do
+             if [[ -f $OBS_FOUND ]]; then
+                ID_DATE=$JRC_STARTDATE
+                while [[ ${ID_DATE} -le ${JRC_ENDDATE} ]]; do
+                      echo "DATE: ${ID_DATE} "
+                      SCAD_FOUND=$( grep -c "${ID_DATE:6:2} ${ID_DATE:4:2} ${ID_DATE:0:4} ${ID_DATE:8:2}:${ID_DATE:10:2}:00" $OBS_FOUND | cut -f 1 -d" ")
+                      if [[ $SCAD_FOUND == 1 ]]; then
+                         JRC_VAL=$( grep "${ID_DATE:6:2} ${ID_DATE:4:2} ${ID_DATE:0:4} ${ID_DATE:8:2}:${ID_DATE:10:2}:00" $OBS_FOUND | cut -f 2 -d"," )
+                         CET_ID_DATE=$(date -u -d "${ID_DATE:0:8} ${ID_DATE:8:4} 60 min" +%Y%m%d%H%M)
+                         echo "$ID_LINE;${O_STZ};${CET_ID_DATE:0:4};${CET_ID_DATE:4:2};${CET_ID_DATE:6:2};${CET_ID_DATE:8:2};${CET_ID_DATE:10:2};00;${JRC_VAL}" >> $OBS_OUTFILE
+                         ID_LINE=$(( $ID_LINE + 1 ))
+                      else
+                         CET_ID_DATE=$(date -u -d "${ID_DATE:0:8} ${ID_DATE:8:4} 60 min" +%Y%m%d%H%M)
+                         echo "$ID_LINE;${O_STZ};${CET_ID_DATE:0:4};${CET_ID_DATE:4:2};${CET_ID_DATE:6:2};${CET_ID_DATE:8:2};${CET_ID_DATE:10:2};00;nan" >> $OBS_OUTFILE
+                      fi
+                ID_DATE=$(date -u -d "${ID_DATE:0:8} ${ID_DATE:8:4} 1 min" +%Y%m%d%H%M )
+                done
+             fi
+          done
+         fi
+        STZ_IDX=$(( $STZ_IDX + 1 ))
+        done
+     done                                                                                                                                                      
   fi
 
 
