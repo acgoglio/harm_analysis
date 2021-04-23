@@ -38,7 +38,7 @@ from lit_tpxo import *
 # annachiara.goglio@cmcc.it
 #
 # Written: 06/2019
-# Modified: 23/04/2021
+# Modified: 11/03/2021
 #
 # Script to fit and plot the harmonic analisi reults wrt tide gauges data, tpxo model and literature values
 #
@@ -51,7 +51,7 @@ from lit_tpxo import *
 # WARNING: the inputs must be here, the outputs will be moved to subdirs   
 workdir= '/work/oda/ag15419/tmp/ttide_newTG/plot_2018A/' 
 # input files:
-emodnettg_coo_file = '/users_home/oda/ag15419/harm_analysis/punctual/newTGb_2018A.coo'
+emodnettg_coo_file = '/users_home/oda/ag15419/harm_analysis/punctual/newTG_2018.coo'
 model_bathy='/work/oda/ag15419/PHYSW24_DATA/TIDES/DATA0/bathy_meter.nc'
 #
 # Option for phase plots
@@ -84,7 +84,7 @@ if grid == 'T':
 
 if grid == 'T':
    var_2d_obs=var_2d_mod # Only for EMODnet dataset
-   time_var_obs='time' # Only for EMODnet dataset
+   time_var_obs='TIME' # Only for EMODnet dataset
    fieldobs_2d_units=('cm','m')
    # WARNING: the sossheig field is supposed to be given 
    # in centimeters for ispra and in meters for emodnet  
@@ -139,29 +139,6 @@ def which_region(longitude,latitude):
            color=subregions_color[4]
        return color
 
-
-# Function to divide Med basin from Atlantic Box
-# +------+---+------+
-# |      |AB |      |
-# |  AB  +---+ MED  |
-# |      |MED|      |
-# +------+---+------+
-#
-def which_domain(longitude,latitude):
-    if longitude < 36.29 and longitude > -18.12 and latitude < 45.98 and latitude > 30.18:
-       if longitude > 0.000:
-          domain='Med'
-       elif longitude < -6.000:
-          domain='AtlBox'
-       else:
-          if latitude < 42.000:
-             domain='Med'
-          else:
-             domain='AtlBox'
-    else:
-       domain='OUT'
-    return domain
-
 # Signal-to-noise ration threshold
 # WARNING: if any component shows a fit snr lower than this the fit is not perfomed
 snr_thershold=0.1
@@ -176,7 +153,7 @@ errbar_flag = 1
 # Options:
 # lit       --> Compare the common datasets with respect to literature 
 # anatpxo   --> Apply all the analysis and compare datasets with TPXO model results
-# all       --> Linear regression concerning all avalilable tide-gauges 
+# all       --> Linear regression concerning all avalilable tide-gauges
 for anatype_flag in ('all','lit','anatpxo'):
 
    # Buil the dir and move in it
@@ -204,72 +181,71 @@ for anatype_flag in ('all','lit','anatpxo'):
       print ('Comparison wrt all available obs.. Results in ',workdir_path)
       fontsize_tg=20
 
-   # Check on Domain and fix the bdy
+   # Check on Domain
    if where_box=='AtlBox':
       tpxo_flag = 0
       flag_15stats = 0
       anatype_flag = 'all'
-
    
    # ======== EMODnet TG ========== 
    
    # STZ INFO
-   
-   # Read tide-gauges infos from .coo file
-   
-   tg_name=[]  # Name of the TG
-   tg_col=[]   # Color corresponding to the subregion belonging of the TG
-   tg_lon=[]   # Longitude of the TG
-   tg_lat=[]   # Latitude of the TG
-   tg_sdate=[] # Start date of the obs time series
-
-   # Open file and get values
-   fT1_coo = pd.read_csv(emodnettg_coo_file,sep=';',comment='#',header=None)
-   #
-   tg_inlat = fT1_coo[0][:] 
-   tg_inlon = fT1_coo[1][:] 
-   tg_inname = fT1_coo[2][:] 
-   anatpxo_inflag = fT1_coo[5][:] 
-   lit_inflag = fT1_coo[6][:] 
- 
    if where_box == 'Med':
-  
+   
+      # Read tide-gauges infos from .coo file
+   
+      tg_name=[]  # Name of the TG
+      tg_col=[]   # Color corresponding to the subregion belonging of the TG
+      tg_lon=[]   # Longitude of the TG
+      tg_lat=[]   # Latitude of the TG
+      tg_sdate=[] # Start date of the obs time series
+
+      # Open file and get values
+      fT1_coo = pd.read_csv(emodnettg_coo_file,sep=';',comment='#',header=None)
+      #
+      tg_inlat = fT1_coo[0][:] 
+      tg_inlon = fT1_coo[1][:] 
+      tg_inname = fT1_coo[2][:] 
+      anatpxo_inflag = fT1_coo[5][:] 
+      lit_inflag = fT1_coo[6][:] 
+   
       if anatype_flag=='lit':
          for idx_tg in range (0,len(lit_inflag)):
              if lit_inflag[idx_tg] == 1 :
-                if which_domain(tg_inlon[idx_tg],tg_inlat[idx_tg]) == 'Med':
-                   tg_name.append(tg_inname[idx_tg])
-                   tg_lon.append(tg_inlon[idx_tg])
-                   tg_lat.append(tg_inlat[idx_tg])
-                   tg_col.append(which_region(tg_inlon[idx_tg],tg_inlat[idx_tg]))
+   
+                tg_name.append(tg_inname[idx_tg])
+                tg_lon.append(tg_inlon[idx_tg])
+                tg_lat.append(tg_inlat[idx_tg])
+
+                tg_col.append(which_region(tg_inlon[idx_tg],tg_inlat[idx_tg]))
 
       elif anatype_flag=='anatpxo':
          for idx_tg in range (0,len(anatpxo_inflag)):
              if anatpxo_inflag[idx_tg] == 1 :
-                if which_domain(tg_inlon[idx_tg],tg_inlat[idx_tg]) == 'Med':
-                   tg_name.append(tg_inname[idx_tg])
-                   tg_lon.append(tg_inlon[idx_tg])
-                   tg_lat.append(tg_inlat[idx_tg])
-                   tg_col.append(which_region(tg_inlon[idx_tg],tg_inlat[idx_tg]))
+                tg_name.append(tg_inname[idx_tg])
+                tg_lon.append(tg_inlon[idx_tg])
+                tg_lat.append(tg_inlat[idx_tg])
+   
+                tg_col.append(which_region(tg_inlon[idx_tg],tg_inlat[idx_tg]))
    
       elif anatype_flag=='all':
+         tg_name=tg_inname
+         tg_lon=tg_inlon
+         tg_lat=tg_inlat
          
          for idx_tg in range (0,len(tg_inname)):
-            if which_domain(tg_inlon[idx_tg],tg_inlat[idx_tg]) == 'Med':
-               tg_name.append(tg_inname[idx_tg])
-               tg_lon.append(tg_inlon[idx_tg])
-               tg_lat.append(tg_inlat[idx_tg])
-               tg_col.append(which_region(tg_inlon[idx_tg],tg_inlat[idx_tg]))
+
+            tg_col.append(which_region(tg_inlon[idx_tg],tg_inlat[idx_tg]))
    
    elif where_box == 'AtlBox':
 
        if anatype_flag=='all':
+         tg_name=tg_inname
+         tg_lon=tg_inlon
+         tg_lat=tg_inlat
+
          for idx_tg in range (0,len(tg_inname)):
-            if which_domain(tg_inlon[idx_tg],tg_inlat[idx_tg]) == 'AtlBox':
-               tg_name.append(tg_inname[idx_tg])
-               tg_lon.append(tg_inlon[idx_tg])
-               tg_lat.append(tg_inlat[idx_tg])
-               tg_col.append(which_region(tg_inlon[idx_tg],tg_inlat[idx_tg]))
+            tg_col.append(which_region(tg_inlon[idx_tg],tg_inlat[idx_tg]))
    
    
    tg_num=len(tg_name)
@@ -326,10 +302,7 @@ for anatype_flag in ('all','lit','anatpxo'):
        fT1_obs = NC.Dataset(workdir+tg_name[stn]+'_obs.nc','r')
    
        # EMODnet field extraction
-       try:
-          xin = fT1_obs.variables[var_2d_obs][:]*100.0 # want cm not meters
-       except:
-          xin = fT1_obs.variables[var_2d_obs][:,0]*100.0 # want cm not meters
+       xin = fT1_obs.variables[var_2d_obs][:,0]*100.0 # want cm not meters
        xin_mean=np.nanmean(xin)
        xin_obs_sub=xin-xin_mean
        ## Read quality flag

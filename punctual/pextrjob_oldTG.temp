@@ -13,7 +13,7 @@
 # Ini file: p_extr.ini 
 #
 #set -u
-#set -e
+set -e
 set -x 
 ######################################################
 
@@ -274,10 +274,8 @@ set -x
     MISSING_PERC_FILENAME="missing_perc_${ANA_STARTDATE:0:8}_${ANA_ENDDATE:0:8}.txt"
     echo "# Percentage of missing value per TG in ${ANA_STARTDATE:0:8} - ${ANA_ENDDATE:0:8}" > ${ANA_WORKDIR}/${MISSING_PERC_FILENAME}
 
-    IDX_VAR=0
     for O_VAR in ${OBS_VAR[@]}; do 
-      VAR=${FIELDS[${IDX_VAR}]}
-      O_VAR_QC=${OBS_VAR_QF[${IDX_VAR}]}
+
       echo "Obs Var: $O_VAR"
          
         STZ_IDX=0
@@ -294,63 +292,43 @@ set -x
           echo "# Obs data " 
           echo "# TS in ${O_STZ} " 
           echo "# VAR: ${O_VAR}" 
-          echo "# YEAR: ${ANA_STARTDATE:0:4}"
           echo "# DT: ${ANA_STARTDATE:0:6} - ${ANA_ENDDATE:0:6}" 
 
            ID_DATE=$ANA_STARTDATE
            ATLEAST_ONEFOUND=0
-           #while [[ ${ID_DATE:0:6} -le ${ANA_ENDDATE:0:6} ]]; do
-           #OBS_FILE=$( echo "${O_PATH}/${O_NAME}" | sed -e "s/%YYYY%/${ID_DATE:0:4}/g" -e "s/%YYYYMM%/${ID_DATE:0:6}/g" )
-           OBS_FILE=$( echo "${O_PATH}/${O_NAME}" | sed -e "s/%YYYY%/${ID_DATE:0:4}/g")
+           while [[ ${ID_DATE:0:6} -le ${ANA_ENDDATE:0:6} ]]; do
+             OBS_FILE=$( echo "${O_PATH}/${O_NAME}" | sed -e "s/%YYYY%/${ID_DATE:0:4}/g" -e "s/%YYYYMM%/${ID_DATE:0:6}/g" )
 
-           for OBS_FOUND in $( ls $OBS_FILE ); do
+
+             for OBS_FOUND in $( ls $OBS_FILE ); do
               if [[ -f $OBS_FOUND ]]; then
                  ATLEAST_ONEFOUND=$(( ${ATLEAST_ONEFOUND} + 1 ))
                  #cp $OBS_FOUND ncobs_tmp_${ID_DATE}.nc
                  # Remove the attribute coordinates if present because of CDO version
-                 ncatted -O -a coordinates,,d,, $OBS_FOUND prepre_ncobs_tmp_${ID_DATE}.nc
-                 # Set the time
-                 #ncatted -O -a time_origin,time,d,, prepre_ncobs_tmp_${ID_DATE}.nc pre_ncobs_tmp_${ID_DATE}.nc
-                 # Define time dimension instead of row
-                 ncrename -d row,time prepre_ncobs_tmp_${ID_DATE}.nc ncobs_tmp_${ID_DATE}.nc
-                 #cdo -setreftime,1950-01-01,00:00:00,1day pre_ncobs_tmp_${ID_DATE}.nc ncobs_tmp_${ID_DATE}.nc
+                 ncatted -O -a coordinates,,d,, $OBS_FOUND ncobs_tmp_${ID_DATE}.nc
                  # Cut the sossheig field and rename it
-                 #cdo expr,"sossheig=SLEV*1" ncobs_tmp_${ID_DATE}.nc sossobs_tmp_${ID_DATE}.nc # old: to be rm
-                 #cdo expr,"sossheig_qf=SLEV_QC*1" ncobs_tmp_${ID_DATE}.nc sossobsqf_tmp_${ID_DATE}.nc # OLD: to be rm
-                 cdo expr,"${VAR}=${O_VAR}*1" ncobs_tmp_${ID_DATE}.nc sossobs_tmp_${ID_DATE}.nc
-                 cdo expr,"${VAR}_qf=${O_VAR_QC}*1" ncobs_tmp_${ID_DATE}.nc sossobsqf_tmp_${ID_DATE}.nc
+                 cdo expr,"sossheig=SLEV*1" ncobs_tmp_${ID_DATE}.nc sossobs_tmp_${ID_DATE}.nc
+                 cdo expr,"sossheig_qf=SLEV_QC*1" ncobs_tmp_${ID_DATE}.nc sossobsqf_tmp_${ID_DATE}.nc
                  #cdo expr,"sossheig_posqf=POSITION_QC*1" ncobs_tmp_${ID_DATE}.nc sossobsposqf_tmp_${ID_DATE}.nc
-                 rm  ncobs_tmp_${ID_DATE}.nc 
-                 #rm  pre_ncobs_tmp_${ID_DATE}.nc
-                 rm  prepre_ncobs_tmp_${ID_DATE}.nc
               else
                 echo "NOT found OBS file: $OBS_FILE "
               fi
-           done
+             done
             
-           #ID_DATE=$( date -u -d "${ID_DATE} 1 month" +%Y%m%d )
-           #done
+
+           ID_DATE=$( date -u -d "${ID_DATE} 1 month" +%Y%m%d )
+           done
 
            # Merge tmp files, select field, compute hourly mean and subtract the mean value
-           if [[ ${ATLEAST_ONEFOUND} == 1 ]]; then 
-             mv sossobs_tmp_${ID_DATE}.nc mergedall_obs.nc
-             mv sossobsqf_tmp_${ID_DATE}.nc mergedallqf_obs.nc
-             #mv sossobsposqf_tmp_*.nc posqf_${O_STZ}.nc
-           elif [[ ${ATLEAST_ONEFOUND} > 1 ]]; then
+           if [[ ${ATLEAST_ONEFOUND} != 0 ]]; then   
              # Merge all the time step
              cdo mergetime sossobs_tmp_*.nc mergedall_obs.nc
              cdo mergetime sossobsqf_tmp_*.nc mergedallqf_obs.nc
              #cdo mergetime sossobsposqf_tmp_*.nc posqf_${O_STZ}.nc
-           fi
-           if [[ ${ATLEAST_ONEFOUND} != 0 ]]; then
-
-             # Cut the period and check if there is at least one time record !=0 (the reason of the double check is the different netcdf structure from previous version: to be improved!)
-             cdo seldate,${ANA_STARTDATE:0:4}-${ANA_STARTDATE:4:2}-${ANA_STARTDATE:6:2}T00:00:00,${ANA_ENDDATE:0:4}-${ANA_ENDDATE:4:2}-${ANA_ENDDATE:6:2}T23:59:59 mergedall_obs.nc merged_obs.nc || ATLEAST_ONEFOUND=0
-             cdo seldate,${ANA_STARTDATE:0:4}-${ANA_STARTDATE:4:2}-${ANA_STARTDATE:6:2}T00:00:00,${ANA_ENDDATE:0:4}-${ANA_ENDDATE:4:2}-${ANA_ENDDATE:6:2}T23:59:59 mergedallqf_obs.nc qf_${O_STZ}.nc || ATLEAST_ONEFOUND=0
+             # Cut the period
+             cdo seldate,${ANA_STARTDATE:0:4}-${ANA_STARTDATE:4:2}-${ANA_STARTDATE:6:2}T00:00:00,${ANA_ENDDATE:0:4}-${ANA_ENDDATE:4:2}-${ANA_ENDDATE:6:2}T23:59:59 mergedall_obs.nc merged_obs.nc
+             cdo seldate,${ANA_STARTDATE:0:4}-${ANA_STARTDATE:4:2}-${ANA_STARTDATE:6:2}T00:00:00,${ANA_ENDDATE:0:4}-${ANA_ENDDATE:4:2}-${ANA_ENDDATE:6:2}T23:59:59 mergedallqf_obs.nc qf_${O_STZ}.nc
              #cdo seldate,${ANA_STARTDATE:0:4}-${ANA_STARTDATE:4:2}-${ANA_STARTDATE:6:2}T00:00:00,${ANA_ENDDATE:0:4}-${ANA_ENDDATE:4:2}-${ANA_ENDDATE:6:2}T23:59:59 mergedallposqf_obs.nc mergedposqf_obs.nc
-           fi
-
-           if [[ ${ATLEAST_ONEFOUND} != 0 ]]; then
 
              if [[ $OBS_ORIGINAL_FLAG == 1 ]]; then
 
@@ -366,34 +344,34 @@ set -x
                 cdo timmean hmeaned_obs.nc obs_mean.nc
                 cdo sub hmeaned_obs.nc obs_mean.nc ${NCOBS_OUTFILE}
                 # Clean workdir
-                for TOBERM in mergedall_obs.nc merged_obs.nc hmeaned_obs.nc obs_mean.nc sossobs_tmp_*.nc mergedallqf_obs.nc sossobsqf_tmp_*.nc ncobs_tmp_*.nc pre_ncobs_tmp_*.nc ; do
-                    if [[ -f $TOBERM ]]; then
-                       rm  $TOBERM
-                    fi
-                done
+                rm  ncobs_tmp_*.nc
+                rm  mergedall_obs.nc
+                rm  merged_obs.nc
+                rm  hmeaned_obs.nc
+                rm  obs_mean.nc
+                rm  sossobs_tmp_*.nc
+                rm  mergedallqf_obs.nc
+                rm sossobsqf_tmp_*.nc
+
              elif [[ ${OBS_RMMEAN_FLAG} == 0  ]]; then
                 mv hmeaned_obs.nc ${NCOBS_OUTFILE} 
                 # Clean workdir
-                for TOBERM in mergedall_obs.nc merged_obs.nc sossobs_tmp_*.nc mergedallqf_obs.nc sossobsqf_tmp_*.nc ncobs_tmp_*.nc pre_ncobs_tmp_*.nc ; do
-                    if [[ -f $TOBERM ]]; then
-                       rm  $TOBERM
-                    fi
-                done
+                rm  ncobs_tmp_*.nc
+                rm  mergedall_obs.nc
+                rm  merged_obs.nc
+                rm  sossobs_tmp_*.nc
+                rm  mergedallqf_obs.nc
+                rm sossobsqf_tmp_*.nc
              fi
       
              # Compute and write the percentage of missing time steps
-             TOT_FOUND_PERTG=$( ncdump -h $NCOBS_OUTFILE | grep "UNLIMITED" | cut -f 2 -d"(" | cut -f 1 -d" ") # Num of hourly time-steps
+             TOT_FOUND_PERTG=$( ncdump -h $NCOBS_OUTFILE | grep "UNLIMITED" | cut -f 2 -d"(" | cut -f 1 -d" ")
              PERCENT_PERTG=$(( ((${FOUNDNOTFOUND_NUM}*24)-${TOT_FOUND_PERTG})*100/(${FOUNDNOTFOUND_NUM}*24) | bc -l ))
-             # Dealing with change of freq inside the file.. 
-             if [[ ${PERCENT_PERTG} -ge 0 ]]; then
-                echo "GAP ${O_STZ} ${PERCENT_PERTG}%" | cut -f 8 -d"/" | sed -e "s/_obs.nc//g" >> ${ANA_WORKDIR}/${MISSING_PERC_FILENAME}
-             else
-                echo "GAP ${O_STZ} FREQ. ISSUES" | cut -f 8 -d"/" | sed -e "s/_obs.nc//g" >> ${ANA_WORKDIR}/${MISSING_PERC_FILENAME}
-             fi
+             echo "GAP ${O_STZ} ${PERCENT_PERTG}%" | cut -f 8 -d"/" | sed -e "s/_obs.nc//g" >> ${ANA_WORKDIR}/${MISSING_PERC_FILENAME}
      
              # Found gaps and fill gaps with nan if missing percentages is lower than %MISSING_THRESHOLD%
              #if [[ ${FILLGAPS_FLAG} != 0 ]] && [[ $(( (${FOUNDNOTFOUND_NUM}*24)-${TOT_FOUND_PERTG} )) -gt 0 ]] && [[ ${PERCENT_PERTG} -le ${MISSING_THRESHOLD} ]] ; then
-             if [[ ${FILLGAPS_FLAG} != 0 ]] && [[ ${PERCENT_PERTG} -le ${MISSING_THRESHOLD} ]] && [[ ${PERCENT_PERTG} -ge 0 ]]; then
+             if [[ ${FILLGAPS_FLAG} != 0 ]] && [[ ${PERCENT_PERTG} -le ${MISSING_THRESHOLD} ]] ; then
                 cdo infon $NCOBS_OUTFILE | grep "sossheig" > ${ANA_WORKDIR}/${O_STZ}_infon.txt
                 cdo infon qf_${O_STZ}.nc | grep "sossheig_qf" > ${ANA_WORKDIR}/${O_STZ}_infonqf.txt
                 #cdo infon posqf_${O_STZ}.nc | grep "sossheig_posqf" > ${ANA_WORKDIR}/${O_STZ}_infonposqf.txt 
@@ -487,7 +465,7 @@ EOF
                 gnuplot < ${ANA_WORKDIR}/${GPLQF_FILE} || echo "Problem with plot qfts_${O_STZ}_${ANA_STARTDATE:0:8}_${ANA_ENDDATE:0:8}.png.. Why?"
                 #rm ${ANA_WORKDIR}/${GPLQF_FILE}
 
-             elif [[ ${PERCENT_PERTG} -gt ${MISSING_THRESHOLD} ]] || [[ ${PERCENT_PERTG} -lt 0 ]] ; then
+             elif [[ ${PERCENT_PERTG} -gt ${MISSING_THRESHOLD} ]] ; then
                 rm $NCOBS_OUTFILE 
              elif [[ ${FILLGAPS_FLAG} == 0 ]]; then
                   echo "I am NOT going to fill any gap in time series.."
@@ -500,8 +478,7 @@ EOF
           fi
          STZ_IDX=$(( $STZ_IDX + 1 ))
          done         
-
-    IDX_VAR=$(( $IDX_VAR + 1 ))
+        
     done
 
  elif [[ $OBS_FLAG == 2 ]]; then
