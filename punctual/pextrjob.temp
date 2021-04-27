@@ -270,8 +270,11 @@ set -x
 
     echo "------ OBS Extraction ------"
 
-    # Inizialize missing perc file
+    # Inizialize missing perc file (mv previous files in order to avoid unwanted rm)
     MISSING_PERC_FILENAME="missing_perc_${ANA_STARTDATE:0:8}_${ANA_ENDDATE:0:8}.txt"
+    if [[ -e ${ANA_WORKDIR}/${MISSING_PERC_FILENAME} ]]; then
+       mv ${ANA_WORKDIR}/${MISSING_PERC_FILENAME}_bk
+    fi
     echo "# Percentage of missing value per TG in ${ANA_STARTDATE:0:8} - ${ANA_ENDDATE:0:8}" > ${ANA_WORKDIR}/${MISSING_PERC_FILENAME}
 
     IDX_VAR=0
