@@ -49,14 +49,14 @@ from lit_tpxo import *
 #---------------------
 # Work dir path:
 # WARNING: the inputs must be here, the outputs will be moved to subdirs   
-workdir= '/work/oda/ag15419/tmp/ttide_newTG/plot_2020B/' 
+workdir= '/work/oda/ag15419/tmp/ttide_newTG/plot_all_noioc/' 
 # input files:
-emodnettg_coo_file = '/users_home/oda/ag15419/harm_analysis/punctual/newTGb_2020B.coo'
+emodnettg_coo_file = '/users_home/oda/ag15419/harm_analysis/punctual/emodnet_newTGb_all.coo'
 model_bathy='/work/oda/ag15419/PHYSW24_DATA/TIDES/DATA0/bathy_meter.nc'
 #
 
 # Domain (Med or AtlBox)
-where_box='Med'
+where_box='AtlBox'
 
 # Option for phase plots
 cos_pha = 0 
@@ -142,13 +142,14 @@ def which_region(longitude,latitude):
 
 
 # Function to divide Med basin from Atlantic Box
-# +------+---+------+
-# |      |AB |      |
-# |  AB  +---+ MED  |
-# |      |MED|      |
-# +------+---+------+
+# +------+--+-+-----+-+
+# |      |AB| |     | |
+# |  AB  +--+-+ MED +-+
+# |      |MED |       |
+# +------+----+-------+
 #
 def which_domain(longitude,latitude):
+    # Check if the TG is inside the whole domain
     if longitude < 36.29 and longitude > -18.12 and latitude < 45.98 and latitude > 30.18:
        if longitude > 0.000:
           domain='Med'
@@ -158,9 +159,17 @@ def which_domain(longitude,latitude):
           if latitude < 42.000:
              domain='Med'
           else:
-             domain='AtlBox'
+             if longitude < -2.000:
+                domain='AtlBox'
+             else:
+                domain='OUT' 
     else:
        domain='OUT'
+
+    # Remove Black Sea
+    if longitude < 36.29 and longitude > 27.20 and latitude > 40.00 and latitude < 45.98:
+       domain='OUT'
+
     return domain
 
 # Signal-to-noise ration threshold
@@ -721,7 +730,7 @@ for anatype_flag in ('all','lit','anatpxo'):
        rate_s=3600 # Hourly data
        spect_log=1 # log scale
        smooth_flag=1 # to smooth the spectrum
-       spt_max=10000 # Max Spt
+       spt_max=100000 # Max Spt
 
        # Compute the periodgrams
        spt_nc_obs=abs(np.fft.fft(xin_obs_sub[np.logical_not(np.isnan(xin_obs_sub))]))
@@ -1141,8 +1150,13 @@ for anatype_flag in ('all','lit','anatpxo'):
 
        # OBS Adjustment for linear regressions and phase plots 
        for idx_diff_mo in range(0,len(TOT_P_mod)):
+
            if TOT_P_mod[idx_diff_mo]-TOT_P_obs[idx_diff_mo] > 200:
               TOT_P_obs[idx_diff_mo]=TOT_P_obs[idx_diff_mo]+360
+              if TOT_P_obs[idx_diff_mo]>360:
+                 TOT_P_obs[idx_diff_mo]=TOT_P_obs[idx_diff_mo]-360
+                 TOT_P_mod[idx_diff_mo]=TOT_P_mod[idx_diff_mo]-360
+
            elif TOT_P_mod[idx_diff_mo]-TOT_P_obs[idx_diff_mo] < -200 :
               TOT_P_obs[idx_diff_mo]=TOT_P_obs[idx_diff_mo]-360
               if TOT_P_obs[idx_diff_mo]<0:
@@ -1220,7 +1234,8 @@ for anatype_flag in ('all','lit','anatpxo'):
        TOT_tg_lab=TOT_tg_lab_ord
        TOT_tg_name=TOT_tg_name_ord
        
-       oc_idx=(4,2,0,1,5,7,6,3)
+       # Shift the color order along with the region order
+       oc_idx=(4,2,0,1,7,5,6,3)
        an_idx=0
        for a_idx in outregion_order:
            howmany_idx=globals()['howmany_'+a_idx]
