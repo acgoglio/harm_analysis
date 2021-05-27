@@ -46,6 +46,7 @@ from scipy import interpolate
 # work dir path and bathymetry path/name
 workdir_path = '/work/oda/ag15419/tmp/eas6_v2/HA_area_last/'
 model_bathy='/work/oda/ag15419/PHYSW24_DATA/TIDES/DATA0/bathy_meter.nc'
+model_meshmask='/work/oda/ag15419/PHYSW24_DATA/TIDES/DATA0/mesh_mask.nc'
 #
 # Dates
 # Choose start and end dates of the period (format dd/mm/yyyy)
@@ -174,10 +175,13 @@ if amppha_flag == 1:
             vals = model.variables[var_2d][:]*100 # Want cm not meters!
             P_vals = model.variables[P_var_2d][:]
          
+            vals_land=model3.variables['tmask'][0,0,:,:]
+            vals_land=np.squeeze(vals_land)
 
-            thresh = 0.0000
-            mask = np.abs(vals) == thresh
-            vals_ma = np.ma.masked_where(mask, vals)
+            #thresh = 0.0000
+            #mask = np.abs(vals) == thresh
+            #vals_ma = np.ma.masked_where(mask, vals)
+            vals_ma = np.ma.masked_where(vals_land, vals)
 
             # Plot the map and save in the path/name
 

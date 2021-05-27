@@ -49,18 +49,22 @@ from lit_tpxo import *
 #---------------------
 # Work dir path:
 # WARNING: the inputs must be here, the outputs will be moved to subdirs   
-workdir= '/work/oda/ag15419/tmp/ttide_newTG/plot_allANDold/' 
+workdir= '/work/oda/ag15419/tmp/ttide_newTG/plot_last/' 
 # input files:
-emodnettg_coo_file = '/users_home/oda/ag15419/harm_analysis/punctual/emodnet_newTGb_all.coo'
+emodnettg_coo_file = '/users_home/oda/ag15419/harm_analysis/punctual/emodnet_TGb_newTGb_all.coo'
 model_bathy='/work/oda/ag15419/PHYSW24_DATA/TIDES/DATA0/bathy_meter.nc'
 #
 
 # Domain (Med or AtlBox)
-where_box='AtlBox'
+where_box='Med'
 
 # Option for phase plots
 cos_pha = 0 
 # =1 to compare cosine values of phases instead of abs values (to avoid +-360*n corrections..)
+
+# Option to invert the order in the time-series plot
+revts_flag = 1
+# =0 MOD/OBS !=0 OBS/MOD
 
 ########################################################
 # DO NOT CHANGE THE CODE BELOW THIS LINE!!!
@@ -190,7 +194,7 @@ errbar_flag = 1
 # lit       --> Compare the common datasets with respect to literature 
 # anatpxo   --> Apply all the analysis and compare datasets with TPXO model results
 # all       --> Linear regression concerning all avalilable tide-gauges 
-for anatype_flag in ('all','lit','anatpxo'):
+for anatype_flag in ('lit','lit'): #'all','lit','anatpxo'
 
    # Buil the dir and move in it
    workdir_path = workdir+'/'+anatype_flag+'_'+where_box+'/'
@@ -215,7 +219,10 @@ for anatype_flag in ('all','lit','anatpxo'):
       tpxo_flag = 0 # to compare also wrt TPXO data
       flag_15stats = 0 # to compare results with literature
       print ('Comparison wrt all available obs.. Results in ',workdir_path)
-      fontsize_tg=20
+      if where_box=='Med':
+         fontsize_tg=20
+      elif where_box=='AtlBox':
+         fontsize_tg=40
 
    # Check on Domain and fix the bdy
    if where_box=='AtlBox':
@@ -698,16 +705,22 @@ for anatype_flag in ('all','lit','anatpxo'):
 
        ######################
        # Plot time series and quality flag
-
-       plotname=workdir_path+'ts_'+tg_name[stn]+'.jpg'
+       if revts_flag == 0:
+          plotname=workdir_path+'ts_'+tg_name[stn]+'.jpg'
+       else:
+          plotname=workdir_path+'ts_'+tg_name[stn]+'_r.jpg'
        # Fig
        plt.figure(figsize=(20,10))
        plt.rc('font', size=9)
        #plt.subplot(2,1,1)
        # Plot Title
        plt.title ('Time-series TG: '+tg_name[stn]+' Period: '+str(tg_sdate[stn])+' Lon/Lat: '+str(tg_lon[stn])+'/'+str(tg_lat[stn]))
-       plt.plot(xin_mod_sub, '-', label = tg_name[stn]+' MOD')
-       plt.plot(xin_obs_sub, '-', label = tg_name[stn]+' OBS')
+       if revts_flag == 0:
+          plt.plot(xin_mod_sub, '-', label = tg_name[stn]+' MOD')
+          plt.plot(xin_obs_sub, '-', label = tg_name[stn]+' OBS')
+       else:
+          plt.plot(xin_obs_sub, '-', color='#ff7f0e',label = tg_name[stn]+' OBS')
+          plt.plot(xin_mod_sub, '-', color='#1f77b4',label = tg_name[stn]+' MOD')
        plt.legend( loc='upper left',fontsize = 'large' )
        plt.grid ()
        plt.ylabel ('Sea Level [cm]')
@@ -1283,7 +1296,6 @@ for anatype_flag in ('all','lit','anatpxo'):
               A_where=[x for x in globals()['INPALMA_'+comp] if tg2beadded in x][0][1] 
               P_where=[x for x in globals()['INPALMA_P_'+comp] if tg2beadded in x][0][1] 
               d_where=[x for x in globals()['INPALMA_d_'+comp] if tg2beadded in x][0][1] 
-
               # LITERATURE phase Adjustment for phase plots
               if TOT_P_mod[idx_tglit]-P_where > 200:
                  P_where=P_where+360
