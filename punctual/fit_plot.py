@@ -56,7 +56,7 @@ model_bathy='/work/oda/ag15419/PHYSW24_DATA/TIDES/DATA0/bathy_meter.nc'
 #
 
 # Domain (Med or AtlBox)
-where_box='Med'
+where_box='AtlBox'
 
 # Option for phase plots
 cos_pha = 0 
@@ -72,7 +72,7 @@ revts_flag = 1
 # Parameter setting
 #--------------------
 # MODEL DATASET
-# WARNING: this nust be the same as in p_extr.ini file (var ANA_INTAG)
+# WARNING: this must be the same as in p_extr.ini file (var ANA_INTAG)
 mod_file_template='eas6'
 
 # Fields to be analized
@@ -194,7 +194,7 @@ errbar_flag = 1
 # lit       --> Compare the common datasets with respect to literature 
 # anatpxo   --> Apply all the analysis and compare datasets with TPXO model results
 # all       --> Linear regression concerning all avalilable tide-gauges 
-for anatype_flag in ('lit','lit'): #'all','lit','anatpxo'
+for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
 
    # Buil the dir and move in it
    workdir_path = workdir+'/'+anatype_flag+'_'+where_box+'/'
