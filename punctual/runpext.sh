@@ -11,7 +11,12 @@ set -e
 ########################
 echo "*********** Data extraction for punctual harmonic analysis *********"
 PEXTR_INIFILE='p_extr.ini'
-JOB_TEMPLATE='pextrjob.temp'
+
+if [[ ${TG_DATASET_TYPE} == "website" ]]; then
+   JOB_TEMPLATE='pextrjob_oldTG.temp'
+else
+   JOB_TEMPLATE='pextrjob_newTG.temp'
+
 JOB_TORUN='pextr.job'
 SRC_DIR=$(pwd)
 

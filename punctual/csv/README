@@ -1,0 +1,28 @@
+# List of old csv files (the last one in use is in the main directory):
+#
+########### FOR EXTRACTION ####################
+# 1) 1st dataset (from EMODnet website) per year (this are the TGs resulting from the time-series quality check applyed to each single 6-months-period):
+#
+# TGb_%yyyy%A.coo (jan-jun of year yyyy)
+# TGb_%yyyy%B.coo (jul-dec of year yyyy)
+#
+# 2) 2nd dataset (from EMODnet erdrap) per year (this are the TGs resulting from the time-series quality check applyed to each single 6-months-period):
+#
+# newTGb_%yyyy%A.coo (jan-jun of year yyyy)
+# newTGb_%yyyy%B.coo (jul-dec of year yyyy)
+#
+############### FOR ANALYSIS ################################
+#
+#  emodnet_TG_all.coo  --> all available TGs in the 1st dataset
+#  emodnet_newTG_all.coo --> all available TGs in the 2nd dataset
+#
+#  emodnet_TGb_all.coo    --> Set with the choice of TG only from the 1st dataset
+#  emodnet_newTGb_all.coo --> Set with the choice of TG only from the 2nd dataset  
+#
+#  emodnet_newTGb_TGb_all.coo --> Set with all the TG from the 2nd dataset + the missing from the 1st dataset
+#  emodnet_TGb_newTGb_all.coo (in the main directory) --> Set with all the TG from the 1st dataset + the missing from the 2nd dataset  
+#
+# ############# RESULTS ###############
+#
+# tab_allOK.txt is just an example on how to compare extraction outputs for different years applied to the last dataset
+#
