@@ -16,6 +16,7 @@ if [[ ${TG_DATASET_TYPE} == "website" ]]; then
    JOB_TEMPLATE='pextrjob_oldTG.temp'
 else
    JOB_TEMPLATE='pextrjob_newTG.temp'
+fi
 
 JOB_TORUN='pextr.job'
 SRC_DIR=$(pwd)
