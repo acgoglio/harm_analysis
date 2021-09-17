@@ -12,15 +12,6 @@ set -e
 echo "*********** Data extraction for punctual harmonic analysis *********"
 PEXTR_INIFILE='p_extr.ini'
 
-if [[ ${TG_DATASET_TYPE} == "website" ]]; then
-   JOB_TEMPLATE='pextrjob_oldTG.temp'
-else
-   JOB_TEMPLATE='pextrjob_newTG.temp'
-fi
-
-JOB_TORUN='pextr.job'
-SRC_DIR=$(pwd)
-
 # Check and load ini file
 if [[ -e ./${PEXTR_INIFILE} ]]; then
    echo "Reading ini file ${PEXTR_INIFILE}.."
@@ -28,8 +19,18 @@ if [[ -e ./${PEXTR_INIFILE} ]]; then
    echo "..Done"
 else
    echo "${PEXTR_INIFILE} file NOT FOUND in $(pwd)! Why?"
-   exit 
+   exit
 fi
+
+if [[ ${TG_DATASET_TYPE} == "website" ]]; then
+   JOB_TEMPLATE='pextrjob_oldTG.temp'
+else
+   JOB_TEMPLATE='pextrjob_newTG.temp'
+fi
+echo "JOB_TEMPLATE=$JOB_TEMPLATE"
+
+JOB_TORUN='pextr.job'
+SRC_DIR=$(pwd)
 
 # Check job template file
 if [[ -e  ./${JOB_TEMPLATE} ]]; then
