@@ -71,10 +71,12 @@ set -x
         FOUND_NUM=0
         NOT_FOUND_NUM=0
         if [[ -e ${ANA_INPATHS[$IDX_IN]}/${IDX_DATE:0:6}/$ANA_INFILE ]]; then 
+        #if [[ -e ${ANA_INPATHS[$IDX_IN]}/$ANA_INFILE ]]; then
            FOUND_NUM=$(( $FOUND_NUM + 1 ))
            if [[ ${MOD_FLAG} != 0 ]]; then
               echo "Found infile: $ANA_INFILE"
               ln -sf ${ANA_INPATHS[$IDX_IN]}/${IDX_DATE:0:6}/$ANA_INFILE .
+              #ln -sf ${ANA_INPATHS[$IDX_IN]}/$ANA_INFILE .
            fi
         else
            NOT_FOUND_NUM=$(( $NOT_FOUND_NUM + 1 ))

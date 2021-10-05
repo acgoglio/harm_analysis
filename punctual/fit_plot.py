@@ -38,7 +38,7 @@ from lit_tpxo import *
 # annachiara.goglio@cmcc.it
 #
 # Written: 06/2019
-# Modified: 23/04/2021
+# Last Modified: 05/10/2021
 #
 # Script to fit and plot the harmonic analisi reults wrt tide gauges data, tpxo model and literature values
 #
@@ -49,22 +49,18 @@ from lit_tpxo import *
 #---------------------
 # Work dir path:
 # WARNING: the inputs must be here, the outputs will be moved to subdirs   
-workdir= '/work/oda/ag15419/tmp/ttide_newTG/plot_last/' 
+workdir= '/work/oda/ag15419/tmp/ttide_newTG/plot_last_samets/' #tides8_v31_newHA/' 
 # input files:
 emodnettg_coo_file = '/users_home/oda/ag15419/harm_analysis/punctual/emodnet_TGb_newTGb_all.coo'
 model_bathy='/work/oda/ag15419/PHYSW24_DATA/TIDES/DATA0/bathy_meter.nc'
 #
 
 # Domain (Med or AtlBox)
-where_box='AtlBox'
+where_box='Med'
 
 # Option for phase plots
 cos_pha = 0 
 # =1 to compare cosine values of phases instead of abs values (to avoid +-360*n corrections..)
-
-# Option to invert the order in the time-series plot
-revts_flag = 1
-# =0 MOD/OBS !=0 OBS/MOD
 
 ########################################################
 # DO NOT CHANGE THE CODE BELOW THIS LINE!!!
@@ -73,7 +69,7 @@ revts_flag = 1
 #--------------------
 # MODEL DATASET
 # WARNING: this must be the same as in p_extr.ini file (var ANA_INTAG)
-mod_file_template='eas6'
+mod_file_template='eas6' #'Tides8_v31'
 
 # Fields to be analized
 grid = 'T' # Choose T, U, V or uv2t grid
@@ -188,6 +184,13 @@ snr_thershold=0.1
 linreg_name_flag = 1
 # To avoid fit error bars in Amp, Pha and lin reg plots set errbar_flag = 0 
 errbar_flag = 1
+
+# Option to invert the order in the time-series plot
+# =0 MOD/OBS (for Med); !=0 OBS/MOD (for AtlBox)
+if where_box == 'Med':
+   revts_flag = 1
+else:
+   revts_flag = 0 
 
 # FLAG or loop on analysis type
 # Options:
@@ -710,8 +713,8 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
        else:
           plotname=workdir_path+'ts_'+tg_name[stn]+'_r.jpg'
        # Fig
-       plt.figure(figsize=(20,10))
-       plt.rc('font', size=9)
+       plt.figure(figsize=(20,10)) # or (20,5) to compare with AtBox add plt.ylim(-250,250)
+       plt.rc('font', size=9) # or size=16
        #plt.subplot(2,1,1)
        # Plot Title
        plt.title ('Time-series TG: '+tg_name[stn]+' Period: '+str(tg_sdate[stn])+' Lon/Lat: '+str(tg_lon[stn])+'/'+str(tg_lat[stn]))
@@ -988,7 +991,10 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
    # Define TG LABELS to be used in plots
    tg_lab_sorted=[]
    if anatype_flag=='lit':
-      tg_lab_sorted = tg_name_sorted
+      #tg_lab_sorted = tg_name_sorted # If you have enough space for the names!
+      for tg_idx in range(0,len(tg_name_sorted)):
+          shift_idx=tg_idx+1
+          tg_lab_sorted.append(str(shift_idx))
    elif anatype_flag=='anatpxo':
       for tg_idx in range(0,len(tg_name_sorted)):
           shift_idx=tg_idx+1
@@ -2070,6 +2076,121 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
           plt.savefig(workdir_path+'GLOBAL_A_AB.jpg')
    plt.clf()
    
+   # AMPLITUDES Global plots ONLY OBS
+   x = np.arange(len(labels))  # the label locations
+   width = 0.8  # the width of the bars
+
+   fig,ax=plt.subplots( figsize=(80,24))
+   plt.rc('font', size=40)
+
+   rects2_M2 = ax.bar(x, obs_M2, width-0.05, color='#1f77b4', label='M2')
+
+   topbottom_O=obs_M2
+   rects2_S2 = ax.bar(x, obs_S2, width-0.05, bottom=topbottom_O, color='#ff7f03',label='S2')
+
+   zipped_lists_O = zip(topbottom_O,obs_S2)
+   topbottom_O=[x + y for (x, y) in zipped_lists_O]
+   rects2_K1 = ax.bar(x, obs_K1, width-0.05, bottom=topbottom_O, color='#2ca02c', label='K1')
+
+   zipped_lists_O = zip(topbottom_O,obs_K1)
+   topbottom_O=[x + y for (x, y) in zipped_lists_O]
+   rects2_O1 = ax.bar(x, obs_O1, width-0.05, bottom=topbottom_O, color='#d62728', label='O1')
+   #
+   zipped_lists_O = zip(topbottom_O,obs_O1)
+   topbottom_O=[x + y for (x, y) in zipped_lists_O]
+   rects2_N2 = ax.bar(x, obs_N2, width-0.05, bottom=topbottom_O, color='#bcdb22', label='N2')
+
+   zipped_lists_O = zip(topbottom_O,obs_N2)
+   topbottom_O=[x + y for (x, y) in zipped_lists_O]
+   rects2_P1 = ax.bar(x, obs_P1, width-0.05, bottom=topbottom_O, color='#17becf', label='P1')
+
+   zipped_lists_O = zip(topbottom_O,obs_P1)
+   topbottom_O=[x + y for (x, y) in zipped_lists_O]
+   rects2_Q1 = ax.bar(x, obs_Q1, width-0.05, bottom=topbottom_O, color='#9467bd', label='Q1')
+
+   zipped_lists_O = zip(topbottom_O,obs_Q1)
+   topbottom_O=[x + y for (x, y) in zipped_lists_O]
+   rects2_K2 = ax.bar(x, obs_K2, width-0.05, bottom=topbottom_O, color='#e377c2', label='K2')
+
+   zipped_lists_O = zip(topbottom_O,obs_K2)
+   topbottom_O=[x + y for (x, y) in zipped_lists_O]
+
+   # Add some text for labels, title and custom x-axis tick labels, etc.
+   ax.set_ylabel('Tidal Amplitudes [cm]')
+   ax.set_title('Tidal Amplitudes')
+   ax.set_xticks(x)
+   ax.set_xticklabels(labels,fontweight='bold')
+   for xtick, color in zip(ax.get_xticklabels(), TOT_color_stz):
+       xtick.set_color(color)
+       xtick.set_fontsize(fontsize_tg)
+   ax.legend()
+
+   plt.grid ()
+
+   if where_box=='Med':
+          plt.savefig(workdir_path+'GLOBAL_A_onlyobs.jpg')
+   elif where_box=='AtlBox':
+          plt.savefig(workdir_path+'GLOBAL_A_AB_onlyobs.jpg')
+   plt.clf()
+
+
+   # AMPLITUDES Global plots ONLY MOD
+   x = np.arange(len(labels))  # the label locations
+   width = 0.8  # the width of the bars
+
+   fig,ax=plt.subplots( figsize=(80,24))
+   plt.rc('font', size=40)
+   #
+   rects1_M2 = ax.bar(x, mod_M2, width-0.05, color='#1f77b4', label='M2')
+
+   topbottom_M=mod_M2
+   rects1_S2 = ax.bar(x, mod_S2, width-0.05, bottom=topbottom_M, color='#ff7f03',label='S2')
+
+   zipped_lists_M = zip(topbottom_M,mod_S2)
+   topbottom_M=[x + y for (x, y) in zipped_lists_M]
+   rects1_K1 = ax.bar(x, mod_K1, width-0.05, bottom=topbottom_M, color='#2ca02c', label='K1')
+
+   zipped_lists_M = zip(topbottom_M,mod_K1)
+   topbottom_M=[x + y for (x, y) in zipped_lists_M]
+   rects1_O1 = ax.bar(x, mod_O1, width-0.05, bottom=topbottom_M, color='#d62728', label='O1')
+   #
+   zipped_lists_M = zip(topbottom_M,mod_O1)
+   topbottom_M=[x + y for (x, y) in zipped_lists_M]
+   rects1_N2 = ax.bar(x, mod_N2, width-0.05, bottom=topbottom_M, color='#bcdb22', label='N2')
+
+   zipped_lists_M = zip(topbottom_M,mod_N2)
+   topbottom_M=[x + y for (x, y) in zipped_lists_M]
+   rects1_P1 = ax.bar(x, mod_P1, width-0.05, bottom=topbottom_M, color='#17becf', label='P1')
+
+   zipped_lists_M = zip(topbottom_M,mod_P1)
+   topbottom_M=[x + y for (x, y) in zipped_lists_M]
+   rects1_Q1 = ax.bar(x, mod_Q1, width-0.05, bottom=topbottom_M, color='#9467bd', label='Q1')
+
+   zipped_lists_M = zip(topbottom_M,mod_Q1)
+   topbottom_M=[x + y for (x, y) in zipped_lists_M]
+   rects1_K2 = ax.bar(x, mod_K2, width-0.05, bottom=topbottom_M, color='#e377c2', label='K2')
+
+   zipped_lists_M = zip(topbottom_M,mod_K2)
+   topbottom_M=[x + y for (x, y) in zipped_lists_M]
+
+   # Add some text for labels, title and custom x-axis tick labels, etc.
+   ax.set_ylabel('Tidal Amplitudes [cm]')
+   ax.set_title('Tidal Amplitudes')
+   ax.set_xticks(x)
+   ax.set_xticklabels(labels,fontweight='bold')
+   for xtick, color in zip(ax.get_xticklabels(), TOT_color_stz):
+       xtick.set_color(color)
+       xtick.set_fontsize(fontsize_tg)
+   ax.legend()
+
+   plt.grid ()
+
+   if where_box=='Med':
+          plt.savefig(workdir_path+'GLOBAL_A_onlymod.jpg')
+   elif where_box=='AtlBox':
+          plt.savefig(workdir_path+'GLOBAL_A_AB_onlymod.jpg')
+   plt.clf()
+ 
    # PHASES Global plots
    
    plt.figure(figsize=(80,24)) 
