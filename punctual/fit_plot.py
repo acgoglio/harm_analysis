@@ -49,7 +49,7 @@ from lit_tpxo import *
 #---------------------
 # Work dir path:
 # WARNING: the inputs must be here, the outputs will be moved to subdirs   
-workdir= '/work/oda/ag15419/tmp/ttide_newTG/plot_last_samets/' #tides8_v31_newHA/' 
+workdir= '/work/oda/ag15419/tmp/tides8_v31_newHA/' 
 # input files:
 emodnettg_coo_file = '/users_home/oda/ag15419/harm_analysis/punctual/emodnet_TGb_newTGb_all.coo'
 model_bathy='/work/oda/ag15419/PHYSW24_DATA/TIDES/DATA0/bathy_meter.nc'
@@ -69,7 +69,7 @@ cos_pha = 0
 #--------------------
 # MODEL DATASET
 # WARNING: this must be the same as in p_extr.ini file (var ANA_INTAG)
-mod_file_template='eas6' #'Tides8_v31'
+mod_file_template='Tides8_v31' #'Tides8_v31' 'eas6'
 
 # Fields to be analized
 grid = 'T' # Choose T, U, V or uv2t grid
@@ -1365,7 +1365,7 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
        wheremax_AmpAbs=TOT_tg_name[np.argmax(abs(diffA_mo))]
        wheremax_AmpAbs_col=TOT_tg_orcol[np.argmax(abs(diffA_mo))]
        perc95_diffA=np.percentile(abs(diffA_mo),95)
-       mean_pdiffA=np.mean(pdiffA_mo)
+       mean_pdiffA=np.mean(abs(pdiffA_mo))
        meanabs_pdiffA=np.mean(abs(pdiffA_mo))
        max_pdiffA=np.max(abs(pdiffA_mo))
        wheremax_AmpPerc=TOT_tg_name[np.argmax(abs(pdiffA_mo))]
@@ -1406,7 +1406,7 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
        wheremax_PhaAbs=TOT_tg_name[np.argmax(abs(diffP_mo))]
        wheremax_PhaAbs_col=TOT_tg_orcol[np.argmax(abs(diffP_mo))]
        perc95_diffP=np.percentile(abs(diffP_mo),95)
-       mean_pdiffP=np.mean(pdiffP_mo)
+       mean_pdiffP=np.mean(abs(pdiffP_mo))
        meanabs_pdiffP=np.mean(abs(pdiffP_mo))
        max_pdiffP=np.max(abs(pdiffP_mo))
        perc95_pdiffP=np.percentile(abs(pdiffP_mo),95)
