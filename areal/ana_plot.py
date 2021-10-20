@@ -72,6 +72,9 @@ ampha_var='AmpPha' # NEEDED if ampha_flag=1;
 ampha_tpxo=0
 # For TPXO9 Amplitude/Phase maps on TPXO grid (1 map per tidal component)
 
+ampha_tpxo_atlamph=0
+# For TPXO9 Amplitude/Phase maps on TPXO grid inn North Atlantic (ONLY m2 component, to be extended..)
+
 doseong_flag=0 # TO compute Do-Seong factor for EAS system
 # For the following maps (1 map per factor):
 # Tidal Form Factor [Do-Seong] F=(A_K1+A_O1)/(A_M2+A_S2)
@@ -416,6 +419,82 @@ if ampha_tpxo == 1:
        ax[1].get_yaxis().set_visible(False)
        plt.grid(color='black',linestyle='--')
        cbar = plt.colorbar(factor_contour2, extend='max') 
+       # Save and close 
+       plt.savefig(plotname)
+       plt.clf()
+
+       idx_comp=idx_comp+1
+
+# TPXO Amp Pha in North Atlantic Ocean (only M2 component, to be extended..)
+if ampha_tpxo_atlamph == 1:
+   print ('# 2D VAR: Amplitude and Phase in the North Atlantic Ocean from TPXO9 model')
+   # Build the pathname of the nc file and open it 
+   idx_comp = 0
+   for tidal_component in ('m2'):
+       if tidal_component == 'm2':
+          med_range=[0,20,40,60,80,100,120,140,160,180,200]
+       print ('Input file = ',nc2open)
+       model = NC.Dataset(nc2open,'r')
+       # Read lat, lon and fild values 
+       lons_tpxo = model.variables['lon_z'][:]
+       lats_tpxo = model.variables['lat_z'][:]
+       lons_tpxo=np.squeeze(lons_tpxo)
+       lats_tpxo=np.squeeze(lats_tpxo)
+       name_var='vals_tpxo_A'+tidal_component
+       globals()[name_var] = (np.sqrt(model.variables['hRe'][:]**2+model.variables['hIm'][:]**2))/10 # Want cm not millimiters!
+       name_pha='vals_tpxo_P'+tidal_component
+       globals()[name_pha] = np.arctan2(-model.variables['hIm'][:],model.variables['hRe'][:])*180/np.pi
+       #
+       field2plot=globals()[name_var]
+       P_vals_tpxo=globals()[name_pha]
+       field2plot=np.transpose(field2plot)
+       P_vals_tpxo=np.transpose(P_vals_tpxo)
+       print ('prova ',P_vals_tpxo)
+
+       land_value = 0.00000
+       if idx_comp == 0:
+          vals_tpxo_Am2=np.transpose(vals_tpxo_Am2)
+       thresh = 0.0000
+       mask = np.abs(vals_tpxo_Am2) == thresh
+       vals_tpxo_ma = np.ma.masked_where(mask, vals_tpxo_Am2)
+
+       # Plot the map and save in the path/name
+       var_2d=str(globals()[name_var])
+       var_2d_udm=field_2d_units[idx_comp]
+       plotname=workdir_path+tpxo9_fileprename+'2D_'+'0_'+dates_label+tpxo9_postname+'_'+tidal_component+'_Amppha_AtlAmph.jpg'
+       print ('Plot path/name: ',plotname)
+
+       fig, ax = plt.subplots(1, 1,figsize=(8,4)) 
+       plt.rc('font', size=12)
+       # Plot Title
+       plt.suptitle (tidal_component+' Amplitude ['+var_2d_udm+'] --- TPXO9 ---'+dates_label)
+       # Read the coordinates for the plot 
+       lon_0 = lons_tpxo.mean()
+       llcrnrlon = lons_tpxo.min()
+       urcrnrlon = lons_tpxo.max()
+       lat_0 = lats_tpxo.mean()
+       llcrnrlat = lats_tpxo.min()
+       urcrnrlat = lats_tpxo.max()
+       # Plot the frame to the map
+       plt.rcParams["axes.linewidth"]  = 1.25
+       vals_tpxo_max=np.amax(field2plot)
+       vals_tpxo_min=np.amin(field2plot)
+       lowth=0
+
+       plt.subplot(1,1,1) 
+       plt.ylim(30,60) 
+       plt.xlim(300,360) 
+       factor_contour1 = plt.contourf(lons_tpxo,lats_tpxo,np.squeeze(field2plot),med_range,extend='max',cmap='jet')
+       contour1p = plt.contour(lons_tpxo,lats_tpxo,np.squeeze(P_vals_tpxo),[0,30,60,90,120,150,180,210,240,270,300,330,360,390],colors='white')
+       contour1n = plt.contour(lons_tpxo,lats_tpxo,np.squeeze(P_vals_tpxo),[-390,-360,-330,-300,-270,-240,-210,-180,-150,-120,-90,-60,-30],colors='white',linestyles='dashed')
+       contour = plt.contour(lons_tpxo,lats_tpxo,np.abs(np.squeeze(field2plot)),[land_value,0.00000001], colors='black')
+       contourf = plt.contourf(lons_tpxo,lats_tpxo,np.abs(np.squeeze(field2plot)),[land_value,0.00000001], colors='gray')
+       plt.tick_params(labelcolor='black', top=False, bottom=True, left=True, right=False)
+       plt.grid(color='black',linestyle='--')
+       #
+       cbar = plt.colorbar(factor_contour1, extend='max', label='M2 TPXO9 Amplitude [cm]')
+       #plt.clabel(contour1p, fmt = '%2.1d', colors = 'k', fontsize=12)
+       #plt.clabel(contour1n, fmt = '%2.1d', colors = 'k', fontsize=12)
        # Save and close 
        plt.savefig(plotname)
        plt.clf()
