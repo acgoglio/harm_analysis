@@ -38,7 +38,7 @@ from lit_tpxo import *
 # annachiara.goglio@cmcc.it
 #
 # Written: 06/2019
-# Last Modified: 05/10/2021
+# Last Modified: 14/10/2021
 #
 # Script to fit and plot the harmonic analisi reults wrt tide gauges data, tpxo model and literature values
 #
@@ -56,7 +56,7 @@ model_bathy='/work/oda/ag15419/PHYSW24_DATA/TIDES/DATA0/bathy_meter.nc'
 #
 
 # Domain (Med or AtlBox)
-where_box='Med'
+where_box='AtlBox'
 
 # Option for phase plots
 cos_pha = 0 
@@ -192,6 +192,10 @@ if where_box == 'Med':
 else:
    revts_flag = 0 
 
+# Option to use the full names of the TGs instead of numbers for lit analysis type only (the other use numbers) 
+# = 0 to use numbers; = 1 to use full names  
+lit_fullname = 0
+
 # FLAG or loop on analysis type
 # Options:
 # lit       --> Compare the common datasets with respect to literature 
@@ -229,9 +233,14 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
 
    # Check on Domain and fix the bdy
    if where_box=='AtlBox':
-      tpxo_flag = 0
-      flag_15stats = 0
-      anatype_flag = 'all'
+      if anatype_flag == 'all':
+         tpxo_flag = 0
+         flag_15stats = 0
+      elif anatype_flag=='anatpxo':
+         tpxo_flag = 1
+         flag_15stats = 0
+      else:
+         exit(0)
 
    
    # ======== EMODnet TG ========== 
@@ -294,6 +303,14 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
                tg_lat.append(tg_inlat[idx_tg])
                tg_col.append(which_region(tg_inlon[idx_tg],tg_inlat[idx_tg]))
    
+       elif anatype_flag=='anatpxo':
+         for idx_tg in range (0,len(anatpxo_inflag)):
+             if anatpxo_inflag[idx_tg] == 1 :
+                if which_domain(tg_inlon[idx_tg],tg_inlat[idx_tg]) == 'AtlBox':
+                   tg_name.append(tg_inname[idx_tg])
+                   tg_lon.append(tg_inlon[idx_tg])
+                   tg_lat.append(tg_inlat[idx_tg])
+                   tg_col.append(which_region(tg_inlon[idx_tg],tg_inlat[idx_tg]))
    
    tg_num=len(tg_name)
    print("EmodNET Stations num:",tg_num)
@@ -713,8 +730,8 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
        else:
           plotname=workdir_path+'ts_'+tg_name[stn]+'_r.jpg'
        # Fig
-       plt.figure(figsize=(20,10)) # or (20,5) to compare with AtBox add plt.ylim(-250,250)
-       plt.rc('font', size=9) # or size=16
+       plt.figure(figsize=(20,5)) # (20,10) or (20,5) to compare with AtBox add plt.ylim(-250,250)
+       plt.rc('font', size=16) # size=9 or size=16
        #plt.subplot(2,1,1)
        # Plot Title
        plt.title ('Time-series TG: '+tg_name[stn]+' Period: '+str(tg_sdate[stn])+' Lon/Lat: '+str(tg_lon[stn])+'/'+str(tg_lat[stn]))
@@ -914,9 +931,9 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
    GLOB_A_obs=[[ 0 for i in range(N_comp+1) ] for j in range(N_stz+1) ] 
    GLOB_P_obs=[[ 0 for i in range(N_comp+1) ] for j in range(N_stz+1) ] 
    
-   # Initialize global matrix for Foreman distances and Root Mean Square distance
+   # Initialize global matrix for Foreman distances and Root Mean Square misfits
    d_foreman=[[ 0 for i in range(N_comp+1) ] for j in range(N_stz+1) ]
-   RMSd=[0 for i in range(N_comp)]
+   RMSm=[0 for i in range(N_comp)]
    
    ################### SORT the TG, PLOT MAP and TABLES #####################
 
@@ -991,10 +1008,12 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
    # Define TG LABELS to be used in plots
    tg_lab_sorted=[]
    if anatype_flag=='lit':
-      #tg_lab_sorted = tg_name_sorted # If you have enough space for the names!
-      for tg_idx in range(0,len(tg_name_sorted)):
-          shift_idx=tg_idx+1
-          tg_lab_sorted.append(str(shift_idx))
+      if lit_fullname == 1: # If you have enough space for the names!
+         tg_lab_sorted = tg_name_sorted 
+      else: # use the numbers
+         for tg_idx in range(0,len(tg_name_sorted)):
+             shift_idx=tg_idx+1
+             tg_lab_sorted.append(str(shift_idx))
    elif anatype_flag=='anatpxo':
       for tg_idx in range(0,len(tg_name_sorted)):
           shift_idx=tg_idx+1
@@ -1384,7 +1403,18 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
        y_textP=TOT_P_mod
        if cos_pha == 0:
           diffP_mo=y_textP-x_textP
-          pdiffP_mo=(y_textP-x_textP)*100.0/(10+x_textP) # do not consider values below 10 deg
+          pdiffP_mo=(y_textP-x_textP)*100.0/(2+x_textP) # do not consider values below 2 deg
+          # Constrain the pha diff and pdiff angles in the interval [-180,180):
+          for Pdiff_idx in range(0,len(diffP_mo)):
+              while diffP_mo[Pdiff_idx] >= 180:
+                    diffP_mo[Pdiff_idx]=diffP_mo[Pdiff_idx]-360
+              while diffP_mo[Pdiff_idx] <-180:
+                    diffP_mo[Pdiff_idx]=diffP_mo[Pdiff_idx]+360
+          for Ppdiff_idx in range(0,len(pdiffP_mo)):
+              while pdiffP_mo[Ppdiff_idx] >= 180:
+                    pdiffP_mo[Ppdiff_idx]=pdiffP_mo[Ppdiff_idx]-360
+              while pdiffP_mo[Ppdiff_idx] <-180:
+                    pdiffP_mo[Ppdiff_idx]=pdiffP_mo[Ppdiff_idx]+360
        elif cos_pha == 1:
           diffP_mo=np.cos(np.array(y_textP)*np.pi/180)-np.cos(np.array(x_textP)*np.pi/180)
           pdiffP_mo=(np.cos(np.array(y_textP)*np.pi/180)-np.cos(np.array(x_textP))*np.pi/180)*100.0/(np.cos(np.array(x_textP)*np.pi/180)+np.cos(10*np.pi/180))
@@ -1400,9 +1430,10 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
    
           
        mean_diffP=np.mean(diffP_mo)
-   
+
        # STATISTICS x TAB PHA
        max_diffP=np.max(abs(diffP_mo))
+       meanabs_diffP=np.mean(abs(diffP_mo))
        wheremax_PhaAbs=TOT_tg_name[np.argmax(abs(diffP_mo))]
        wheremax_PhaAbs_col=TOT_tg_orcol[np.argmax(abs(diffP_mo))]
        perc95_diffP=np.percentile(abs(diffP_mo),95)
@@ -1410,9 +1441,9 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
        meanabs_pdiffP=np.mean(abs(pdiffP_mo))
        max_pdiffP=np.max(abs(pdiffP_mo))
        perc95_pdiffP=np.percentile(abs(pdiffP_mo),95)
-   
+
        # Table for TEX Pha
-       print(comp,' & ',round(max_diffP,2),'$^{\circ}$ ({\color{',wheremax_PhaAbs_col,'}{',wheremax_PhaAbs,'}})& ',round(perc95_diffP,2),'$^{\circ}$ &',round(meanabs_pdiffP,1),'$^{\circ}$ \\\\ '+'\n', file=Pha_file)
+       print(comp,' & ',round(max_diffP,2),'$^{\circ}$ ({\color{',wheremax_PhaAbs_col,'}{',wheremax_PhaAbs,'}})& ',round(perc95_diffP,2),'$^{\circ}$ &',round(meanabs_diffP,1),'$^{\circ}$ \\\\ '+'\n', file=Pha_file)
        print('\hline'+'\n', file=Pha_file)
        print(' '+'\n', file=Pha_file)
    
@@ -1732,7 +1763,10 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
        if cos_pha == 0:
         plt.title(comp+' Phase [deg] ')
         plt.grid ()
-        plt.ylim(-50.0, 400.0)
+        if where_box == 'AtlBox':
+           plt.ylim(0.0, 360.0)
+        else:
+           plt.ylim(-50.0, 400.0)
         plt.xlim(-50.0, 400.0)
         plt.plot([-50.0, 400.0], [-50.0, 400.0], 'k-', color = 'black')
         x_text=[]
@@ -1755,7 +1789,7 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
         if howmany_Tarea != 0:
            plt.errorbar(np.array(TOT_P_obs_Tarea), np.array(TOT_P_mod_Tarea),xerr=np.array(TOT_EP_obs_Tarea),yerr=np.array(TOT_EP_mod_Tarea),fmt='o',color=subregions_color[7], label = 'Atlantic Box - Portugal')
         if howmany_Tarea != 0:
-           plt.errorbar(np.array(TOT_P_obs_Tarea), np.array(TOT_P_mod_Tarea),xerr=np.array(TOT_EP_obs_Tarea),yerr=np.array(TOT_EP_mod_Tarea),fmt='o',color=subregions_color[7], label = 'Atlantic Box - Portugal')
+           plt.errorbar(np.array(TOT_P_obs_TAarea), np.array(TOT_P_mod_TAarea),xerr=np.array(TOT_EP_obs_TAarea),yerr=np.array(TOT_EP_mod_TAarea),fmt='co', label = 'Atlantic Box - Biscay Bay')
         if howmany_TGarea != 0:
            plt.errorbar(np.array(TOT_P_obs_TGarea), np.array(TOT_P_mod_TGarea),xerr=np.array(TOT_EP_obs_TGarea),yerr=np.array(TOT_EP_mod_TGarea),fmt='o', color=subregions_color[6], label = 'Atlantic Box - Gibraltar strait')
         if howmany_Earea != 0:
@@ -1861,10 +1895,10 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
          # Compute Distances in the complex plane [Foreman et al. 93]
          d_foreman[nnn_AP+1][comp_idx+1]=np.sqrt((TOT_A_obs_ord[nnn_AP]*np.cos((np.pi/180.0)*TOT_P_obs_ord[nnn_AP])-(TOT_A_mod_ord[nnn_AP]*np.cos((np.pi/180.0)*TOT_P_mod_ord[nnn_AP])))**2+((TOT_A_obs_ord[nnn_AP]*np.sin((np.pi/180.0)*TOT_P_obs_ord[nnn_AP])-(TOT_A_mod_ord[nnn_AP]*np.sin((np.pi/180.0)*TOT_P_mod_ord[nnn_AP])))**2))
    
-         # Root Mean Square difference
-         RMSd[comp_idx]=RMSd[comp_idx]+(TOT_A_obs_ord[nnn_AP]*np.cos((np.pi/180.0)*TOT_P_obs_ord[nnn_AP])-(TOT_A_mod_ord[nnn_AP]*np.cos((np.pi/180.0)*TOT_P_mod_ord[nnn_AP])))**2+((TOT_A_obs_ord[nnn_AP]*np.sin((np.pi/180.0)*TOT_P_obs_ord[nnn_AP])-(TOT_A_mod_ord[nnn_AP]*np.sin((np.pi/180.0)*TOT_P_mod_ord[nnn_AP])))**2)
+         # Root Mean Square misfits
+         RMSm[comp_idx]=RMSm[comp_idx]+(TOT_A_obs_ord[nnn_AP]*np.cos((np.pi/180.0)*TOT_P_obs_ord[nnn_AP])-(TOT_A_mod_ord[nnn_AP]*np.cos((np.pi/180.0)*TOT_P_mod_ord[nnn_AP])))**2+((TOT_A_obs_ord[nnn_AP]*np.sin((np.pi/180.0)*TOT_P_obs_ord[nnn_AP])-(TOT_A_mod_ord[nnn_AP]*np.sin((np.pi/180.0)*TOT_P_mod_ord[nnn_AP])))**2)
    
-       RMSd[comp_idx]=np.sqrt((1/(2*len(TOT_tg_lab_ord)))*RMSd[comp_idx]) 
+       RMSm[comp_idx]=np.sqrt((1/(2*len(TOT_tg_lab_ord)))*RMSm[comp_idx]) 
    
        comp_idx=comp_idx+1
    
@@ -1925,7 +1959,7 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
           #
           print(np.round(np.array(GLOB_A_mod[i][j]),1),'&',np.round(np.array(GLOB_A_obs[i][j]),1),'&',A_lit1[i-1],'/',A_lit2[i-1],'&',np.round(np.array(TPXO_AMP[i-1])*100,1),'&',np.round(ALPHA,2),'&',np.round(np.array(GLOB_P_mod[i][j]),1),'&',np.round(np.array(GLOB_P_obs[i][j]),1),'&',P_lit1[i-1],'/',P_lit2[i-1],'&',np.round(np.array(TPXO_PHA[i-1]),1),'&',np.round(np.array(d_foreman[i][j]),1),'&',d_lit1[i-1],'/',d_lit2[i-1],'\\\\'+'\n',file=Tab_file)
      Tab_file.write('\hline'+'\n')
-     print ('RMSd &&&&&&&&&&&',np.round(RMSd[j-1],3),'\\\\'+'\n',file=Tab_file)
+     print ('RMSm [cm] &&&&&&&&&&&',np.round(RMSm[j-1],2),'\\\\'+'\n',file=Tab_file)
      Tab_file.close() 
    
    ################### GLOBAL PLOTS ############
@@ -2402,8 +2436,8 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
    topbottom_M=[x + y for (x, y) in zipped_lists_M]
    
    # Add some text for labels, title and custom x-axis tick labels, etc.
-   ax.set_ylabel('Vectorial Differences [cm]')
-   ax.set_title('Vectorial Differences per TG per tidal component [Foreman et al. 1993]')
+   ax.set_ylabel('Vectorial Distances [cm]')
+   ax.set_title('Vectorial Distances per TG per tidal component') 
    ax.set_xticks(x)
    ax.set_xticklabels(labels,fontweight='bold')
    for xtick, color in zip(ax.get_xticklabels(), TOT_color_stz):
@@ -2433,12 +2467,12 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
    fig,ax=plt.subplots( figsize=(20,10))
    #
    comp_color=['#1f77b4','#ff7f03','#2ca02c','#d62728','#bcdb22','#17becf','#9467bd','#e377c2']
-   rects1 = ax.bar(x, RMSd, width-0.05,color=comp_color)
+   rects1 = ax.bar(x, RMSm, width-0.05,color=comp_color)
    
    
    # Add some text for labels, title and custom x-axis tick labels, etc.
-   ax.set_ylabel('RMSd [cm]')
-   ax.set_title('Root Mean Square differences - '+where_box)
+   ax.set_ylabel('RMSm [cm]')
+   ax.set_title('Root Mean Square misfits - '+where_box)
    ax.set_xticks(x)
    ax.set_xticklabels(labels,fontweight='bold')
    
@@ -2449,7 +2483,7 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
        bin_idx=0
        for rect in rects:
            height = rect.get_height()
-           ax.annotate(round(RMSd[bin_idx],1),
+           ax.annotate(round(RMSm[bin_idx],1),
                        xy=(rect.get_x() + rect.get_width() / 2, height ),
                        xytext=(0, 3),  # 3 points vertical offset
                        textcoords="offset points",
@@ -2458,9 +2492,9 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
    
    autolabel(rects1)
    if where_box=='Med':
-          plt.savefig(workdir_path+'GLOBAL_RMSd.jpg')
+          plt.savefig(workdir_path+'GLOBAL_RMSm.jpg')
    elif where_box=='AtlBox':
-          plt.savefig(workdir_path+'GLOBAL_RMSd_AB.jpg')
+          plt.savefig(workdir_path+'GLOBAL_RMSm_AB.jpg')
    plt.clf()
 
 print ('Output path: ',workdir_path)
