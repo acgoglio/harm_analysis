@@ -110,7 +110,7 @@ tidal_comp=['M2','S2','K1','O1','N2','P1','Q1','K2']
 # WARNING: you cannot change the region order!!
 subregions_color=['red','blue','orange','magenta','green','cyan','deeppink','tab:olive']
 subregions_labels=['G','A','M','E','O','TA','TG','T']
-# Atl Box subregions are: Biscay Bay, Gibraltar Atlantic side, Portugal  
+# Atl Box subregions are: Biscay Bay, Gibraltar area in the Atlantic side, West coast 
 # WARNING: you cannot change the region order!!
 #subregions_color.append['cyan','deeppink','tab:olive']
 #
@@ -1470,11 +1470,11 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
        if howmany_Aarea != 0:
           plt.errorbar(TOT_tg_lab_Aarea, np.array(TOT_A_mod_Aarea),yerr=np.array(TOT_EA_mod_Aarea),fmt='-o', color=subregions_color[1], label = 'Mod (Adriatic area)')
        if howmany_Tarea != 0:
-          plt.errorbar(TOT_tg_lab_Tarea, np.array(TOT_A_mod_Tarea),yerr=np.array(TOT_EA_mod_Tarea),fmt='-o', color=subregions_color[7], label = 'Mod (Atlantic Box - Portugal)')
+          plt.errorbar(TOT_tg_lab_Tarea, np.array(TOT_A_mod_Tarea),yerr=np.array(TOT_EA_mod_Tarea),fmt='-o', color=subregions_color[7], label = 'Mod (Atlantic Box - West coast)')
        if howmany_TAarea != 0:
           plt.errorbar(TOT_tg_lab_TAarea, np.array(TOT_A_mod_TAarea),yerr=np.array(TOT_EA_mod_TAarea),fmt='-o', color=subregions_color[5], label = 'Mod (Atlantic Box - Biscay Bay)')
        if howmany_TGarea != 0:
-          plt.errorbar(TOT_tg_lab_TGarea, np.array(TOT_A_mod_TGarea),yerr=np.array(TOT_EA_mod_TGarea),fmt='-o', color=subregions_color[6], label = 'Mod (Atlantic Box - Gibraltar strait)')
+          plt.errorbar(TOT_tg_lab_TGarea, np.array(TOT_A_mod_TGarea),yerr=np.array(TOT_EA_mod_TGarea),fmt='-o', color=subregions_color[6], label = 'Mod (Atlantic Box - Gibraltar area)')
        if howmany_Earea != 0:
           plt.errorbar(TOT_tg_lab_Earea, np.array(TOT_A_mod_Earea),yerr=np.array(TOT_EA_mod_Earea),fmt='-o', color=subregions_color[3], label = 'Mod (East Med area)')
        plt.title(comp+' Amplitude [cm] ')
@@ -1494,7 +1494,7 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
        if howmany_Aarea != 0:
           plt.errorbar(TOT_tg_lab_Aarea, diffA_mo_Aarea,yerr=np.sqrt(np.array(TOT_EA_mod_Aarea)**2+np.array(TOT_EA_obs_Aarea)**2),fmt='-o', color=subregions_color[1],label = 'Mod - Obs (Adriatic area)')
        if howmany_Tarea != 0:
-          plt.errorbar(TOT_tg_lab_Tarea, diffA_mo_Tarea,yerr=np.sqrt(np.array(TOT_EA_mod_Tarea)**2+np.array(TOT_EA_obs_Tarea)**2),fmt='-o', color=subregions_color[7], label = 'Mod - Obs (Atlantic Box - Portugal)')
+          plt.errorbar(TOT_tg_lab_Tarea, diffA_mo_Tarea,yerr=np.sqrt(np.array(TOT_EA_mod_Tarea)**2+np.array(TOT_EA_obs_Tarea)**2),fmt='-o', color=subregions_color[7], label = 'Mod - Obs (Atlantic Box - West coast)')
        if howmany_TAarea != 0:
           plt.errorbar(TOT_tg_lab_TAarea, diffA_mo_TAarea,yerr=np.sqrt(np.array(TOT_EA_mod_TAarea)**2+np.array(TOT_EA_obs_TAarea)**2),fmt='-o', color=subregions_color[5], label = 'Mod - Obs (Atlantic Box - Biscay Bay)')
        if howmany_TGarea != 0:
@@ -1546,11 +1546,11 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
         if howmany_Aarea != 0:
            plt.errorbar(TOT_tg_lab_Aarea, np.array(TOT_P_mod_Aarea),yerr=np.array(TOT_EP_mod_Aarea),fmt='-o', color=subregions_color[1],label = 'Mod (Adriatic area)')
         if howmany_Tarea != 0:
-           plt.errorbar(TOT_tg_lab_Tarea, np.array(TOT_P_mod_Tarea),yerr=np.array(TOT_EP_mod_Tarea),fmt='-o', color=subregions_color[7], label = 'Mod (Atlantic Box - Portugal)')
+           plt.errorbar(TOT_tg_lab_Tarea, np.array(TOT_P_mod_Tarea),yerr=np.array(TOT_EP_mod_Tarea),fmt='-o', color=subregions_color[7], label = 'Mod (Atlantic Box - West coast)')
         if howmany_TAarea != 0:
            plt.errorbar(TOT_tg_lab_TAarea, np.array(TOT_P_mod_TAarea),yerr=np.array(TOT_EP_mod_TAarea),fmt='-o', color=subregions_color[5],label = 'Mod (Atlantic Box - Biscay Bay)')
         if howmany_TGarea != 0:
-           plt.errorbar(TOT_tg_lab_TGarea, np.array(TOT_P_mod_TGarea),yerr=np.array(TOT_EP_mod_TGarea),fmt='-o', color=subregions_color[6], label = 'Mod (Atlantic Box - Gibraltar strait)')
+           plt.errorbar(TOT_tg_lab_TGarea, np.array(TOT_P_mod_TGarea),yerr=np.array(TOT_EP_mod_TGarea),fmt='-o', color=subregions_color[6], label = 'Mod (Atlantic Box - Gibraltar area)')
         if howmany_Earea != 0:
            plt.errorbar(TOT_tg_lab_Earea, np.array(TOT_P_mod_Earea),yerr=np.array(TOT_EP_mod_Earea),fmt='-o', color=subregions_color[3],label = 'Mod (East Med area)')
         plt.title(comp+' Phase [deg] ')
@@ -1570,11 +1570,11 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
         if howmany_Aarea != 0:
            plt.errorbar(TOT_tg_lab_Aarea, diffP_mo_Aarea,yerr=np.sqrt(np.array(TOT_EP_mod_Aarea)**2+np.array(TOT_EP_obs_Aarea)**2),fmt='-o', color=subregions_color[1],label = 'Mod - Obs (Adriatic area)')
         if howmany_Tarea != 0:
-           plt.errorbar(TOT_tg_lab_Tarea, diffP_mo_Tarea,yerr=np.sqrt(np.array(TOT_EP_mod_Tarea)**2+np.array(TOT_EP_obs_Tarea)**2),fmt='-o', color=subregions_color[7], label = 'Mod - Obs (Atlantic Box - Portugal)')
+           plt.errorbar(TOT_tg_lab_Tarea, diffP_mo_Tarea,yerr=np.sqrt(np.array(TOT_EP_mod_Tarea)**2+np.array(TOT_EP_obs_Tarea)**2),fmt='-o', color=subregions_color[7], label = 'Mod - Obs (Atlantic Box - West coast)')
         if howmany_TAarea != 0:
            plt.errorbar(TOT_tg_lab_TAarea, diffP_mo_TAarea,yerr=np.sqrt(np.array(TOT_EP_mod_TAarea)**2+np.array(TOT_EP_obs_TAarea)**2),fmt='-o', color=subregions_color[5],label = 'Mod - Obs (Atlantic Box - Biscay Bay)')
         if howmany_TGarea != 0:
-           plt.errorbar(TOT_tg_lab_TGarea, diffP_mo_TGarea,yerr=np.sqrt(np.array(TOT_EP_mod_TGarea)**2+np.array(TOT_EP_obs_TGarea)**2),fmt='-o', color=subregions_color[6], label = 'Mod - Obs (Atlantic Box - Gibraltar strait)')
+           plt.errorbar(TOT_tg_lab_TGarea, diffP_mo_TGarea,yerr=np.sqrt(np.array(TOT_EP_mod_TGarea)**2+np.array(TOT_EP_obs_TGarea)**2),fmt='-o', color=subregions_color[6], label = 'Mod - Obs (Atlantic Box - Gibraltar area)')
         if howmany_Earea != 0:
            plt.errorbar(TOT_tg_lab_Earea, diffP_mo_Earea,yerr=np.sqrt(np.array(TOT_EP_mod_Earea)**2+np.array(TOT_EP_obs_Earea)**2),fmt='-o', color=subregions_color[3],label = 'Mod - Obs (East Med area)')
         if tpxo_flag == 1 and flag_15stats==0 :
@@ -1621,11 +1621,11 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
         if howmany_Aarea != 0:
            plt.plot(TOT_tg_lab_Aarea, np.cos(np.array(TOT_P_mod_Aarea)*np.pi/180), '-o', color=subregions_color[1],label = 'Mod (Adriatic area)')
         if howmany_Tarea != 0:
-           plt.plot(TOT_tg_lab_Tarea, np.cos(np.array(TOT_P_mod_Tarea)*np.pi/180), '-o', color=subregions_color[7], label = 'Mod (Atlantic Box - Portugal)')
+           plt.plot(TOT_tg_lab_Tarea, np.cos(np.array(TOT_P_mod_Tarea)*np.pi/180), '-o', color=subregions_color[7], label = 'Mod (Atlantic Box - West coast)')
         if howmany_TAarea != 0:
            plt.plot(TOT_tg_lab_TAarea, np.cos(np.array(TOT_P_mod_TAarea)*np.pi/180), '-o', color=subregions_color[5],label = 'Mod (Atlantic Box - Biscay Bay)')
         if howmany_TGarea != 0:
-           plt.plot(TOT_tg_lab_TGarea, np.cos(np.array(TOT_P_mod_TGarea)*np.pi/180), '-o', color=subregions_color[6], label = 'Mod (Atlantic Box - Gibraltar strait)')
+           plt.plot(TOT_tg_lab_TGarea, np.cos(np.array(TOT_P_mod_TGarea)*np.pi/180), '-o', color=subregions_color[6], label = 'Mod (Atlantic Box - Gibraltar area)')
         if howmany_Earea != 0:
            plt.plot(TOT_tg_lab_Earea, np.cos(np.array(TOT_P_mod_Earea)*np.pi/180), '-o', color=subregions_color[3],label = 'Mod (East Med area)')
         plt.title(comp+' cos(Phase) ')
@@ -1645,11 +1645,11 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
         if howmany_Aarea != 0:
            plt.plot(TOT_tg_lab_Aarea, diffP_mo_Aarea, '-o', color=subregions_color[1], label = 'Mod - Obs (Adriatic area)')
         if howmany_Tarea != 0:
-           plt.plot(TOT_tg_lab_Tarea, diffP_mo_Tarea, '-o', color=subregions_color[7], label = 'Mod - Obs (Atlantic Box - Portugal)')
+           plt.plot(TOT_tg_lab_Tarea, diffP_mo_Tarea, '-o', color=subregions_color[7], label = 'Mod - Obs (Atlantic Box - West coast)')
         if howmany_TAarea != 0:
            plt.plot(TOT_tg_lab_TAarea, diffP_mo_TAarea, '-o', color=subregions_color[5], label = 'Mod - Obs (Atlantic Box - Biscay Bay)')
         if howmany_TGarea != 0:
-           plt.plot(TOT_tg_lab_TGarea, diffP_mo_TGarea, '-o', color=subregions_color[6], label = 'Mod - Obs (Atlantic Box - Gibraltar strait)')
+           plt.plot(TOT_tg_lab_TGarea, diffP_mo_TGarea, '-o', color=subregions_color[6], label = 'Mod - Obs (Atlantic Box - Gibraltar area)')
         if howmany_Earea != 0:
            plt.plot(TOT_tg_lab_Earea, diffP_mo_Earea, '-o', color=subregions_color[3], label = 'Mod - Obs (East Med area)')
         if tpxo_flag == 1:
@@ -1730,11 +1730,11 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
        if howmany_Aarea != 0:
           plt.errorbar(np.array(TOT_A_obs_Aarea), np.array(TOT_A_mod_Aarea),xerr=np.array(TOT_EA_obs_Aarea),yerr=np.array(TOT_EA_mod_Aarea),fmt='bo', label = 'Adriatic area')
        if howmany_Tarea != 0:
-          plt.errorbar(np.array(TOT_A_obs_Tarea), np.array(TOT_A_mod_Tarea),xerr=np.array(TOT_EA_obs_Tarea),yerr=np.array(TOT_EA_mod_Tarea),fmt='o',color=subregions_color[7], label = 'Atlantic Box - Portugal')
+          plt.errorbar(np.array(TOT_A_obs_Tarea), np.array(TOT_A_mod_Tarea),xerr=np.array(TOT_EA_obs_Tarea),yerr=np.array(TOT_EA_mod_Tarea),fmt='o',color=subregions_color[7], label = 'Atlantic Box - West coast')
        if howmany_TAarea != 0:
           plt.errorbar(np.array(TOT_A_obs_TAarea), np.array(TOT_A_mod_TAarea),xerr=np.array(TOT_EA_obs_TAarea),yerr=np.array(TOT_EA_mod_TAarea),fmt='co', label = 'Atlantic Box - Biscay Bay')
        if howmany_TGarea != 0:
-          plt.errorbar(np.array(TOT_A_obs_TGarea), np.array(TOT_A_mod_TGarea),xerr=np.array(TOT_EA_obs_TGarea),yerr=np.array(TOT_EA_mod_TGarea),fmt='o', color=subregions_color[6], label = 'Atlantic Box - Gibraltar strait')
+          plt.errorbar(np.array(TOT_A_obs_TGarea), np.array(TOT_A_mod_TGarea),xerr=np.array(TOT_EA_obs_TGarea),yerr=np.array(TOT_EA_mod_TGarea),fmt='o', color=subregions_color[6], label = 'Atlantic Box - Gibraltar area')
        if howmany_Earea != 0:
           plt.errorbar(np.array(TOT_A_obs_Earea), np.array(TOT_A_mod_Earea),xerr=np.array(TOT_EA_obs_Earea),yerr=np.array(TOT_EA_mod_Earea),fmt='mo', label = 'East Med area')
        # Ax settings
@@ -1787,11 +1787,11 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
         if howmany_Aarea != 0:
            plt.errorbar(np.array(TOT_P_obs_Aarea), np.array(TOT_P_mod_Aarea),xerr=np.array(TOT_EP_obs_Aarea),yerr=np.array(TOT_EP_mod_Aarea),fmt='bo', label = 'Adriatic area')
         if howmany_Tarea != 0:
-           plt.errorbar(np.array(TOT_P_obs_Tarea), np.array(TOT_P_mod_Tarea),xerr=np.array(TOT_EP_obs_Tarea),yerr=np.array(TOT_EP_mod_Tarea),fmt='o',color=subregions_color[7], label = 'Atlantic Box - Portugal')
+           plt.errorbar(np.array(TOT_P_obs_Tarea), np.array(TOT_P_mod_Tarea),xerr=np.array(TOT_EP_obs_Tarea),yerr=np.array(TOT_EP_mod_Tarea),fmt='o',color=subregions_color[7], label = 'Atlantic Box - West coast')
         if howmany_Tarea != 0:
            plt.errorbar(np.array(TOT_P_obs_TAarea), np.array(TOT_P_mod_TAarea),xerr=np.array(TOT_EP_obs_TAarea),yerr=np.array(TOT_EP_mod_TAarea),fmt='co', label = 'Atlantic Box - Biscay Bay')
         if howmany_TGarea != 0:
-           plt.errorbar(np.array(TOT_P_obs_TGarea), np.array(TOT_P_mod_TGarea),xerr=np.array(TOT_EP_obs_TGarea),yerr=np.array(TOT_EP_mod_TGarea),fmt='o', color=subregions_color[6], label = 'Atlantic Box - Gibraltar strait')
+           plt.errorbar(np.array(TOT_P_obs_TGarea), np.array(TOT_P_mod_TGarea),xerr=np.array(TOT_EP_obs_TGarea),yerr=np.array(TOT_EP_mod_TGarea),fmt='o', color=subregions_color[6], label = 'Atlantic Box - Gibraltar area')
         if howmany_Earea != 0:
            plt.errorbar(np.array(TOT_P_obs_Earea), np.array(TOT_P_mod_Earea),xerr=np.array(TOT_EP_obs_Earea),yerr=np.array(TOT_EP_mod_Earea),fmt='mo', label = 'East Med area') 
     
@@ -1836,11 +1836,11 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
         if howmany_Aarea != 0:
            plt.plot(np.cos(np.array(TOT_P_obs_Aarea)*np.pi/180), np.cos(np.array(TOT_P_mod_Aarea)*np.pi/180), 'bo', label = 'Adriatic area')
         if howmany_Tarea != 0:
-           plt.plot(np.cos(np.array(TOT_P_obs_Tarea)*np.pi/180), np.cos(np.array(TOT_P_mod_Tarea)*np.pi/180), 'co', label = 'Atlantic Box - Portugal')
+           plt.plot(np.cos(np.array(TOT_P_obs_Tarea)*np.pi/180), np.cos(np.array(TOT_P_mod_Tarea)*np.pi/180), 'co', label = 'Atlantic Box - West coast')
         if howmany_TAarea != 0:
            plt.plot(np.cos(np.array(TOT_P_obs_TAarea)*np.pi/180), np.cos(np.array(TOT_P_mod_TAarea)*np.pi/180), 'o',color=subregions_color[7], label = 'Atlantic Box - Biscay Bay')
         if howmany_TGarea != 0:
-           plt.plot(np.cos(np.array(TOT_P_obs_TGarea)*np.pi/180), np.cos(np.array(TOT_P_mod_TGarea)*np.pi/180), 'o', color=subregions_color[6], label = 'Atlantic Box - Gibraltar strait')
+           plt.plot(np.cos(np.array(TOT_P_obs_TGarea)*np.pi/180), np.cos(np.array(TOT_P_mod_TGarea)*np.pi/180), 'o', color=subregions_color[6], label = 'Atlantic Box - Gibraltar area')
         if howmany_Earea != 0:
            plt.plot(np.cos(np.array(TOT_P_obs_Earea)*np.pi/180), np.cos(np.array(TOT_P_mod_Earea)*np.pi/180), 'mo', label = 'East Med area')
     
