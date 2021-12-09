@@ -44,14 +44,14 @@ from scipy import interpolate
 # General run parameters:
 #---------------------
 # work dir path and bathymetry path/name
-workdir_path = '/work/oda/ag15419/tmp/atl_amph/'
+workdir_path = '/work/oda/ag15419/tmp/tidal_bdy_HA/a_bdyc_2020/'
 model_bathy='/work/oda/ag15419/PHYSW24_DATA/TIDES/DATA0/bathy_meter.nc'
 model_meshmask='/work/oda/ag15419/PHYSW24_DATA/TIDES/DATA0/mesh_mask.nc'
 #
 # Dates
 # Choose start and end dates of the period (format dd/mm/yyyy)
-inidate = '01/07/2017'
-enddate = '31/12/2017'
+inidate = '01/01/2020'
+enddate = '30/06/2020'
 
 # TPXO9 path
 tpxo9_path='/work/oda/ag15419/OTPS/OTPSnc/DATA/NC/'
@@ -59,9 +59,8 @@ tpxo9_path='/work/oda/ag15419/OTPS/OTPSnc/DATA/NC/'
 # FLAGS for different analysis (set 1 to activate the tasks)
 
 # For Amplitude/Phase maps (1 map per tidal component)
-amppha_flag=0
-ampha_var='AtlBox' # NEEDED if ampha_flag=1; and if tpxo2eas_flag=1 or ampha_tpxo=1 (for this cases only AtlBox Vs other is implemented)
-# Values can be 
+amppha_flag=1
+# For the following maps (1 map per tidal component):
 # ) AmpPha to plot amplitude/phase maps
 # ) AtlBox to plot amplitude/phase maps with AtlOcean proper palette
 # ) Amp to plot only amplitude maps
@@ -75,7 +74,7 @@ ampha_var='AtlBox' # NEEDED if ampha_flag=1; and if tpxo2eas_flag=1 or ampha_tpx
 ampha_tpxo=0
 # For TPXO9 Amplitude/Phase maps on TPXO grid (1 map per tidal component)
 
-pha_tpxo=1
+pha_tpxo=0
 # For TPXO9 Phase maps on TPXO grid (1 map per tidal component)
 
 ampha_tpxo_atlamph=0
@@ -111,7 +110,7 @@ bathy_diff_flag=0
 # MODEL DATASETS
 model_path=workdir_path
 model_fileprename='amppha' # DO NOT change this
-model_postname='mod_Tides8_v31' # WARNING: Use the same string as in fit_marea.py
+model_postname='mod_TPXO9_bdyc' # WARNING: Use the same string as in fit_marea.py
 
 bathylim4RMSE=0 # Bathymetry threshold for RMSE (only grid points with bathy>bathylim4RMSE are taken into account)
 
@@ -162,6 +161,7 @@ print ('Fields 2D: ',field_2d_name)
 # ===============================
 # Amplitude/Phase maps (1 map per tidal component)
 if amppha_flag == 1:
+  for ampha_var in ('AmpPha','Amp','Pha','AtlBox','Amp_Pal','Pha_Pal','Amp_Ar','Pha_Ar','AmpPha_Ag'):
    for idx_2d in range(0,len(field_2d_name)):
             var_2d=field_2d_name[idx_2d]
             var_2d_udm=field_2d_units[idx_2d]
@@ -380,6 +380,7 @@ if amppha_flag == 1:
 
 # TPXO Amp Pha
 if ampha_tpxo == 1:
+  for ampha_var in ('Med','AtlBox'):
    print ('# 2D VAR: Amplitude and Phase from TPXO9 model')
    # Build the pathname of the nc file and open it 
    idx_comp = 0
@@ -679,6 +680,7 @@ if ampha_tpxo_atlamph == 1:
 ########
 # Intepolation of global TPXO9 fields on MED24 grid (1/30 --> 1/24)
 if tpxo2eas_flag ==  1: 
+  for ampha_var in ('Med','AtlBox'):
         # Read new grid structure from MED24 mesh_mask files
         # Open the mesh mask file and read lat/lon 
         nc2open3=model_bathy
