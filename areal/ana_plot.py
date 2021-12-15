@@ -44,14 +44,14 @@ from scipy import interpolate
 # General run parameters:
 #---------------------
 # work dir path and bathymetry path/name
-workdir_path = '/work/oda/ag15419/tmp/tidal_bdy_HA/a_bdyc_2020/'
+workdir_path = '/work/oda/ag15419/tmp/HA_twd/a_twd_bf/'
 model_bathy='/work/oda/ag15419/PHYSW24_DATA/TIDES/DATA0/bathy_meter.nc'
 model_meshmask='/work/oda/ag15419/PHYSW24_DATA/TIDES/DATA0/mesh_mask.nc'
 #
 # Dates
 # Choose start and end dates of the period (format dd/mm/yyyy)
-inidate = '01/01/2020'
-enddate = '30/06/2020'
+inidate = '01/07/2017'
+enddate = '31/12/2017'
 
 # TPXO9 path
 tpxo9_path='/work/oda/ag15419/OTPS/OTPSnc/DATA/NC/'
@@ -59,7 +59,7 @@ tpxo9_path='/work/oda/ag15419/OTPS/OTPSnc/DATA/NC/'
 # FLAGS for different analysis (set 1 to activate the tasks)
 
 # For Amplitude/Phase maps (1 map per tidal component)
-amppha_flag=1
+amppha_flag=0
 # For the following maps (1 map per tidal component):
 # ) AmpPha to plot amplitude/phase maps
 # ) AtlBox to plot amplitude/phase maps with AtlOcean proper palette
@@ -95,7 +95,7 @@ tpxo2eas_flag=0
 diff_tpxoeas_flag=0
 # For amplitude diffs between eas and tpxo on MED24 grid
 
-vectorial_dist_flag=0
+vectorial_dist_flag=1
 # For vectorial distances between eas and tpxo9 on MED24 grid
 
 bathy_diff_flag=0
@@ -110,7 +110,8 @@ bathy_diff_flag=0
 # MODEL DATASETS
 model_path=workdir_path
 model_fileprename='amppha' # DO NOT change this
-model_postname='mod_TPXO9_bdyc' # WARNING: Use the same string as in fit_marea.py
+model_postname='twd_bf_2' # WARNING: Use the same string as in fit_marea.py
+model_postname='mod_'+model_postname
 
 bathylim4RMSE=0 # Bathymetry threshold for RMSE (only grid points with bathy>bathylim4RMSE are taken into account)
 
@@ -1060,9 +1061,12 @@ if vectorial_dist_flag ==  1:
             y=[ el[0] for el in lats] #  Array 1D latitudes
             y=np.asarray(y)
 
-            # RMSd table ini
-            RMSd_file = open(workdir_path+"RMSd_stats.txt","w")
-            RMSd_file.write('Root Mean Square Distances'+'\n')
+            # RMSm table ini
+            RMSm_file = open(workdir_path+"RMSm_stats.txt","w")
+            RMSm_file.write('Root Mean Square Misfits (MED)'+'\n')
+
+            RMSm_AB_file = open(workdir_path+"RMSm_AB_stats.txt","w")
+            RMSm_AB_file.write('Root Mean Square Misfits (AtlBox)'+'\n')
 
             # Read Amp and Pha from MED24
             idx_comp = 0
@@ -1196,7 +1200,7 @@ if vectorial_dist_flag ==  1:
                      plt.ylim(30, 46)
                      plt.xlim(-20, 0)
                      ved=np.sqrt(np.power(np.squeeze(vals)*np.cos(np.squeeze(P_vals))-(np.squeeze(var_new)*np.cos(np.squeeze(pha_new))),2)+np.power(np.squeeze(vals)*np.sin(np.squeeze(P_vals))-(np.squeeze(var_new)*np.sin(np.squeeze(pha_new))),2))
-                     cs = plt.contourf(x,y,ved,med_range,cmap='jet',extend='max')
+                     cs = plt.contourf(x,y,ved,med_range,cmap='YlOrRd',extend='max')
                      contourf1 = plt.contourf(x,y,np.abs(np.squeeze(vals_bathy)),[0.00000,0.00000001], colors='gray') # 0.00000001
                      contour1 = plt.contour(x,y,np.abs(np.squeeze(vals_bathy)),0.00000,colors='black')
                      ax[0].set_xticks(np.arange(340,360,10))
@@ -1204,17 +1208,28 @@ if vectorial_dist_flag ==  1:
                      plt.grid(color='black',linestyle='--')
                      max_n=np.max(np.abs(np.abs(np.squeeze(vals))-np.abs(np.squeeze(var_new))))
 
-                     # RMSd
-                     rmsd_diffvecd=[]
-                     rmsd_count=0
+                     # RMSm
+                     rmsm_diffvecd=[]
+                     rmsm_count=0
+                     rmsm_AB_diffvecd=[]
+                     rmsm_AB_count=0
+
                      sq_vals_bathy=vals_bathy[0,:,:]
                      for lo_idx in range (0,len(x)):
                       if x[lo_idx]>-5 and x[lo_idx]<0:
                          for la_idx in range (0,len(y)):
                            if y[la_idx]>30 and y[la_idx]<40 and sq_vals_bathy[la_idx][lo_idx] != 0:
-                                rmsd_diffvecd.append(ved[la_idx][lo_idx])
-                                rmsd_count=rmsd_count+1
-
+                                rmsm_diffvecd.append(ved[la_idx][lo_idx])
+                                rmsm_count=rmsm_count+1
+                     
+                           if y[la_idx]>40 and sq_vals_bathy[la_idx][lo_idx] != 0:
+                                rmsm_AB_diffvecd.append(ved[la_idx][lo_idx])
+                                rmsm_AB_count=rmsm_AB_count+1
+                      else:
+                        if x[lo_idx]<-5 and x[lo_idx]>-18:
+                         for la_idx in range (0,len(y)):
+                                rmsm_AB_diffvecd.append(ved[la_idx][lo_idx])
+                                rmsm_AB_count=rmsm_AB_count+1
                      #
                      var_new2 = f_tmp(x,y)
                      pha_new2 = p_tmp(x,y)
@@ -1224,7 +1239,7 @@ if vectorial_dist_flag ==  1:
                      plt.xlim(0, 40)
                      plt.tick_params(labelcolor='none', top=False, bottom=True, left=False, right=False)
                      ved=np.sqrt(np.power(np.squeeze(vals)*np.cos(np.squeeze(P_vals))-(np.squeeze(var_new2)*np.cos(np.squeeze(pha_new2))),2)+np.power(np.squeeze(vals)*np.sin(np.squeeze(P_vals))-(np.squeeze(var_new2)*np.sin(np.squeeze(pha_new2))),2))
-                     cs = plt.contourf(x,y,ved,med_range,cmap='jet',extend='max')
+                     cs = plt.contourf(x,y,ved,med_range,cmap='YlOrRd',extend='max')
                      contourf1 = plt.contourf(x,y,np.abs(np.squeeze(vals_bathy)),[0.00000,0.00000001], colors='gray') # 0.00000001
                      contour1 = plt.contour(x,y,np.abs(np.squeeze(vals_bathy)),0.00000,colors='black')
                      ax[1].get_yaxis().set_visible(False)
@@ -1232,17 +1247,23 @@ if vectorial_dist_flag ==  1:
                      cbar = plt.colorbar(cs,extend='both')
                      cbar.set_label('Vectorial distances [cm]')
 
-                     # RMSd
+                     # RMSm
                      for lo_idx in range (0,len(x)):
                       if x[lo_idx]>0 and x[lo_idx]<40:
                          for la_idx in range (0,len(y)):
                           if y[la_idx]>30 and y[la_idx]<46 and sq_vals_bathy[la_idx][lo_idx] != 0:
-                                rmsd_diffvecd.append(ved[la_idx][lo_idx])
-                                rmsd_count=rmsd_count+1
-                     rmsd_val_ar=np.power(rmsd_diffvecd,2)
-                     rmsd_val=np.sum(rmsd_val_ar)
-                     rmsd_val=np.sqrt(rmsd_val/(2*rmsd_count))
-                     RMSd_file.write(tidal_component+' RMSd_TOT: '+str(rmsd_val)+'\n')
+                                rmsm_diffvecd.append(ved[la_idx][lo_idx])
+                                rmsm_count=rmsm_count+1
+                     
+                     rmsm_val_ar=np.power(rmsm_diffvecd,2)
+                     rmsm_val=np.sum(rmsm_val_ar)
+                     rmsm_val=np.sqrt(rmsm_val/(2*rmsm_count))
+                     RMSm_file.write(tidal_component+' RMSm_TOT: '+str(rmsm_val)+'\n')
+
+                     rmsm_AB_val_ar=np.power(rmsm_AB_diffvecd,2)
+                     rmsm_AB_val=np.sum(rmsm_AB_val_ar)
+                     rmsm_AB_val=np.sqrt(rmsm_AB_val/(2*rmsm_AB_count))
+                     RMSm_AB_file.write(tidal_component+' RMSm_TOT: '+str(rmsm_AB_val)+'\n')
 
                      # Save and close 
                      plt.savefig(plotname)
