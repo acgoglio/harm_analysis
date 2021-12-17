@@ -44,7 +44,7 @@ from scipy import interpolate
 # General run parameters:
 #---------------------
 # work dir path and bathymetry path/name
-workdir_path = '/work/oda/ag15419/tmp/HA_twd/a_twd_bf/'
+workdir_path = '/work/oda/ag15419/tmp/HA_twd/a_ctrl/'
 model_bathy='/work/oda/ag15419/PHYSW24_DATA/TIDES/DATA0/bathy_meter.nc'
 model_meshmask='/work/oda/ag15419/PHYSW24_DATA/TIDES/DATA0/mesh_mask.nc'
 #
@@ -110,7 +110,7 @@ bathy_diff_flag=0
 # MODEL DATASETS
 model_path=workdir_path
 model_fileprename='amppha' # DO NOT change this
-model_postname='twd_bf_2' # WARNING: Use the same string as in fit_marea.py
+model_postname='simu_EAS6_v8' # WARNING: Use the same string as in fit_marea.py
 model_postname='mod_'+model_postname
 
 bathylim4RMSE=0 # Bathymetry threshold for RMSE (only grid points with bathy>bathylim4RMSE are taken into account)
@@ -1218,16 +1218,19 @@ if vectorial_dist_flag ==  1:
                      for lo_idx in range (0,len(x)):
                       if x[lo_idx]>-5 and x[lo_idx]<0:
                          for la_idx in range (0,len(y)):
+                           # Med 1:
                            if y[la_idx]>30 and y[la_idx]<40 and sq_vals_bathy[la_idx][lo_idx] != 0:
                                 rmsm_diffvecd.append(ved[la_idx][lo_idx])
                                 rmsm_count=rmsm_count+1
-                     
-                           if y[la_idx]>40 and sq_vals_bathy[la_idx][lo_idx] != 0:
+                           # Atl Box 1 (rm the bdys):
+                           if y[la_idx]>40 and y[la_idx]<45 and sq_vals_bathy[la_idx][lo_idx] != 0:
                                 rmsm_AB_diffvecd.append(ved[la_idx][lo_idx])
                                 rmsm_AB_count=rmsm_AB_count+1
+                      # AtlBox 2 (rm the bdys):
                       else:
-                        if x[lo_idx]<-5 and x[lo_idx]>-18:
+                        if x[lo_idx]<-5 and x[lo_idx]>-17:
                          for la_idx in range (0,len(y)):
+                           if y[la_idx]>32 and y[la_idx]<45 and sq_vals_bathy[la_idx][lo_idx] != 0:
                                 rmsm_AB_diffvecd.append(ved[la_idx][lo_idx])
                                 rmsm_AB_count=rmsm_AB_count+1
                      #
@@ -1251,6 +1254,7 @@ if vectorial_dist_flag ==  1:
                      for lo_idx in range (0,len(x)):
                       if x[lo_idx]>0 and x[lo_idx]<40:
                          for la_idx in range (0,len(y)):
+                         # Med 2:
                           if y[la_idx]>30 and y[la_idx]<46 and sq_vals_bathy[la_idx][lo_idx] != 0:
                                 rmsm_diffvecd.append(ved[la_idx][lo_idx])
                                 rmsm_count=rmsm_count+1
