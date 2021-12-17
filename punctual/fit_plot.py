@@ -38,7 +38,7 @@ from lit_tpxo import *
 # annachiara.goglio@cmcc.it
 #
 # Written: 06/2019
-# Last Modified: 14/10/2021
+# Last Modified: 14/12/2021
 #
 # Script to fit and plot the harmonic analisi reults wrt tide gauges data, tpxo model and literature values
 #
@@ -49,14 +49,14 @@ from lit_tpxo import *
 #---------------------
 # Work dir path:
 # WARNING: the inputs must be here, the outputs will be moved to subdirs   
-workdir= '/work/oda/ag15419/tmp/tides8_v31_newHA/' 
+workdir= '/work/oda/ag15419/tmp/HA_twd/p_ctrl/' 
 # input files:
 emodnettg_coo_file = '/users_home/oda/ag15419/harm_analysis/punctual/emodnet_TGb_newTGb_all.coo'
 model_bathy='/work/oda/ag15419/PHYSW24_DATA/TIDES/DATA0/bathy_meter.nc'
 #
 
 # Domain (Med or AtlBox)
-where_box='AtlBox'
+where_box='Med'
 
 # Option for phase plots
 cos_pha = 0 
@@ -69,7 +69,7 @@ cos_pha = 0
 #--------------------
 # MODEL DATASET
 # WARNING: this must be the same as in p_extr.ini file (var ANA_INTAG)
-mod_file_template='Tides8_v31' #'Tides8_v31' 'eas6'
+mod_file_template='simu_EAS6_v8' #'Tides8_v31' 'eas6'
 
 # Fields to be analized
 grid = 'T' # Choose T, U, V or uv2t grid
@@ -734,7 +734,7 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
        plt.rc('font', size=16) # size=9 or size=16
        #plt.subplot(2,1,1)
        # Plot Title
-       plt.title ('Time-series TG: '+tg_name[stn]+' Period: '+str(tg_sdate[stn])+' Lon/Lat: '+str(tg_lon[stn])+'/'+str(tg_lat[stn]))
+       plt.title (mod_file_template+' Time-series TG: '+tg_name[stn]+' Period: '+str(tg_sdate[stn])+' Lon/Lat: '+str(tg_lon[stn])+'/'+str(tg_lat[stn]))
        if revts_flag == 0:
           plt.plot(xin_mod_sub, '-', label = tg_name[stn]+' MOD')
           plt.plot(xin_obs_sub, '-', label = tg_name[stn]+' OBS')
@@ -794,7 +794,7 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
        elif spect_log == 0 :
           plt.ylabel ('Spectrum Amplitude')
           plt.ylim(1,20000)
-       plt.title ('SSH'+' Spectrum - TG: '+tg_name[stn]+' Period: '+str(tg_sdate[stn])+' Lon/Lat: '+str(tg_lon[stn])+'/'+str(tg_lat[stn])+'\n')
+       plt.title (mod_file_template+' SSH'+' Spectrum - TG: '+tg_name[stn]+' Period: '+str(tg_sdate[stn])+' Lon/Lat: '+str(tg_lon[stn])+'/'+str(tg_lat[stn])+'\n')
        # Add tidal constituents freqs
        if spect_log == 0 :
           text_vertical_position=[50000,48000,50000,48000,44000,42000,42000,44000]
@@ -848,7 +848,7 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
        plt.rc('font', size=12)
        plt.grid ()
        #
-       plt.title ('Empirical Distribution Function - TG: '+tg_name[stn]+' Period: '+str(tg_sdate[stn])+' Lon/Lat: '+str(tg_lon[stn])+'/'+str(tg_lat[stn]))
+       plt.title (mod_file_template+' Empirical Distribution Function - TG: '+tg_name[stn]+' Period: '+str(tg_sdate[stn])+' Lon/Lat: '+str(tg_lon[stn])+'/'+str(tg_lat[stn]))
        plt.xlabel (var_2d_mod+field_2d_units)
        plt.ylabel ('EDF')
        plt.axhline(y=0.5, color='black', linestyle="dashed")
@@ -1119,7 +1119,7 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
       plt.rc('font', size=9)
       plt.subplot(2,1,1)
       # Plot Title
-      plt.title ('Signal-to-noise ratio harmonic analysis fit --- tidal component '+comp)
+      plt.title (mod_file_template+' Signal-to-noise ratio harmonic analysis fit --- tidal component '+comp)
       plt.plot(ALL_tg_lab,globals()['ALL_R_mod'+comp], '-o', label = comp+' SNR mod')
       plt.plot(ALL_tg_lab,globals()['ALL_R_obs'+comp], '-o', label = comp+' SNR obs')
       plt.legend( loc='upper left',fontsize = 'large' )
@@ -1477,7 +1477,7 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
           plt.errorbar(TOT_tg_lab_TGarea, np.array(TOT_A_mod_TGarea),yerr=np.array(TOT_EA_mod_TGarea),fmt='-o', color=subregions_color[6], label = 'Mod (Atlantic Box - Gibraltar area)')
        if howmany_Earea != 0:
           plt.errorbar(TOT_tg_lab_Earea, np.array(TOT_A_mod_Earea),yerr=np.array(TOT_EA_mod_Earea),fmt='-o', color=subregions_color[3], label = 'Mod (East Med area)')
-       plt.title(comp+' Amplitude [cm] ')
+       plt.title(mod_file_template+' '+comp+' Amplitude [cm] ')
        plt.legend( loc='upper left',fontsize = 'large' )
        plt.grid ()
        plt.ylabel ('Amplitude [cm]')
@@ -1503,7 +1503,7 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
           plt.errorbar(TOT_tg_lab_Earea, diffA_mo_Earea,yerr=np.sqrt(np.array(TOT_EA_mod_Earea)**2+np.array(TOT_EA_obs_Earea)**2),fmt='-o', color=subregions_color[3],label = 'Mod - Obs (East Med area)')
        if tpxo_flag == 1 and flag_15stats==0 :
           plt.plot(TPXO_AMP-TOT_A_obs, '--v', color = 'black' ,label = 'TPXO-OBS')
-       plt.title(comp+' Amplitude diff (Mod - Obs) [cm] ')
+       plt.title(mod_file_template+' '+comp+' Amplitude diff (Mod - Obs) [cm] ')
        plt.grid ()
        plt.axhline(y=0, color='black')
        App_mean_diffA=round(mean_diffA,2)
@@ -1553,7 +1553,7 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
            plt.errorbar(TOT_tg_lab_TGarea, np.array(TOT_P_mod_TGarea),yerr=np.array(TOT_EP_mod_TGarea),fmt='-o', color=subregions_color[6], label = 'Mod (Atlantic Box - Gibraltar area)')
         if howmany_Earea != 0:
            plt.errorbar(TOT_tg_lab_Earea, np.array(TOT_P_mod_Earea),yerr=np.array(TOT_EP_mod_Earea),fmt='-o', color=subregions_color[3],label = 'Mod (East Med area)')
-        plt.title(comp+' Phase [deg] ')
+        plt.title(mod_file_template+' '+comp+' Phase [deg] ')
         plt.grid ()
         plt.ylabel ('Phase [deg]')
         plt.ylim(-50.0, 450.0)
@@ -1579,7 +1579,7 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
            plt.errorbar(TOT_tg_lab_Earea, diffP_mo_Earea,yerr=np.sqrt(np.array(TOT_EP_mod_Earea)**2+np.array(TOT_EP_obs_Earea)**2),fmt='-o', color=subregions_color[3],label = 'Mod - Obs (East Med area)')
         if tpxo_flag == 1 and flag_15stats==0 :
            plt.plot(TPXO_PHA-TOT_P_obs, '--v', color = 'black' ,label = 'TPXO-OBS')
-        plt.title(comp+' Phase diff (Mod - Obs) [deg] ')
+        plt.title(mod_file_template+' '+comp+' Phase diff (Mod - Obs) [deg] ')
         plt.grid ()
         plt.ylabel ('Mod - Obs [deg]')
         App_mean_diffP=round(mean_diffP,2)
@@ -1628,7 +1628,7 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
            plt.plot(TOT_tg_lab_TGarea, np.cos(np.array(TOT_P_mod_TGarea)*np.pi/180), '-o', color=subregions_color[6], label = 'Mod (Atlantic Box - Gibraltar area)')
         if howmany_Earea != 0:
            plt.plot(TOT_tg_lab_Earea, np.cos(np.array(TOT_P_mod_Earea)*np.pi/180), '-o', color=subregions_color[3],label = 'Mod (East Med area)')
-        plt.title(comp+' cos(Phase) ')
+        plt.title(mod_file_template+' '+comp+' cos(Phase) ')
         plt.grid ()
         plt.ylabel ('cos(Phase)')
         plt.ylim(-1, 1)
@@ -1654,7 +1654,7 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
            plt.plot(TOT_tg_lab_Earea, diffP_mo_Earea, '-o', color=subregions_color[3], label = 'Mod - Obs (East Med area)')
         if tpxo_flag == 1:
            plt.plot(np.cos(np.array(TPXO_PHA)*np.pi/180)-np.cos(np.array(TOT_P_obs)*np.pi/180), '--v', color = 'black' ,label = 'TPXO-OBS')
-        plt.title(comp+' cos(Phase) diff (Mod - Obs) ')
+        plt.title(mod_file_template+' '+comp+' cos(Phase) diff (Mod - Obs) ')
         plt.grid ()
         plt.ylabel ('Mod - Obs')
         App_mean_diffP=round(mean_diffP,2)
@@ -1688,7 +1688,7 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
        plt.rc('font', size=12)
        #
        plt.subplot(2,1,1)
-       plt.title(comp+' Amplitude [cm] ')
+       plt.title(mod_file_template+' '+comp+' Amplitude [cm] ')
        plt.grid ()
        # Arrays defn
        x_text=[]
@@ -1761,7 +1761,7 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
        plt.subplot(2,1,2)
        ### Pha linear reg
        if cos_pha == 0:
-        plt.title(comp+' Phase [deg] ')
+        plt.title(mod_file_template+' '+comp+' Phase [deg] ')
         plt.grid ()
         if where_box == 'AtlBox':
            plt.ylim(0.0, 360.0)
@@ -1813,7 +1813,7 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
         plt.clf()
    
        elif cos_pha == 1:
-        plt.title(comp+' cos(Phase)')
+        plt.title(mod_file_template+' '+comp+' cos(Phase)')
         plt.grid ()
         plt.ylim(-1, 1)
         plt.xlim(-1, 1)
@@ -2069,7 +2069,7 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
    
    # Add some text for labels, title and custom x-axis tick labels, etc.
    ax.set_ylabel('Tidal Amplitudes [cm]')
-   ax.set_title('Tidal Amplitudes')
+   ax.set_title(mod_file_template+' '+'Tidal Amplitudes')
    ax.set_xticks(x)
    ax.set_xticklabels(labels,fontweight='bold')
    for xtick, color in zip(ax.get_xticklabels(), TOT_color_stz):
@@ -2151,7 +2151,7 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
 
    # Add some text for labels, title and custom x-axis tick labels, etc.
    ax.set_ylabel('Tidal Amplitudes [cm]')
-   ax.set_title('Tidal Amplitudes')
+   ax.set_title(mod_file_template+' '+'Tidal Amplitudes')
    ax.set_xticks(x)
    ax.set_xticklabels(labels,fontweight='bold')
    for xtick, color in zip(ax.get_xticklabels(), TOT_color_stz):
@@ -2167,6 +2167,46 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
           plt.savefig(workdir_path+'GLOBAL_A_AB_onlyobs.jpg')
    plt.clf()
 
+   # AMPLITUDES Semi-diurnal Vs Diurnal PERCENTAGES Global plots ONLY OBS
+   x = np.arange(len(labels))  # the label locations
+   width = 0.8  # the width of the bars
+
+   obs_SEMIDIURNAL=np.array(obs_M2)+np.array(obs_S2)+np.array(obs_N2)+np.array(obs_K2)
+   obs_DIURNAL=np.array(obs_K1)+np.array(obs_O1)+np.array(obs_P1)+np.array(obs_Q1)
+   obs_TOT=obs_SEMIDIURNAL+obs_DIURNAL
+
+   obsfrac_SEMIDIURNAL=100.0*(np.array(obs_SEMIDIURNAL)/np.array(obs_TOT))
+   obsfrac_DIURNAL=100.0*(np.array(obs_DIURNAL)/np.array(obs_TOT))
+
+   fig,ax=plt.subplots( figsize=(80,24))
+   plt.rc('font', size=50)
+
+   rects2_SEMI = ax.bar(x, obsfrac_SEMIDIURNAL, width-0.05, color='#1f77b4', label='Semidiurnal %')
+
+   topbottom_O=obsfrac_SEMIDIURNAL
+   rects2_DIU = ax.bar(x, obsfrac_DIURNAL, width-0.05, bottom=topbottom_O, color='#ff7f03',label='Diurnal %')
+
+   zipped_lists_O = zip(topbottom_O,obsfrac_DIURNAL)
+   topbottom_O=[x + y for (x, y) in zipped_lists_O]
+
+   plt.axhline(y=50,linewidth=3, color='black')    
+
+   ax.set_ylabel('Tidal Amplitudes [%]')
+   ax.set_title(mod_file_template+' '+'Tidal Diurnal and Semidiurnal Amplitude Percentages')
+   ax.set_xticks(x)
+   ax.set_xticklabels(labels,fontweight='bold')
+   for xtick, color in zip(ax.get_xticklabels(), TOT_color_stz):
+       xtick.set_color(color)
+       xtick.set_fontsize(fontsize_tg)
+   ax.legend()
+
+   plt.grid ()
+
+   if where_box=='Med':
+          plt.savefig(workdir_path+'GLOBAL_A_onlyobs_SDperc.jpg')
+   elif where_box=='AtlBox':
+          plt.savefig(workdir_path+'GLOBAL_A_AB_onlyobs_SDperc.jpg')
+   plt.clf()
 
    # AMPLITUDES Global plots ONLY MOD
    x = np.arange(len(labels))  # the label locations
@@ -2209,7 +2249,7 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
 
    # Add some text for labels, title and custom x-axis tick labels, etc.
    ax.set_ylabel('Tidal Amplitudes [cm]')
-   ax.set_title('Tidal Amplitudes')
+   ax.set_title(mod_file_template+' '+'Tidal Amplitudes')
    ax.set_xticks(x)
    ax.set_xticklabels(labels,fontweight='bold')
    for xtick, color in zip(ax.get_xticklabels(), TOT_color_stz):
@@ -2311,7 +2351,7 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
    
    # Add some text for labels, title and custom x-axis tick labels, etc.
    ax.set_ylabel('Tidal Phases [deg]')
-   ax.set_title('Tidal Phases')
+   ax.set_title(mod_file_template+' '+'Tidal Phases')
    ax.set_xticks(x)
    ax.set_xticklabels(labels,fontweight='bold')
    for xtick, color in zip(ax.get_xticklabels(), TOT_color_stz):
@@ -2356,7 +2396,7 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
    # GLOBAL VECTORIAL DISTANCES PLOT
    
    plt.figure(figsize=(80,24)) 
-   plt.rc('font', size=40)  
+   plt.rc('font', size=44)  
    
    labels=[ d_foreman[i][0] for i in range(1,N_stz+1) ]
    mod_M2 = [ d_foreman[j][1] for j in range (1,N_stz+1)]
@@ -2437,14 +2477,15 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
    
    # Add some text for labels, title and custom x-axis tick labels, etc.
    ax.set_ylabel('Vectorial Distances [cm]')
-   ax.set_title('Vectorial Distances per TG per tidal component') 
+   ax.set_title(mod_file_template+' '+'Vectorial Distances per TG per tidal component') 
    ax.set_xticks(x)
    ax.set_xticklabels(labels,fontweight='bold')
    for xtick, color in zip(ax.get_xticklabels(), TOT_color_stz):
        xtick.set_color(color)
        xtick.set_fontsize(fontsize_tg) 
    ax.legend()
-   
+
+   plt.ylim(0, 14)   
    plt.grid ()
    
    if where_box=='Med':
@@ -2472,7 +2513,7 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
    
    # Add some text for labels, title and custom x-axis tick labels, etc.
    ax.set_ylabel('RMSm [cm]')
-   ax.set_title('Root Mean Square misfits - '+where_box)
+   ax.set_title(mod_file_template+' '+'Root Mean Square misfits - '+where_box)
    ax.set_xticks(x)
    ax.set_xticklabels(labels,fontweight='bold')
    
@@ -2483,7 +2524,7 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
        bin_idx=0
        for rect in rects:
            height = rect.get_height()
-           ax.annotate(round(RMSm[bin_idx],1),
+           ax.annotate(round(RMSm[bin_idx],2),
                        xy=(rect.get_x() + rect.get_width() / 2, height ),
                        xytext=(0, 3),  # 3 points vertical offset
                        textcoords="offset points",
