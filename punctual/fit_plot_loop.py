@@ -47,16 +47,24 @@ from lit_tpxo import *
 #################################################################
 # General run parameters:
 #---------------------
+# Name of the model run
+runname=str(sys.argv[1])
+
 # Work dir path:
 # WARNING: the inputs must be here, the outputs will be moved to subdirs   
-workdir='/work/oda/ag15419/tmp/HA_twd/2017/p_ctrl_2/'
+workdir='/work/oda/ag15419/tmp/HA_twd/2018/p_'+runname+'/'
 # input files:
 emodnettg_coo_file = '/users_home/oda/ag15419/harm_analysis/punctual/emodnet_TGb_newTGb_all.coo'
 model_bathy='/work/oda/ag15419/PHYSW24_DATA/TIDES/DATA0/bathy_meter.nc'
 #
 
 # Domain (Med or AtlBox)
-where_box='AtlBox'
+where_box=str(sys.argv[2])
+# Sub region of the domain ('all' or one of in the list from 0 to 7 )
+try:
+   where_box_sub=int(sys.argv[3])
+except:
+   where_box_sub=str(sys.argv[3])
 
 # Option for phase plots
 cos_pha = 0 
@@ -69,7 +77,7 @@ cos_pha = 0
 #--------------------
 # MODEL DATASET
 # WARNING: this must be the same as in p_extr.ini file (var ANA_INTAG)
-mod_file_template='simu_ctrl0_EAS6_v8' #'eas6_v8_simu_3' #'simu_EAS6_v8' #'Tides8_v31' 'eas6'
+mod_file_template=runname #'eas6_v8_simu_3' #'simu_EAS6_v8' #'Tides8_v31' 'eas6'
 
 # Fields to be analized
 grid = 'T' # Choose T, U, V or uv2t grid
@@ -204,7 +212,11 @@ lit_fullname = 0
 for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
 
    # Buil the dir and move in it
-   workdir_path = workdir+'/'+anatype_flag+'_'+where_box+'/'
+   try:
+      workdir_path = workdir+'/'+anatype_flag+'_'+where_box+'_'+subregions_labels[where_box_sub]+'/'
+   except:
+      workdir_path = workdir+'/'+anatype_flag+'_'+where_box+'/'
+   #
    try:
        os.stat(workdir_path)
    except:
@@ -263,9 +275,10 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
    tg_inname = fT1_coo[2][:] 
    anatpxo_inflag = fT1_coo[5][:] 
    lit_inflag = fT1_coo[6][:] 
- 
-   if where_box == 'Med':
   
+   #
+   if where_box == 'Med' and where_box_sub == 'all' :
+      print ('Working on the whole Med')
       if anatype_flag=='lit':
          for idx_tg in range (0,len(lit_inflag)):
              if lit_inflag[idx_tg] == 1 :
@@ -293,8 +306,41 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
                tg_lat.append(tg_inlat[idx_tg])
                tg_col.append(which_region(tg_inlon[idx_tg],tg_inlat[idx_tg]))
    
-   elif where_box == 'AtlBox':
+   #
+   elif where_box == 'Med' and where_box_sub != 'all' :
+      print ('Working on the Med subregion: ',where_box_sub)
+      if anatype_flag=='lit':
+         for idx_tg in range (0,len(lit_inflag)):
+             if lit_inflag[idx_tg] == 1 :
+                if which_domain(tg_inlon[idx_tg],tg_inlat[idx_tg]) == 'Med':
+                   if str(which_region(tg_inlon[idx_tg],tg_inlat[idx_tg])) == subregions_color[where_box_sub] :
+                      tg_name.append(tg_inname[idx_tg])
+                      tg_lon.append(tg_inlon[idx_tg])
+                      tg_lat.append(tg_inlat[idx_tg])
+                      tg_col.append(which_region(tg_inlon[idx_tg],tg_inlat[idx_tg]))
 
+      elif anatype_flag=='anatpxo':
+         for idx_tg in range (0,len(anatpxo_inflag)):
+             if anatpxo_inflag[idx_tg] == 1 :
+                if which_domain(tg_inlon[idx_tg],tg_inlat[idx_tg]) == 'Med':
+                   if which_region(tg_inlon[idx_tg],tg_inlat[idx_tg]) == subregions_color[where_box_sub] :
+                      tg_name.append(tg_inname[idx_tg])
+                      tg_lon.append(tg_inlon[idx_tg])
+                      tg_lat.append(tg_inlat[idx_tg])
+                      tg_col.append(which_region(tg_inlon[idx_tg],tg_inlat[idx_tg]))
+   
+      elif anatype_flag=='all':
+         
+         for idx_tg in range (0,len(tg_inname)):
+            if which_domain(tg_inlon[idx_tg],tg_inlat[idx_tg]) == 'Med':
+               if which_region(tg_inlon[idx_tg],tg_inlat[idx_tg]) == subregions_color[where_box_sub] :
+                  tg_name.append(tg_inname[idx_tg])
+                  tg_lon.append(tg_inlon[idx_tg])
+                  tg_lat.append(tg_inlat[idx_tg])
+                  tg_col.append(which_region(tg_inlon[idx_tg],tg_inlat[idx_tg]))
+
+   elif where_box == 'AtlBox' and where_box_sub == 'all' :
+       print ('Working on the whole AtlBox')
        if anatype_flag=='all':
          for idx_tg in range (0,len(tg_inname)):
             if which_domain(tg_inlon[idx_tg],tg_inlat[idx_tg]) == 'AtlBox':
@@ -311,9 +357,35 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
                    tg_lon.append(tg_inlon[idx_tg])
                    tg_lat.append(tg_inlat[idx_tg])
                    tg_col.append(which_region(tg_inlon[idx_tg],tg_inlat[idx_tg]))
+
+   elif where_box == 'AtlBox' and where_box_sub != 'all' :
+       print ('Working on the AtlBox subregion: ',where_box_sub)
+       if anatype_flag=='all':
+         for idx_tg in range (0,len(tg_inname)):
+            if which_domain(tg_inlon[idx_tg],tg_inlat[idx_tg]) == 'AtlBox':
+               if which_region(tg_inlon[idx_tg],tg_inlat[idx_tg]) == subregions_color[where_box_sub] :
+                  tg_name.append(tg_inname[idx_tg])
+                  tg_lon.append(tg_inlon[idx_tg])
+                  tg_lat.append(tg_inlat[idx_tg])
+                  tg_col.append(which_region(tg_inlon[idx_tg],tg_inlat[idx_tg]))
+
+       elif anatype_flag=='anatpxo':
+         for idx_tg in range (0,len(anatpxo_inflag)):
+             if anatpxo_inflag[idx_tg] == 1 :
+                if which_domain(tg_inlon[idx_tg],tg_inlat[idx_tg]) == 'AtlBox':
+                   if which_region(tg_inlon[idx_tg],tg_inlat[idx_tg]) == subregions_color[where_box_sub] :
+                      tg_name.append(tg_inname[idx_tg])
+                      tg_lon.append(tg_inlon[idx_tg])
+                      tg_lat.append(tg_inlat[idx_tg])
+                      tg_col.append(which_region(tg_inlon[idx_tg],tg_inlat[idx_tg]))
    
    tg_num=len(tg_name)
    print("EmodNET Stations num:",tg_num)
+
+   # Check on the tg numbers
+   if tg_num < 2 :
+      print ('The num of tide-gauge in this sub region is lower than 2, I am going to the next one..')
+      continue      
    
    # EMODNET FIT by means of ttide code
    
@@ -2181,10 +2253,10 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
    fig,ax=plt.subplots( figsize=(80,24))
    plt.rc('font', size=50)
 
-   rects2_SEMI = ax.bar(x, obsfrac_SEMIDIURNAL, width-0.05, color='#d62728', label='Semidiurnal %')
+   rects2_SEMI = ax.bar(x, obsfrac_SEMIDIURNAL, width-0.05, color='#1f77b4', label='Semidiurnal %')
 
    topbottom_O=obsfrac_SEMIDIURNAL
-   rects2_DIU = ax.bar(x, obsfrac_DIURNAL, width-0.05, bottom=topbottom_O, color='#1f77b4',label='Diurnal %')
+   rects2_DIU = ax.bar(x, obsfrac_DIURNAL, width-0.05, bottom=topbottom_O, color='#ff7f03',label='Diurnal %')
 
    zipped_lists_O = zip(topbottom_O,obsfrac_DIURNAL)
    topbottom_O=[x + y for (x, y) in zipped_lists_O]

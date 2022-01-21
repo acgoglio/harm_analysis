@@ -1,0 +1,40 @@
+#!/bin/bash
+#BSUB -J HAp          # Name of the job.
+#BSUB -o /work/oda/ag15419/job_scratch/fit_%J.out  # Appends std output to file %J.out.
+#BSUB -e /work/oda/ag15419/job_scratch/fit_%J.err  # Appends std error to file %J.err.
+#BSUB -q s_long
+#BSUB -n 1
+#BSUB -P 0284 # Project number
+#
+# by AC Goglio (CMCC)
+# annachiara.goglio@cmcc.it
+#
+# Written: 05/03/2021
+#
+#
+#set -u
+set -e
+#set -x 
+#################################################
+# Load the environment
+echo "Loading the environment.."
+module load anaconda
+source activate mappyenv
+echo "..Done!"
+
+echo "Running the loop"
+for WH in Med AtlBox; do 
+    echo "############### $WH ################"
+    #for EXP in simu_EAS6_v8 eas6_v8_simu_1 eas6_v8_simu_2 eas6_v8_simu_3 eas6_v8_simu_4 eas6_v8_simu_5 eas6_v8_simu_6 ; do 
+    for EXP in eas6_v8_simu_0 ; do
+        echo "############### $EXP ################"
+        for SUB in 'all' ; do # 0 1 2 3 4 5 6 7 ; do
+            echo "############### $SUB ################" 
+            echo "############### $EXP $WH $SUB ################" 
+            python fit_plot_loop.py $EXP $WH $SUB 
+        done 
+     done
+done
+
+echo "..END of the JOB!"
+

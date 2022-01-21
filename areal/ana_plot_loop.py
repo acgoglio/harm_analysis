@@ -34,7 +34,7 @@ from scipy import interpolate
 # annachiara.goglio@cmcc.it
 #
 # Written: 01/11/2019
-# Modified: 12/03/2021
+# Modified: 10/01/2022
 #
 # Script to analize and plot the harmonic analisi reults on area
 #
@@ -43,8 +43,11 @@ from scipy import interpolate
 #################################################################
 # General run parameters:
 #---------------------
+# Name of the model run
+runname=str(sys.argv[1])
+
 # work dir path and bathymetry path/name
-workdir_path = '/work/oda/ag15419/tmp/HA_twd/2018/a_eas6_v8_simu_1/'
+workdir_path = '/work/oda/ag15419/tmp/HA_twd/2018/a_'+runname+'/'
 model_bathy='/work/oda/ag15419/PHYSW24_DATA/TIDES/DATA0/bathy_meter.nc'
 model_meshmask='/work/oda/ag15419/PHYSW24_DATA/TIDES/DATA0/mesh_mask.nc'
 #
@@ -110,7 +113,7 @@ bathy_diff_flag=0
 # MODEL DATASETS
 model_path=workdir_path
 model_fileprename='amppha' # DO NOT change this
-model_postname='eas6_v8_simu_3' # WARNING: Use the same string as in fit_marea.py
+model_postname=runname # WARNING: Use the same string as in fit_marea.py
 model_postname='mod_'+model_postname
 
 bathylim4RMSE=0 # Bathymetry threshold for RMSE (only grid points with bathy>bathylim4RMSE are taken into account)
@@ -1200,7 +1203,7 @@ if vectorial_dist_flag ==  1:
                      plt.ylim(30, 46)
                      plt.xlim(-20, 0)
                      ved=np.sqrt(np.power(np.squeeze(vals)*np.cos(np.squeeze(P_vals))-(np.squeeze(var_new)*np.cos(np.squeeze(pha_new))),2)+np.power(np.squeeze(vals)*np.sin(np.squeeze(P_vals))-(np.squeeze(var_new)*np.sin(np.squeeze(pha_new))),2))
-                     cs = plt.contourf(x,y,ved,med_range,cmap='YlOrRd',extend='max')
+                     cs = plt.contourf(x,y,ved,med_range,cmap='inferno_r',extend='max') # YlOrRd
                      contourf1 = plt.contourf(x,y,np.abs(np.squeeze(vals_bathy)),[0.00000,0.00000001], colors='gray') # 0.00000001
                      contour1 = plt.contour(x,y,np.abs(np.squeeze(vals_bathy)),0.00000,colors='black')
                      ax[0].set_xticks(np.arange(340,360,10))
@@ -1242,7 +1245,7 @@ if vectorial_dist_flag ==  1:
                      plt.xlim(0, 40)
                      plt.tick_params(labelcolor='none', top=False, bottom=True, left=False, right=False)
                      ved=np.sqrt(np.power(np.squeeze(vals)*np.cos(np.squeeze(P_vals))-(np.squeeze(var_new2)*np.cos(np.squeeze(pha_new2))),2)+np.power(np.squeeze(vals)*np.sin(np.squeeze(P_vals))-(np.squeeze(var_new2)*np.sin(np.squeeze(pha_new2))),2))
-                     cs = plt.contourf(x,y,ved,med_range,cmap='YlOrRd',extend='max')
+                     cs = plt.contourf(x,y,ved,med_range,cmap='inferno_r',extend='max') # YlOrRd
                      contourf1 = plt.contourf(x,y,np.abs(np.squeeze(vals_bathy)),[0.00000,0.00000001], colors='gray') # 0.00000001
                      contour1 = plt.contour(x,y,np.abs(np.squeeze(vals_bathy)),0.00000,colors='black')
                      ax[1].get_yaxis().set_visible(False)

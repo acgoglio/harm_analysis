@@ -75,7 +75,8 @@
 # module load anaconda 
 # source activate "your-virtual-environment"
 #
-# 2) set (following the instructions in the file) and run the fit_plot.py script
+# 6) set (following the instructions in the file) and run the fit_plot.py script
+# AUTOMATIC LOOP ex: for WH in Med AtlBox; do for EXP in simu_EAS6_v8 eas6_v8_simu_1 eas6_v8_simu_2 eas6_v8_simu_3 eas6_v8_simu_4 eas6_v8_simu_5 eas6_v8_simu_6 ; do echo "############### $EXP $WH G ##################" ; python fit_plot_loop.py $EXP $WH G ; done ; done
 #
 # =============================
 #  OUTPUTS:
