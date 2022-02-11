@@ -51,22 +51,25 @@ from scipy import interpolate
 # General run parameters: 
 #---------------------
 # work dir path and bathymetry path/name
-workdir_path = '/work/oda/ag15419/tmp/HA_twd/a_twd/'
+workdir_path = '/work/oda/ag15419/tmp/HA_twd/2017/a_twd/'
 model_bathy='/work/oda/ag15419/PHYSW24_DATA/TIDES/DATA0/bathy_meter.nc'
 model_meshmask='/work/oda/ag15419/PHYSW24_DATA/TIDES/DATA0/mesh_mask.nc'
 outplot=workdir_path+'/AmpST_perc.png'
+outplot_totamp=workdir_path+'/TOTAmp.png'
 
-flag_tpxo=1
+flag_tpxo=0
 workdir_path2 = '/work/oda/ag15419/tmp/HA_twd/tpxo_semidiurnal/'
 nc2open_tpxo=workdir_path2+'/tpxo_semid_perc.nc'
 outplot_tpxo=workdir_path2+'/tpxo_AmpST_perc.png'
 outplot_glo=workdir_path2+'/tpxo_AmpST_perc_glo.png'
 
+###############################################################
 # Build the path/name of the nc file and open it 
 nc2open=workdir_path+'/Amp_perc_tmp.nc'
 print ('Input file = ',nc2open)
 model = NC.Dataset(nc2open,'r')
 ST_perc=model.variables['ST_perc'][:]
+TOT_Amp=model.variables['TOT_Amp'][:] * 100.0
 vals=ST_perc
 
 # Read lat, lon and fild values 
@@ -84,6 +87,8 @@ vals_land=np.squeeze(vals_land)
 
 vals_ma = np.ma.masked_where(vals_land, vals)
 
+##############################################
+# Plot the Semidiurnal Amplitude Percentages
 plt.figure(figsize=(20,10))
 plt.rc('font', size=16)
 
@@ -125,6 +130,47 @@ cbar.set_label(bar_label_string)
 
 plt.savefig(outplot)
 print ('Outfile ',outplot)
+plt.clf()
+
+# Plot the sum of amplitudes
+plt.figure(figsize=(20,10))
+plt.rc('font', size=16)
+
+plt.title ('Tidal Component Amplitudes Sum')
+
+# Read the coordinates for the plot 
+lon_0 = lons.mean()
+llcrnrlon = lons.min()
+urcrnrlon = lons.max()
+lat_0 = lats.mean()
+llcrnrlat = lats.min()
+urcrnrlat = lats.max()
+
+# Create the map
+m = Basemap(llcrnrlon=llcrnrlon,llcrnrlat=llcrnrlat,urcrnrlon=urcrnrlon,urcrnrlat=urcrnrlat,resolution='c',projection='merc',lat_0=lat_0,lon_0=lon_0)
+xi, yi = m(lons, lats)
+
+# Plot the frame to the map
+plt.rcParams["axes.linewidth"]  = 1.25
+
+# Amp plot:
+cs = plt.contourf(xi,yi,TOT_Amp,levels=[0,10,20,30,40,50,60,70,80,90,100,110,120], extend='max',cmap='jet')
+
+# Add the grid
+m.drawparallels(np.arange(30., 46., 5.), labels=[1,0,0,0], fontsize=10)
+m.drawmeridians(np.arange(-20., 40., 10.), labels=[0,0,0,1], fontsize=10)
+
+# Land from bathymetry or mesh mask file
+contourf1 = plt.contourf(xi,yi,np.abs(np.squeeze(vals_bathy)),[0.00000,0.00000001], colors='gray')
+contour1 = plt.contour(xi,yi,np.abs(np.squeeze(vals_bathy)),[0.00000],colors='black')
+
+# Plot the legend 
+cbar = m.colorbar(cs, location='bottom', pad="10%", extend='max')
+bar_label_string=' Amplitudes Sum [cm]'
+cbar.set_label(bar_label_string)
+
+plt.savefig(outplot_totamp)
+print ('Outfile ',outplot_totamp)
 plt.clf()
 
 #####################################
