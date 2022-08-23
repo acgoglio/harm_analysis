@@ -11,6 +11,7 @@ import sys
 import warnings
 #
 warnings.filterwarnings("ignore") # Avoid warnings
+mpl.use('Agg')
 #
 from scipy.optimize import curve_fit
 from scipy import stats
@@ -49,10 +50,10 @@ from lit_tpxo import *
 #---------------------
 # Work dir path:
 # WARNING: the inputs must be here, the outputs will be moved to subdirs   
-workdir= '/work/oda/ag15419/tmp/HA_twd/p_ctrl/' 
+workdir= '/work/oda/med_dev/EAS7/harm_ana/point_2020/' 
 # input files:
-emodnettg_coo_file = '/users_home/oda/ag15419/harm_analysis/punctual/emodnet_TGb_newTGb_all.coo'
-model_bathy='/work/oda/ag15419/PHYSW24_DATA/TIDES/DATA0/bathy_meter.nc'
+emodnettg_coo_file = '/users_home/oda/med_dev/src_dev/harm_analysis/punctual/emodnet_TGb_newTGb_all.coo'
+model_bathy='/data/oda/ag15419/PHYSW24_DATA/TIDES/DATA0/bathy_meter.nc'
 #
 
 # Domain (Med or AtlBox)
@@ -69,7 +70,7 @@ cos_pha = 0
 #--------------------
 # MODEL DATASET
 # WARNING: this must be the same as in p_extr.ini file (var ANA_INTAG)
-mod_file_template='simu_EAS6_v8' #'Tides8_v31' 'eas6'
+mod_file_template='EAS7'
 
 # Fields to be analized
 grid = 'T' # Choose T, U, V or uv2t grid
@@ -122,7 +123,11 @@ def which_region(longitude,latitude):
            color=subregions_color[3]
        # ADRIACTIC SEA:
        elif (longitude < 20.000 and longitude > 12.000 and latitude < 46.000 and latitude > 42.000 ) or (longitude < 20.000 and longitude > 14.000 and latitude < 42.000 and latitude > 41.000 ) or (longitude < 20.000 and longitude > 16.000 and latitude < 42.000 and latitude > 40.000):
-           color=subregions_color[1]
+           # Rm Taranto Gulf
+           if (longitude < 18.030 and longitude > 16.000 and latitude < 40.600 and latitude > 40.000):
+              color=subregions_color[4]
+           else:
+              color=subregions_color[1]
        # MESSINA STRAIT AREA:
        elif longitude < 16.500 and longitude > 14.500 and latitude < 38.200 and latitude > 37.800:
            color=subregions_color[2]
@@ -181,7 +186,7 @@ snr_thershold=0.1
 
 # OPTIONS ON NAMES AND ERROR BARS
 # Flag to avoid TG names/numbers in the lin reg plots (set linreg_name_flag = 0 to avoid the strings..)
-linreg_name_flag = 1
+linreg_name_flag = 0
 # To avoid fit error bars in Amp, Pha and lin reg plots set errbar_flag = 0 
 errbar_flag = 1
 
@@ -1046,7 +1051,7 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
    plt.figure(figsize=(20,10))
    plt.rc('font', size=12)
    # Plot Title
-   plt.title ('Bathymetry [m] and Tide-Gauges location')
+   #plt.title ('Bathymetry [m] and Tide-Gauges location')
    lon_0 = lons.mean()
    llcrnrlon = lons.min()
    urcrnrlon = lons.max()
