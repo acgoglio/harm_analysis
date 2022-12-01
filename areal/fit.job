@@ -1,10 +1,11 @@
 #!/bin/bash
 #BSUB -J SSH_HA          # Name of the job.
-#BSUB -o /work/oda/ag15419/job_scratch/fit_%J.out  # Appends std output to file %J.out.
-#BSUB -e /work/oda/ag15419/job_scratch/fit_%J.err  # Appends std error to file %J.err.
+#BSUB -o /work/oda/med_dev/job_errout/fit_%J.out  # Appends std output to file %J.out.
+#BSUB -e /work/oda/med_dev/job_errout/fit_%J.err  # Appends std error to file %J.err.
 #BSUB -q s_long
 #BSUB -n 1
-#BSUB -P 0284 # Project number
+#BSUB -P 0510 # Project number
+#BSUB -M 80G
 #
 # by AC Goglio (CMCC)
 # annachiara.goglio@cmcc.it

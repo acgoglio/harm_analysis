@@ -5,8 +5,10 @@ import os
 import time 
 import sys
 import warnings
+import matplotlib as mpl
 #
 warnings.filterwarnings("ignore") # Avoid warnings
+mpl.use('Agg')
 #
 import matplotlib.pyplot as plt
 import numpy as np
@@ -36,7 +38,7 @@ from scipy import interpolate
 # Written: 01/11/2019
 # Modified: 12/03/2021
 #
-# Script to analize and plot the harmonic analisi reults on area
+# Script to analize and plot the harmonic analysis reults on area
 #
 #################################################################
 # The user should modify the following lines to set his run
@@ -44,22 +46,22 @@ from scipy import interpolate
 # General run parameters:
 #---------------------
 # work dir path and bathymetry path/name
-workdir_path = '/work/oda/ag15419/tmp/HA_twd/a_ctrl/'
-model_bathy='/work/oda/ag15419/PHYSW24_DATA/TIDES/DATA0/bathy_meter.nc'
-model_meshmask='/work/oda/ag15419/PHYSW24_DATA/TIDES/DATA0/mesh_mask.nc'
+workdir_path = '/work/oda/med_dev/EAS7/harm_ana/area_2020/'
+model_bathy='/data/oda/ag15419/PHYSW24_DATA/TIDES/DATA0/bathy_meter.nc'
+model_meshmask='/data/oda/ag15419/PHYSW24_DATA/TIDES/DATA0/mesh_mask.nc'
 #
 # Dates
 # Choose start and end dates of the period (format dd/mm/yyyy)
-inidate = '01/07/2017'
-enddate = '31/12/2017'
+inidate = '01/01/2020'
+enddate = '30/06/2020'
 
 # TPXO9 path
-tpxo9_path='/work/oda/ag15419/OTPS/OTPSnc/DATA/NC/'
+tpxo9_path='/work/oda/ag15419/OTPS/OTPSnc_clean/DATA/'
 
 # FLAGS for different analysis (set 1 to activate the tasks)
 
 # For Amplitude/Phase maps (1 map per tidal component)
-amppha_flag=0
+amppha_flag=1
 # For the following maps (1 map per tidal component):
 # ) AmpPha to plot amplitude/phase maps
 # ) AtlBox to plot amplitude/phase maps with AtlOcean proper palette
@@ -80,7 +82,7 @@ pha_tpxo=0
 ampha_tpxo_atlamph=0
 # For TPXO9 Amplitude/Phase maps on TPXO grid in North Atlantic (ONLY M2 component, to be extended..)
 
-doseong_flag=0 # TO compute Do-Seong factor for EAS system
+doseong_flag=1 # TO compute Do-Seong factor for EAS system
 # For the following maps (1 map per factor):
 # Tidal Form Factor [Do-Seong] F=(A_K1+A_O1)/(A_M2+A_S2)
 # Tidal Envelope Factor [Do-Seong] E=(A_M2+A_N2)/(A_M2+A_S2)
@@ -90,9 +92,9 @@ doseong_tpxo=0
 # For computing DoSeong factor from TPXO9 model on TPXO grid
 
 tpxo2eas_flag=0
-# To interpolate tpxo9 1/30 to MED24 grid and plot Amplitude/Phase maps
+# To plot the Amplitude/Phase maps of TPXO9 interpolated on the MED24 grid
 
-diff_tpxoeas_flag=0
+diff_tpxoeas_flag=1
 # For amplitude diffs between eas and tpxo on MED24 grid
 
 vectorial_dist_flag=1
@@ -110,8 +112,8 @@ bathy_diff_flag=0
 # MODEL DATASETS
 model_path=workdir_path
 model_fileprename='amppha' # DO NOT change this
-model_postname='simu_EAS6_v8' # WARNING: Use the same string as in fit_marea.py
-model_postname='mod_'+model_postname
+model_postname_pre='EAS7' # WARNING: Use the same string as in fit_marea.py
+model_postname='mod_'+model_postname_pre
 
 bathylim4RMSE=0 # Bathymetry threshold for RMSE (only grid points with bathy>bathylim4RMSE are taken into account)
 
@@ -968,7 +970,8 @@ if diff_tpxoeas_flag ==  1:
                      fig.subplots_adjust(wspace=0)
                      plt.rc('font', size=12)
                      # Plot Title
-                     plt.suptitle ('Amplitude Diff: '+model_postname+' - TPXO9  --- MED24 grid --- '+tidal_component)
+                     #plt.suptitle ('Amplitude Diff: '+model_postname+' - TPXO9  --- MED24 grid --- '+tidal_component)
+                     plt.suptitle ('Tidal Amplitude Differences: '+model_postname_pre+' - TPXO9 --- Tidal component: '+tidal_component)
 
                      # Plot the frame to the map
                      plt.rcParams["axes.linewidth"]  = 1.25

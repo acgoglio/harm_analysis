@@ -31,7 +31,7 @@ import ttide
 #################################################################
 
 # General run parameters:
-workdir_path = '/work/oda/ag15419/tmp/eas6_v2/HA_area_last/'
+workdir_path = '/work/oda/med_dev/EAS7/harm_ana/area_2020/'
 
 # Dates
 # Choose start and end dates of the period (format dd/mm/yyyy)
@@ -48,7 +48,7 @@ enddate = '30/06/2020'
 # Path and name of inputs datasets
 # Currently the extraction of nc is done externally by another script
 model_fileprename='map' # DO NOT change this
-model_postname='eas6' # WARNING: Use the same string as in map_extr.ini (ANA_INTAG var)
+model_postname='EAS7' # WARNING: Use the same string as in map_extr.ini (ANA_INTAG var)
 model_path=workdir_path
 
 # Dates
