@@ -52,6 +52,7 @@
 #    WARNING: the tide-gauges are identified by name, thus the name MUST be the same as TG name in the .coo file 
 #    WARNING: The database can be extended but be aware that the literature one should cover both references and CANNOT have gaps. 
 #
+# For analysis on the current dataset of TGs you can find ready obs files stored here: /work/oda/ag15419/arc_link/TG_ext_ts/bestTG/
 #
 # ----------- EXTRACTION AND PRE-PROCESSING OF TIDE GAUGES TIME SERIES ------------ 
 #
