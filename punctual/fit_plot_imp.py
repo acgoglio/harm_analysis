@@ -187,21 +187,28 @@ def get_summary_statistics(dataset,BPfile):
 
     dataset = np.array(dataset)    
     mean = np.round(np.mean(dataset), 2)
+    std = np.round(np.std(dataset), 2)
     median = np.round(np.median(dataset), 2)
     min_value = np.round(dataset.min(), 2)
     max_value = np.round(dataset.max(), 2)
     quartile_1 = np.round(np.percentile(dataset,25), 2)
     quartile_3 = np.round(np.percentile(dataset,75), 2)
-    # Interquartile range
     iqr = np.round(quartile_3 - quartile_1, 2)
+    ttrimean = np.round((median+((quartile_1+quartile_3)/2)/2),2)
+    ykcoeff = np.round((quartile_1+quartile_3-2*median)/(iqr),2)
+
+    # Interquartile range
     print('Min: %s' % min_value,file=BP_file)
     print('Mean: %s' % mean,file=BP_file)
+    print('STD: %s' % std,file=BP_file)
     print('Max: %s' % max_value,file=BP_file)
     print('',file=BP_file)
     print('25th percentile: %s' % quartile_1,file=BP_file)
     print('Median: %s' % median,file=BP_file)
     print('75th percentile: %s' % quartile_3,file=BP_file)
     print('Interquartile range (IQR): %s' % iqr,file=BP_file)
+    print('Tukey trimean: %s' % ttrimean,file=BP_file)
+    print('Yule-Kendall coeff.: %s' % ykcoeff,file=BP_file)
 
 # Signal-to-noise ration threshold
 # WARNING: if any component shows a fit snr lower than this the fit is not perfomed
@@ -229,7 +236,7 @@ lit_fullname = 0
 # lit       --> Compare the common datasets with respect to literature 
 # anatpxo   --> Apply all the analysis and compare datasets with TPXO model results
 # all       --> Linear regression concerning all avalilable tide-gauges 
-for anatype_flag in ('anatpxo','all','lit'): #'all','lit','anatpxo'
+for anatype_flag in ('lit','anatpxo','all'): #'all','lit','anatpxo'
 
    # Buil the dir and move in it
    workdir_path = workdir+'/'+anatype_flag+'_'+where_box+'/'
@@ -1669,7 +1676,7 @@ for anatype_flag in ('anatpxo','all','lit'): #'all','lit','anatpxo'
           BP_Pdiff_label = ['EAS7-Obs','TPXO-Obs']
 
           # Print stats
-          BP_file = open(workdir_path+"stats_BP.txt","w")
+          BP_file = open(workdir_path+"stats_BP_"+comp+".txt","w")
           #
           print ('BX Amp stats',file=BP_file)
           print ('---> EAS7',file=BP_file)
@@ -1734,45 +1741,48 @@ for anatype_flag in ('anatpxo','all','lit'): #'all','lit','anatpxo'
           BP_Pdiff_title = comp+" Phases"
           BP_Pdiff_label = ['EAS7-Obs']
           BP_colors_diff = ['red']
-          # Print stats
-          BP_file = open(workdir_path+"stats_BP.txt","w")
-          #
-          print ('BX Amp stats',file=BP_file)
-          print ('---> EAS7',file=BP_file)
-          get_summary_statistics(dataset=TOT_A_mod,BPfile=BP_file)
-          print ('---> OBS',file=BP_file)
-          get_summary_statistics(dataset=TOT_A_obs,BPfile=BP_file)
-          print ('###############',file=BP_file)
-          print ('BX Pha stats',file=BP_file)
-          print ('---> EAS7',file=BP_file)
-          get_summary_statistics(dataset=TOT_P_mod,BPfile=BP_file)
-          print ('---> OBS',file=BP_file)
-          get_summary_statistics(dataset=TOT_P_obs,BPfile=BP_file)
-          print ('###############',file=BP_file)
-          print ('###############',file=BP_file)
-          #
-          print ('BX Amp diff stats',file=BP_file)
-          print ('---> EAS7-Obs',file=BP_file)
-          get_summary_statistics(dataset=diffA_mo,BPfile=BP_file)
-          print ('###############',file=BP_file)
-          print ('BX Pha diff stats',file=BP_file)
-          print ('---> EAS7-Obs',file=BP_file)
-          get_summary_statistics(dataset=diffP_mo,BPfile=BP_file)
-          print ('###############',file=BP_file)
-          print ('###############',file=BP_file)
-          BP_file.close()
 
-          # ecdf:
-          #ecdf_A_mod=ECDF(TOT_A_mod)
-          #ecdf_A_obs=ECDF(TOT_A_obs)
-          #BP_A_title = "Distributions of EAS7 Obs Amplitudes - "+comp
-          #BP_A_label = ['EAS7','Obs']
-          #ecdf_P_mod=ECDF(TOT_P_mod)
-          #ecdf_P_obs=ECDF(TOT_P_obs)
-          #BP_P_title = "Distributions of EAS7 Obs Phases - "+comp
-          #BP_P_label = ['EAS7','Obs']
+          if anatype_flag != 'lit':
+             # Print stats
+             BP_file = open(workdir_path+"stats_BP_"+comp+".txt","w")
+             #
+             print ('BX Amp stats',file=BP_file)
+             print ('---> EAS7',file=BP_file)
+             get_summary_statistics(dataset=TOT_A_mod,BPfile=BP_file)
+             print ('---> OBS',file=BP_file)
+             get_summary_statistics(dataset=TOT_A_obs,BPfile=BP_file)
+             print ('###############',file=BP_file)
+             print ('BX Pha stats',file=BP_file)
+             print ('---> EAS7',file=BP_file)
+             get_summary_statistics(dataset=TOT_P_mod,BPfile=BP_file)
+             print ('---> OBS',file=BP_file)
+             get_summary_statistics(dataset=TOT_P_obs,BPfile=BP_file)
+             print ('###############',file=BP_file)
+             print ('###############',file=BP_file)
+             #
+             print ('BX Amp diff stats',file=BP_file)
+             print ('---> EAS7-Obs',file=BP_file)
+             get_summary_statistics(dataset=diffA_mo,BPfile=BP_file)
+             print ('###############',file=BP_file)
+             print ('BX Pha diff stats',file=BP_file)
+             print ('---> EAS7-Obs',file=BP_file)
+             get_summary_statistics(dataset=diffP_mo,BPfile=BP_file)
+             print ('###############',file=BP_file)
+             print ('###############',file=BP_file)
+             BP_file.close()
+   
+             # ecdf:
+             #ecdf_A_mod=ECDF(TOT_A_mod)
+             #ecdf_A_obs=ECDF(TOT_A_obs)
+             #BP_A_title = "Distributions of EAS7 Obs Amplitudes - "+comp
+             #BP_A_label = ['EAS7','Obs']
+             #ecdf_P_mod=ECDF(TOT_P_mod)
+             #ecdf_P_obs=ECDF(TOT_P_obs)
+             #BP_P_title = "Distributions of EAS7 Obs Phases - "+comp
+             #BP_P_label = ['EAS7','Obs']
 
-        if anatype_flag == 'lit' and j < 4 :
+        if anatype_flag == 'lit' and comp_idx < 4 :
+          print ('Appending lit!')
           BP_colors = ['lightpink','lightgray','lightgreen','lightyellow']
           BPm_colors = ['red','gray','green','yellow']
           BP_A_array.append(globals()['TSIMPLIS_'+comp])
@@ -1794,7 +1804,51 @@ for anatype_flag in ('anatpxo','all','lit'): #'all','lit','anatpxo'
           BP_Adiff_label = ['EAS7-Obs','TSimplis-Obs','Palma-Obs']
           BP_Pdiff_title = comp+" Phases"
           BP_Pdiff_label = ['EAS7-Obs','TSimplis-Obs','Palma-Obs']
-          # Print stats (TO BE IMPLEMENTED!)
+
+          # Print stats
+          BP_file = open(workdir_path+"stats_BP_"+comp+".txt","w")
+          #
+          print ('BX Amp stats',file=BP_file)
+          print ('---> EAS7',file=BP_file)
+          get_summary_statistics(dataset=TOT_A_mod,BPfile=BP_file)
+          print ('---> OBS',file=BP_file)
+          get_summary_statistics(dataset=TOT_A_obs,BPfile=BP_file)
+          print ('---> TSIMPLIS',file=BP_file)
+          get_summary_statistics(dataset=globals()['TSIMPLIS_'+comp],BPfile=BP_file)
+          print ('---> PALMA',file=BP_file)
+          get_summary_statistics(dataset=globals()['PALMA_'+comp],BPfile=BP_file)
+          print ('###############',file=BP_file)
+          print ('BX Pha stats',file=BP_file)
+          print ('---> EAS7',file=BP_file)
+          get_summary_statistics(dataset=TOT_P_mod,BPfile=BP_file)
+          print ('---> OBS',file=BP_file)
+          get_summary_statistics(dataset=TOT_P_obs,BPfile=BP_file)
+          print ('---> TSIMPLIS',file=BP_file)
+          get_summary_statistics(dataset=globals()['TSIMPLIS_P_'+comp],BPfile=BP_file)
+          print ('---> PALMA',file=BP_file)
+          get_summary_statistics(dataset=globals()['PALMA_P_'+comp],BPfile=BP_file)
+          print ('###############',file=BP_file)
+          print ('###############',file=BP_file)
+          #
+          print ('BX Amp diff stats',file=BP_file)
+          print ('---> EAS7-Obs',file=BP_file)
+          get_summary_statistics(dataset=diffA_mo,BPfile=BP_file)
+          print ('---> TSIMPLIS-Obs',file=BP_file)
+          get_summary_statistics(dataset=globals()['TSIMPLIS_'+comp]-TOT_A_obs,BPfile=BP_file)
+          print ('---> PALMA-Obs',file=BP_file)
+          get_summary_statistics(dataset=globals()['PALMA_'+comp]-TOT_A_obs,BPfile=BP_file)
+          print ('###############',file=BP_file)
+          print ('BX Pha diff stats',file=BP_file)
+          print ('---> EAS7-Obs',file=BP_file)
+          get_summary_statistics(dataset=diffP_mo,BPfile=BP_file)
+          print ('---> TSIMPLIS-Obs',file=BP_file)
+          get_summary_statistics(dataset=globals()['TSIMPLIS_P_'+comp]-TOT_P_obs,BPfile=BP_file)
+          print ('---> PALMA-Obs',file=BP_file)
+          get_summary_statistics(dataset=globals()['PALMA_P_'+comp]-TOT_P_obs,BPfile=BP_file)
+          print ('###############',file=BP_file)
+          print ('###############',file=BP_file)
+          BP_file.close()
+
 
           # ecdf:
           #ecdf_A_mod=ECDF(TOT_A_mod)
@@ -1846,40 +1900,43 @@ for anatype_flag in ('anatpxo','all','lit'): #'all','lit','anatpxo'
         plt.grid ()
 
         # fill BP with colors
-        for bplot in (bplot1, bplot3):
-            for artist, color in zip(bplot['boxes'], BP_colors):
-                patch = mpatches.PathPatch(artist.get_path(), color=color)
-                ax1.add_artist(patch)
-                ax3.add_artist(patch)
-        #for bplot in (bplot3):
+        for bplot in (bplot1,bplot2,bplot3,bplot4):
+            for patch, color in zip(bplot['boxes'], BP_colors):
+                patch.set_facecolor(color)
+        #for bplot in (bplot1, bplot3):
         #    for artist, color in zip(bplot['boxes'], BP_colors):
         #        patch = mpatches.PathPatch(artist.get_path(), color=color)
+        #        ax1.add_artist(patch)
         #        ax3.add_artist(patch)
-        for bplot in (bplot2,bplot4):
-            for artist, color in zip(bplot['boxes'], BP_diff_colors):
-                patch = mpatches.PathPatch(artist.get_path(), color=color)
-                ax2.add_artist(patch)
-                ax4.add_artist(patch)
-        #for bplot in (bplot4):
+        ##for bplot in (bplot3):
+        ##    for artist, color in zip(bplot['boxes'], BP_colors):
+        ##        patch = mpatches.PathPatch(artist.get_path(), color=color)
+        ##        ax3.add_artist(patch)
+        #for bplot in (bplot2,bplot4):
         #    for artist, color in zip(bplot['boxes'], BP_diff_colors):
         #        patch = mpatches.PathPatch(artist.get_path(), color=color)
+        #        ax2.add_artist(patch)
         #        ax4.add_artist(patch)
+        ##for bplot in (bplot4):
+        ##    for artist, color in zip(bplot['boxes'], BP_diff_colors):
+        ##        patch = mpatches.PathPatch(artist.get_path(), color=color)
+        ##        ax4.add_artist(patch)
 
-         # Color the medians of the plots
-        for bplot in (bplot1, bplot3):
-            for artist, color in zip(bplot['medians'], BPm_colors):
-                patch = mpatches.PathPatch(artist.get_path(), color=color)
-                try:
-                   ax1.add_artist(patch)
-                except:
-                   ax3.add_artist(patch)
-        for bplot in (bplot3, bplot4):
-            for artist, color in zip(bplot['medians'], BPm_diff_colors):
-                patch = mpatches.PathPatch(artist.get_path(), color=color)
-                try:
-                   ax2.add_artist(patch)
-                except:
-                   ax4.add_artist(patch)
+        ## Color the medians of the plots
+        #for bplot in (bplot1, bplot3):
+        #    for artist, color in zip(bplot['medians'], BPm_colors):
+        #        patch = mpatches.PathPatch(artist.get_path(), color=color)
+        #        try:
+        #           ax1.add_artist(patch)
+        #        except:
+        #           ax3.add_artist(patch)
+        #for bplot in (bplot3, bplot4):
+        #    for artist, color in zip(bplot['medians'], BPm_diff_colors):
+        #        patch = mpatches.PathPatch(artist.get_path(), color=color)
+        #        try:
+        #          ax2.add_artist(patch)
+        #        except:
+        #           ax4.add_artist(patch)
 
         if where_box=='Med' and tpxo_flag == 1 :
            plt.savefig(workdir_path+comp+'_BP_tpxo.jpg')
