@@ -973,10 +973,14 @@ for anatype_flag in ('lit','anatpxo','all'): #'all','lit','anatpxo'
    GLOB_P_mod=[[ 0 for i in range(N_comp+1) ] for j in range(N_stz+1) ] 
    GLOB_A_obs=[[ 0 for i in range(N_comp+1) ] for j in range(N_stz+1) ] 
    GLOB_P_obs=[[ 0 for i in range(N_comp+1) ] for j in range(N_stz+1) ] 
+   GLOB_A_tpxo=[[ 0 for i in range(N_comp+1) ] for j in range(N_stz+1) ]
+   GLOB_P_tpxo=[[ 0 for i in range(N_comp+1) ] for j in range(N_stz+1) ]
    
    # Initialize global matrix for Foreman distances and Root Mean Square misfits
    d_foreman=[[ 0 for i in range(N_comp+1) ] for j in range(N_stz+1) ]
+   d_foreman_tpxo=[[ 0 for i in range(N_comp+1) ] for j in range(N_stz+1) ]
    RMSm=[0 for i in range(N_comp)]
+   RMSm_tpxo=[0 for i in range(N_comp)]
    
    ################### SORT the TG, PLOT MAP and TABLES #####################
 
@@ -1657,14 +1661,14 @@ for anatype_flag in ('lit','anatpxo','all'): #'all','lit','anatpxo'
         plt.rc('font', size=16)
 
         if tpxo_flag == 1:
-          BP_colors = ['lightpink','lightgray','lightblue']
-          BPm_colors = ['red','gray','navy']
-          BP_A_array = [TOT_A_mod,TOT_A_obs,TPXO_AMP]
-          BP_P_array = [TOT_P_mod,TOT_P_obs,TPXO_PHA]
+          BP_colors = ['lightpink','lightblue','lightgray']
+          BPm_colors = ['red','navy','gray']
+          BP_A_array = [TOT_A_mod,TPXO_AMP,TOT_A_obs]
+          BP_P_array = [TOT_P_mod,TPXO_PHA,TOT_P_obs]
           BP_A_title = comp+" Amplitudes"
-          BP_A_label = ['EAS7','Obs','TPXO']
+          BP_A_label = ['EAS7','TPXO','Obs']
           BP_P_title = comp+" Phases"
-          BP_P_label = ['EAS7','Obs','TPXO']
+          BP_P_label = ['EAS7','TPXO','Obs']
           #
           BP_diff_colors = ['lightpink', 'lightblue']
           BPm_diff_colors = ['red','navy']
@@ -1783,16 +1787,20 @@ for anatype_flag in ('lit','anatpxo','all'): #'all','lit','anatpxo'
 
         if anatype_flag == 'lit' and comp_idx < 4 :
           print ('Appending lit!')
-          BP_colors = ['lightpink','lightgray','lightgreen','lightyellow']
-          BPm_colors = ['red','gray','green','yellow']
+          BP_colors = ['lightpink','lightgreen','lightyellow','lightgray']
+          BPm_colors = ['red','green','yellow','gray']
+          BP_A_array = [TOT_A_mod]
           BP_A_array.append(globals()['TSIMPLIS_'+comp])
           BP_A_array.append(globals()['PALMA_'+comp])
+          BP_A_array.append(TOT_A_obs)
+          BP_P_array = [TOT_P_mod]
           BP_P_array.append(globals()['TSIMPLIS_P_'+comp])
           BP_P_array.append(globals()['PALMA_P_'+comp])
+          BP_P_array.append(TOT_P_obs)
           BP_A_title = comp+" Amplitudes"
-          BP_A_label = ['EAS7','Obs','Tsimplis','Palma']
+          BP_A_label = ['EAS7','Tsimplis','Palma','Obs']
           BP_P_title = comp+" Phases"
-          BP_P_label = ['EAS7','Obs','Tsimplis','Palma']
+          BP_P_label = ['EAS7','Tsimplis','Palma','Obs']
           #
           BP_diff_colors = ['lightpink','lightgreen','lightyellow']
           BPm_diff_colors = ['red','green','yellow']
@@ -1903,40 +1911,9 @@ for anatype_flag in ('lit','anatpxo','all'): #'all','lit','anatpxo'
         for bplot in (bplot1,bplot2,bplot3,bplot4):
             for patch, color in zip(bplot['boxes'], BP_colors):
                 patch.set_facecolor(color)
-        #for bplot in (bplot1, bplot3):
-        #    for artist, color in zip(bplot['boxes'], BP_colors):
-        #        patch = mpatches.PathPatch(artist.get_path(), color=color)
-        #        ax1.add_artist(patch)
-        #        ax3.add_artist(patch)
-        ##for bplot in (bplot3):
-        ##    for artist, color in zip(bplot['boxes'], BP_colors):
-        ##        patch = mpatches.PathPatch(artist.get_path(), color=color)
-        ##        ax3.add_artist(patch)
-        #for bplot in (bplot2,bplot4):
-        #    for artist, color in zip(bplot['boxes'], BP_diff_colors):
-        #        patch = mpatches.PathPatch(artist.get_path(), color=color)
-        #        ax2.add_artist(patch)
-        #        ax4.add_artist(patch)
-        ##for bplot in (bplot4):
-        ##    for artist, color in zip(bplot['boxes'], BP_diff_colors):
-        ##        patch = mpatches.PathPatch(artist.get_path(), color=color)
-        ##        ax4.add_artist(patch)
-
-        ## Color the medians of the plots
-        #for bplot in (bplot1, bplot3):
-        #    for artist, color in zip(bplot['medians'], BPm_colors):
-        #        patch = mpatches.PathPatch(artist.get_path(), color=color)
-        #        try:
-        #           ax1.add_artist(patch)
-        #        except:
-        #           ax3.add_artist(patch)
-        #for bplot in (bplot3, bplot4):
-        #    for artist, color in zip(bplot['medians'], BPm_diff_colors):
-        #        patch = mpatches.PathPatch(artist.get_path(), color=color)
-        #        try:
-        #          ax2.add_artist(patch)
-        #        except:
-        #           ax4.add_artist(patch)
+        #for bplot in (bplot1,bplot2,bplot3,bplot4):
+        #    for patch, color in zip(bplot['medians'], BPm_colors):
+        #        patch.set_facecolor(color)
 
         if where_box=='Med' and tpxo_flag == 1 :
            plt.savefig(workdir_path+comp+'_BP_tpxo.jpg')
@@ -2112,6 +2089,9 @@ for anatype_flag in ('lit','anatpxo','all'): #'all','lit','anatpxo'
        #plt.scatter(x_text,res_A,c=TOT_tg_orcol)
        #plt.scatter(m_A*x_text+q_A,res_A,c=TOT_tg_orcol)
        #
+       # Ax settings
+       plt.ylabel ('Amplitude Residuals [cm]')
+       plt.xlabel ('TG index')
        plt.subplot(2,2,3)
        ### Pha linear reg
        if cos_pha == 0:
@@ -2170,6 +2150,9 @@ for anatype_flag in ('lit','anatpxo','all'): #'all','lit','anatpxo'
         res_P=y_text-(slopeP*x_text+interceptP)
         plt.scatter(range(0,len(x_text)),res_P,c=TOT_tg_orcol)
         #plt.scatter(x_text,res_P,c=TOT_tg_orcol)
+        # Ax settings
+        plt.ylabel ('Amplitude Residuals [cm]')
+        plt.xlabel ('TG index')
         if where_box=='Med':
           plt.savefig(workdir_path+comp+'_lr.jpg')
         elif where_box=='AtlBox':
@@ -2228,7 +2211,144 @@ for anatype_flag in ('lit','anatpxo','all'): #'all','lit','anatpxo'
    
        print(comp,' & ',str(m_A_approx),' & ',str(r_A),' & ',str(round(slopeP,2)),' & ',str(round(r_valueP,2)),' \\\\ '+'\n', file=LinReg_file)
    
+
+       ########
+       # linear reg. with respect to TPXO 
+       if tpxo_flag == 1 :
+          # Plot ( Lin reg mod Vs TPXO x A and P x stz )
+          if cos_pha == 0:
+             plt.figure(figsize=(12,12))
+          elif cos_pha == 1:
+             plt.figure(figsize=(7,12))
+          plt.rc('font', size=12)
+          #
+          plt.subplot(2,2,1)
+          plt.title(mod_file_template+' '+comp+' Amplitude [cm] ')
+          plt.grid ()
+          # Arrays defn
+          x_text=[]
+          y_text=[]
+          y_text2=[]
+          x_text=np.array(TPXO_AMP)
+          y_text=np.array(TOT_A_mod)
+          top=np.maximum(x_text,y_text)
+          top=max(top[:])
+          # Linear regression (Least Square Method)
+          slope, intercept, r_value, p_value, std_err = stats.linregress(x_text,y_text)
+          m_A=[]
+          q_A=[]
+          fitted_A=[]
+          cov_A=[]
+          def line_A(x, m_A, q_A):
+              return (m_A*x+q_A)
+          fitted_A, cov_A = curve_fit(line_A,x_text[:],y_text[:])
+          m_A=fitted_A[0]
+          q_A=fitted_A[1]
+          rx=np.linspace(0.0,top)
+          retta_A=m_A*rx+q_A
+          m_A_approx=round(m_A,2)
+          perr = np.abs(np.diag(cov_A))
+          m_Ae_approx=round(perr[0],2)
+          r_A=round(r_value,2)
+          lr_leg_str='( Slope='+str(m_A_approx)+'; R2='+str(r_A)+')'
    
+          # Plot points
+          plt.scatter(np.array(TPXO_AMP), np.array(TOT_A_mod), label = 'All areas',c=TOT_tg_orcol)
+          # Ax settings
+          plt.xlabel ('TPXO Amplitude [cm]')
+          plt.ylabel ('MOD Amplitude [cm]')
+          bottom_ax, top_ax = plt.xlim()
+          bottom_ay, top_ay = plt.ylim()
+          top_a=np.maximum(top_ax,top_ay)
+          bottom_a=np.minimum(bottom_ax,bottom_ay)
+          plt.ylim(bottom_a, top_a)
+          plt.xlim(bottom_a, top_a)
+          # Plot Lines
+          plt.plot(rx,retta_A,color = 'red',label=lr_leg_str)
+          plt.plot([bottom_a,top_a], [bottom_a,top_a], 'k-', color = 'black')
+          # Legend
+          plt.legend( loc='upper left' )
+          # point label (stn names)
+          if linreg_name_flag != 0 : 
+            i=0
+            for word in TOT_tg_lab:
+                plt.text(x_text[i]+.03,y_text[i]+.03,word,fontsize=12,color = 'black')
+                i=i+1
+          # Plot of residuals for Amp
+          plt.subplot(2,2,2)
+          plt.title(mod_file_template+' '+comp+' Amplitude residuals [cm] ')
+          plt.grid ()
+          #
+          res_A=[]
+          res_A=y_text-(m_A*x_text+q_A)
+          plt.scatter(range(0,len(x_text)),res_A,c=TOT_tg_orcol)
+          #plt.scatter(x_text,res_A,c=TOT_tg_orcol)
+          #plt.scatter(m_A*x_text+q_A,res_A,c=TOT_tg_orcol)
+          #
+          # Ax settings
+          plt.ylabel ('Amplitude Residuals [cm]')
+          plt.xlabel ('TG index')
+          #
+          plt.subplot(2,2,3)
+          # Arrays defn
+          x_text=[]
+          x_text=np.array(TPXO_PHA)
+
+          ### Pha linear reg
+          if cos_pha == 0:
+           plt.title(mod_file_template+' '+comp+' Phase [deg] ')
+           plt.grid ()
+           if where_box == 'AtlBox':
+              plt.ylim(0.0, 360.0)
+           else:
+              plt.ylim(-50.0, 400.0)
+           plt.xlim(-50.0, 400.0)
+           plt.plot([-50.0, 400.0], [-50.0, 400.0], 'k-', color = 'black')
+           x_text=[]
+           y_text=[]
+           x_text=np.array(TPXO_PHA)
+           y_text=np.array(TOT_P_mod)
+           slopeP, interceptP, r_valueP, p_valueP, std_errP = stats.linregress(x_text,y_text)
+           rx=np.linspace(-50.0,400.0)
+           retta_P=slopeP*rx+interceptP
+           lr_leg_str='( Slope='+str(round(slopeP,2))+'; R2='+str(round(r_valueP,2))+')'
+           plt.plot(rx,retta_P,color = 'red',label=lr_leg_str)
+           plt.scatter(np.array(TPXO_PHA), np.array(TOT_P_mod), label = 'All areas',c=TOT_tg_orcol)
+           # Ax settings
+           plt.xlabel ('TG index')
+           plt.ylabel ('Amplitude residuals [cm]')
+           # Axes
+           plt.xlabel ('TPXO Phase [deg]')
+           plt.ylabel ('MOD Phase [deg]')
+           # Legend
+           plt.legend( loc='upper left' )
+           if linreg_name_flag != 0:
+              i=0
+              for word in TOT_tg_lab:
+                  plt.text(x_text[i]+.03,y_text[i]+.03,word,fontsize=12,color = 'black')
+                  i=i+1
+      
+           # Plot of residuals for Amp
+           plt.subplot(2,2,4)
+           plt.title(mod_file_template+' '+comp+' Phase residuals [cm] ')
+           plt.grid ()
+           #
+           res_P=[]
+           res_P=y_text-(slopeP*x_text+interceptP)
+           plt.scatter(range(0,len(x_text)),res_P,c=TOT_tg_orcol)
+           #plt.scatter(x_text,res_P,c=TOT_tg_orcol)
+           # Ax settings
+           plt.xlabel ('TG index')
+           plt.ylabel ('Phase residuals [deg]')
+           if where_box=='Med':
+             plt.savefig(workdir_path+comp+'_lrT.jpg')
+           elif where_box=='AtlBox':
+             plt.savefig(workdir_path+comp+'_lrT_AB.jpg')
+           plt.clf()
+   
+ 
+       ###########################
+       ###########################  
        # Save val in GLOBAL arrays 
    
        # Components names
@@ -2236,8 +2356,11 @@ for anatype_flag in ('lit','anatpxo','all'): #'all','lit','anatpxo'
        GLOB_P_mod[0][comp_idx+1]=comp
        GLOB_A_obs[0][comp_idx+1]=comp
        GLOB_P_obs[0][comp_idx+1]=comp
+       GLOB_A_tpxo[0][comp_idx+1]=comp
+       GLOB_P_tpxo[0][comp_idx+1]=comp
    
        d_foreman[0][comp_idx+1]=comp 
+       d_foreman_tpxo[0][comp_idx+1]=comp
    
        # Stations labels
        for nnn_stz in range (0,len(TOT_tg_lab_ord)): 
@@ -2245,8 +2368,11 @@ for anatype_flag in ('lit','anatpxo','all'): #'all','lit','anatpxo'
          GLOB_P_mod[nnn_stz+1][0]=TOT_tg_lab_ord[nnn_stz]
          GLOB_A_obs[nnn_stz+1][0]=TOT_tg_lab_ord[nnn_stz]
          GLOB_P_obs[nnn_stz+1][0]=TOT_tg_lab_ord[nnn_stz]
-   
+         GLOB_A_tpxo[nnn_stz+1][0]=TOT_tg_lab_ord[nnn_stz]
+         GLOB_P_tpxo[nnn_stz+1][0]=TOT_tg_lab_ord[nnn_stz]  
+
          d_foreman[nnn_stz+1][0]=TOT_tg_lab_ord[nnn_stz]
+         d_foreman_tpxo[nnn_stz+1][0]=TOT_tg_lab_ord[nnn_stz]
    
        # Put right numbers in the matrix!
        for nnn_AP in range (0,len(TOT_tg_lab_ord)):
@@ -2254,15 +2380,25 @@ for anatype_flag in ('lit','anatpxo','all'): #'all','lit','anatpxo'
          GLOB_P_mod[nnn_AP+1][comp_idx+1]=TOT_P_mod_ord[nnn_AP]
          GLOB_A_obs[nnn_AP+1][comp_idx+1]=TOT_A_obs_ord[nnn_AP]
          GLOB_P_obs[nnn_AP+1][comp_idx+1]=TOT_P_obs_ord[nnn_AP]
+         if anatype_flag == 'anatpxo':
+            GLOB_A_tpxo[nnn_AP+1][comp_idx+1]=TPXO_AMP[nnn_AP]
+            GLOB_P_tpxo[nnn_AP+1][comp_idx+1]=TPXO_PHA[nnn_AP]
    
    
          # Compute Distances in the complex plane [Foreman et al. 93]
          d_foreman[nnn_AP+1][comp_idx+1]=np.sqrt((TOT_A_obs_ord[nnn_AP]*np.cos((np.pi/180.0)*TOT_P_obs_ord[nnn_AP])-(TOT_A_mod_ord[nnn_AP]*np.cos((np.pi/180.0)*TOT_P_mod_ord[nnn_AP])))**2+((TOT_A_obs_ord[nnn_AP]*np.sin((np.pi/180.0)*TOT_P_obs_ord[nnn_AP])-(TOT_A_mod_ord[nnn_AP]*np.sin((np.pi/180.0)*TOT_P_mod_ord[nnn_AP])))**2))
+         if anatype_flag == 'anatpxo':
+            d_foreman_tpxo[nnn_AP+1][comp_idx+1]=np.sqrt((TOT_A_obs_ord[nnn_AP]*np.cos((np.pi/180.0)*TOT_P_obs_ord[nnn_AP])-(TPXO_AMP[nnn_AP]*np.cos((np.pi/180.0)*TPXO_PHA[nnn_AP])))**2+((TOT_A_obs_ord[nnn_AP]*np.sin((np.pi/180.0)*TOT_P_obs_ord[nnn_AP])-(TPXO_AMP[nnn_AP]*np.sin((np.pi/180.0)*TPXO_PHA[nnn_AP])))**2))
    
          # Root Mean Square misfits
          RMSm[comp_idx]=RMSm[comp_idx]+(TOT_A_obs_ord[nnn_AP]*np.cos((np.pi/180.0)*TOT_P_obs_ord[nnn_AP])-(TOT_A_mod_ord[nnn_AP]*np.cos((np.pi/180.0)*TOT_P_mod_ord[nnn_AP])))**2+((TOT_A_obs_ord[nnn_AP]*np.sin((np.pi/180.0)*TOT_P_obs_ord[nnn_AP])-(TOT_A_mod_ord[nnn_AP]*np.sin((np.pi/180.0)*TOT_P_mod_ord[nnn_AP])))**2)
+    
+         if anatype_flag == 'anatpxo':
+            RMSm_tpxo[comp_idx]=RMSm_tpxo[comp_idx]+(TOT_A_obs_ord[nnn_AP]*np.cos((np.pi/180.0)*TOT_P_obs_ord[nnn_AP])-(TPXO_AMP[nnn_AP]*np.cos((np.pi/180.0)*TPXO_PHA[nnn_AP])))**2+((TOT_A_obs_ord[nnn_AP]*np.sin((np.pi/180.0)*TOT_P_obs_ord[nnn_AP])-(TPXO_AMP[nnn_AP]*np.sin((np.pi/180.0)*TPXO_PHA[nnn_AP])))**2)
    
        RMSm[comp_idx]=np.sqrt((1/(2*len(TOT_tg_lab_ord)))*RMSm[comp_idx]) 
+       if anatype_flag == 'anatpxo':
+          RMSm_tpxo[comp_idx]=np.sqrt((1/(2*len(TOT_tg_lab_ord)))*RMSm_tpxo[comp_idx])
    
        comp_idx=comp_idx+1
    
@@ -2930,5 +3066,50 @@ for anatype_flag in ('lit','anatpxo','all'): #'all','lit','anatpxo'
    elif where_box=='AtlBox':
           plt.savefig(workdir_path+'GLOBAL_RMSm_AB.jpg')
    plt.clf()
+
+   if anatype_flag == 'anatpxo':
+     # Plot RMSm of TPXO
+   
+      plt.figure(figsize=(20,10))
+      plt.rc('font', size=20)
+   
+      labels=[ d_foreman_tpxo[0][j] for j in range(1,N_comp+1) ]
+   
+      x = np.arange(len(labels))  # the label locations
+      width = 0.45*2  # the width of the bars
+   
+      fig,ax=plt.subplots( figsize=(20,10))
+      #
+      comp_color=['#1f77b4','#ff7f03','#2ca02c','#d62728','#bcdb22','#17becf','#9467bd','#e377c2']
+      rects1 = ax.bar(x, RMSm_tpxo, width-0.05,color=comp_color)
+   
+   
+      # Add some text for labels, title and custom x-axis tick labels, etc.
+      ax.set_ylabel('TPXO RMSm [cm]')
+      ax.set_title('TPXO Root Mean Square misfits - '+where_box)
+      ax.set_xticks(x)
+      ax.set_xticklabels(labels,fontweight='bold')
+   
+      plt.grid ()
+   
+   
+      def autolabel(rects):
+          bin_idx=0
+          for rect in rects:
+              height = rect.get_height()
+              ax.annotate(round(RMSm_tpxo[bin_idx],2),
+                          xy=(rect.get_x() + rect.get_width() / 2, height ),
+                          xytext=(0, 3),  # 3 points vertical offset
+                          textcoords="offset points",
+                          ha='center', va='bottom')
+              bin_idx=bin_idx+1
+   
+      autolabel(rects1)
+      if where_box=='Med':
+             plt.savefig(workdir_path+'GLOBAL_TPXO_RMSm.jpg')
+      elif where_box=='AtlBox':
+             plt.savefig(workdir_path+'GLOBAL_TPXO_RMSm_AB.jpg')
+      plt.clf()
+
 
 print ('Output path: ',workdir_path)
