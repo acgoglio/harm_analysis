@@ -50,7 +50,7 @@ from lit_tpxo import *
 #---------------------
 # Work dir path:
 # WARNING: the inputs must be here, the outputs will be moved to subdirs   
-workdir= '/work/oda/med_dev/EAS7/harm_ana/point_2020/' 
+workdir= '/work/oda/med_dev/EAS7/harm_ana/point_PHD/' 
 # input files:
 emodnettg_coo_file = '/users_home/oda/med_dev/src_dev/harm_analysis/punctual/emodnet_TGb_newTGb_all.coo'
 model_bathy='/data/oda/ag15419/PHYSW24_DATA/TIDES/DATA0/bathy_meter.nc'
@@ -1085,7 +1085,8 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
    # Add tide-gauges
    for tg2plot_idx in range(0,len(ALL_tg_name)) :
      xp, yp = m(ALL_tg_lon[tg2plot_idx],ALL_tg_lat[tg2plot_idx])
-     plt.text(xp,yp,ALL_tg_lab[tg2plot_idx], fontsize=12,backgroundcolor=ALL_tg_col[tg2plot_idx],alpha=1,color='black')
+     #plt.text(xp,yp,ALL_tg_lab[tg2plot_idx], fontsize=16,backgroundcolor=ALL_tg_col[tg2plot_idx],alpha=1,color='black')
+     plt.scatter(xp,yp,alpha=1,color=ALL_tg_col[tg2plot_idx])
    # Save and close 
    plt.savefig(plotname)
    plt.clf()
@@ -1757,7 +1758,7 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
        # Legend
        plt.legend( loc='upper left' )
        # point label (stn names)
-       if linreg_name_flag != 0: 
+       if linreg_name_flag != 0 : 
          i=0
          for word in TOT_tg_lab:
              plt.text(x_text[i]+.03,y_text[i]+.03,word,fontsize=12,color = 'black')

@@ -70,17 +70,19 @@ set -x
 
         FOUND_NUM=0
         NOT_FOUND_NUM=0
-        if [[  -e ${ANA_INPATHS[$IDX_IN]}/${IDX_DATE:0:6}/$ANA_INFILE ]]; then 
+        if [[ ! -e ${ANA_INPATHS[$IDX_IN]}/${IDX_DATE:0:4}/${IDX_DATE:4:2}/$ANA_INFILE ]]; then 
+        #if [[  -e ${ANA_INPATHS[$IDX_IN]}/${IDX_DATE:0:8}/model/$ANA_INFILE ]]; then 
         #if [[ -e ${ANA_INPATHS[$IDX_IN]}/$ANA_INFILE ]]; then
            FOUND_NUM=$(( $FOUND_NUM + 1 ))
            if [[ ${MOD_FLAG} != 0 ]]; then
               echo "Found infile: $ANA_INFILE"
-              ln -sf ${ANA_INPATHS[$IDX_IN]}/${IDX_DATE:0:6}/$ANA_INFILE .
+              ln -sf ${ANA_INPATHS[$IDX_IN]}/${IDX_DATE:0:4}/${IDX_DATE:4:2}/$ANA_INFILE .
+              #ln -sf ${ANA_INPATHS[$IDX_IN]}/${IDX_DATE:0:8}/model/$ANA_INFILE .
               #ln -sf ${ANA_INPATHS[$IDX_IN]}/$ANA_INFILE .
            fi
         else
            NOT_FOUND_NUM=$(( $NOT_FOUND_NUM + 1 ))
-           echo "NOT Found infile: $ANA_INFILE in path: ${ANA_INPATHS[$IDX_IN]}/${IDX_DATE:0:6}/"
+           echo "NOT Found infile: $ANA_INFILE in path: ${ANA_INPATHS[$IDX_IN]}/${IDX_DATE:0:4}/${IDX_DATE:4:2}/"
         fi
 
       FOUNDNOTFOUND_NUM=$(( ${FOUNDNOTFOUND_NUM} +1 ))
@@ -213,13 +215,15 @@ set -x
            LAT_TOCUT=${COO_TS_LAT[$TS_IDX]}
            LON_INT=$( echo $LON_TOCUT | cut -f 1 -d"." )
            LAT_INT=$( echo $LAT_TOCUT | cut -f 1 -d"." )
-           cdo sellonlatbox,$(( ${LON_INT} - 2 )),$(( ${LON_INT} + 2 )),$(( ${LAT_INT} - 2 )),$(( ${LAT_INT} + 2 )) $TSEXT red_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}.nc
+           cdo -selname,lat,lon,deptht,sossheig,time_counter $TSEXT cutcut_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}.nc
+           cdo -selname,lat,lon,deptht,sossheig,time_counter -sellonlatbox,$(( ${LON_INT} - 2 )),$(( ${LON_INT} + 2 )),$(( ${LAT_INT} - 2 )),$(( ${LAT_INT} + 2 )) cutcut_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}.nc red_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}.nc
            cdo setctomiss,0.0000 red_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}.nc miss_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}.nc
 
            cdo setmisstonn miss_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}.nc nnmiss_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}.nc
            cdo -remapnn,lon=${COO_TS_LON[$TS_IDX]}/lat=${COO_TS_LAT[$TS_IDX]} nnmiss_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}.nc tsext_tmp_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}_${IDX_NC}.nc
            rm -v red_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}.nc
            rm -v nnmiss_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}.nc
+           rm -v cutcut_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}.nc
         fi
 
         IDX_NC=$(( ${IDX_NC} + 1 ))

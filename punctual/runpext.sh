@@ -24,6 +24,10 @@ fi
 
 if [[ ${TG_DATASET_TYPE} == "website" ]]; then
    JOB_TEMPLATE='pextrjob_oldTG.temp'
+elif [[ ${TG_DATASET_TYPE} == "erddap_eas8" ]]; then
+   JOB_TEMPLATE='pextrjob_newTG_eas8.temp'
+elif [[ ${TG_DATASET_TYPE} == "erddap_archeas7" ]]; then
+   JOB_TEMPLATE='pextrjob_newTG_archeas7.temp'
 else
    JOB_TEMPLATE='pextrjob_newTG.temp'
 fi

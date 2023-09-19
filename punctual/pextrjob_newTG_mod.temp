@@ -3,7 +3,7 @@
 #BSUB -J %J_NAME%          # Name of the job.
 #BSUB -o %J_OUT%  # Appends std output to file %J.out.
 #BSUB -e %J_ERR%  # Appends std error to file %J.err.
-##BSUB -cwd %J_CWD%
+#BSUB -cwd %J_CWD%
 #BSUB -q %J_QUEUE%
 #BSUB -n %J_CPUS%    # Number of CPUs
 #BSUB -P %J_PROJ%
@@ -63,14 +63,15 @@ set -x
 
       IDX_DATE=$ANA_STARTDATE
       FOUNDNOTFOUND_NUM=0
-      while [[ $IDX_DATE -le $ANA_ENDDATE ]]; do
 
+       # OLD FILES
+       while [[ $IDX_DATE -le 20210912 ]]; do
         echo "Date: $IDX_DATE"
         ANA_INFILE=$( echo ${ANA_INFILES_TPL[${IDX_IN}]} | sed -e s/%YYYYMMDD%/$IDX_DATE/g  )
 
         FOUND_NUM=0
         NOT_FOUND_NUM=0
-        if [[  -e ${ANA_INPATHS[$IDX_IN]}/${IDX_DATE:0:6}/$ANA_INFILE ]]; then 
+        #if [[ ! -e ${ANA_INPATHS[$IDX_IN]}/${IDX_DATE:0:6}/$ANA_INFILE ]]; then 
         #if [[ -e ${ANA_INPATHS[$IDX_IN]}/$ANA_INFILE ]]; then
            FOUND_NUM=$(( $FOUND_NUM + 1 ))
            if [[ ${MOD_FLAG} != 0 ]]; then
@@ -78,10 +79,34 @@ set -x
               ln -sf ${ANA_INPATHS[$IDX_IN]}/${IDX_DATE:0:6}/$ANA_INFILE .
               #ln -sf ${ANA_INPATHS[$IDX_IN]}/$ANA_INFILE .
            fi
-        else
-           NOT_FOUND_NUM=$(( $NOT_FOUND_NUM + 1 ))
-           echo "NOT Found infile: $ANA_INFILE in path: ${ANA_INPATHS[$IDX_IN]}/${IDX_DATE:0:6}/"
-        fi
+        #else
+        #   NOT_FOUND_NUM=$(( $NOT_FOUND_NUM + 1 ))
+        #   echo "NOT Found infile: $ANA_INFILE in path: ${ANA_INPATHS[$IDX_IN]}/${IDX_DATE:0:6}/"
+        #fi
+
+      FOUNDNOTFOUND_NUM=$(( ${FOUNDNOTFOUND_NUM} +1 ))
+      IDX_DATE=$( date -u -d "$IDX_DATE 1 day" +%Y%m%d )
+      done
+
+      while [[ $IDX_DATE -gt 20210912 ]] && [[ $IDX_DATE -le $ANA_ENDDATE ]]; do
+
+        echo "Date: $IDX_DATE"
+        ANA_INFILE=$( echo ${ANA_INFILES_TPL[${IDX_IN}]} | sed -e s/%YYYYMMDD%/${IDX_DATE}-a/g  )
+
+        FOUND_NUM=0
+        NOT_FOUND_NUM=0
+        #if [[ ! -e ${ANA_INPATHS[$IDX_IN]}/${IDX_DATE:0:6}/$ANA_INFILE ]]; then 
+        #if [[ -e ${ANA_INPATHS[$IDX_IN]}/$ANA_INFILE ]]; then
+           FOUND_NUM=$(( $FOUND_NUM + 1 ))
+           if [[ ${MOD_FLAG} != 0 ]]; then
+              echo "Found infile: $ANA_INFILE"
+              ln -sf ${ANA_INPATHS[$IDX_IN]}/${IDX_DATE:0:6}/$ANA_INFILE .
+              #ln -sf ${ANA_INPATHS[$IDX_IN]}/$ANA_INFILE .
+           fi
+        #else
+        #   NOT_FOUND_NUM=$(( $NOT_FOUND_NUM + 1 ))
+        #   echo "NOT Found infile: $ANA_INFILE in path: ${ANA_INPATHS[$IDX_IN]}/${IDX_DATE:0:6}/"
+        #fi
 
       FOUNDNOTFOUND_NUM=$(( ${FOUNDNOTFOUND_NUM} +1 ))
       IDX_DATE=$( date -u -d "$IDX_DATE 1 day" +%Y%m%d ) 

@@ -52,7 +52,7 @@ from lit_tpxo import *
 #---------------------
 # Work dir path:
 # WARNING: the inputs must be here, the outputs will be moved to subdirs   
-workdir= '/work/oda/med_dev/EAS7/harm_ana/point_PHD/' 
+workdir= '/work/oda/med_dev/QUID_EIS2023/harmonic_analysis_p/assm_EAS8_v1/' 
 # input files:
 emodnettg_coo_file = '/users_home/oda/med_dev/src_dev/harm_analysis/punctual/emodnet_TGb_newTGb_all.coo'
 model_bathy='/data/oda/ag15419/PHYSW24_DATA/TIDES/DATA0/bathy_meter.nc'
@@ -72,7 +72,7 @@ cos_pha = 0
 #--------------------
 # MODEL DATASET
 # WARNING: this must be the same as in p_extr.ini file (var ANA_INTAG)
-mod_file_template='EAS7'
+mod_file_template='assm_EAS8_v1'
 
 # Fields to be analized
 grid = 'T' # Choose T, U, V or uv2t grid
