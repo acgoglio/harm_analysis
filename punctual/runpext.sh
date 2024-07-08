@@ -58,6 +58,7 @@ cat << EOF > ${ANA_WORKDIR}/${SED_FILE}
    s/%J_OUT%/${J_OUT//\//\\/}/g
    s/%J_ERR%/${J_ERR//\//\\/}/g
    s/%J_QUEUE%/${J_QUEUE//\//\\/}/g
+   s/%J_MEM%/${J_MEM//\//\\/}/g
    s/%J_CWD%/${J_CWD//\//\\/}/g
    s/%J_CPUS%/${J_CPUS//\//\\/}/g
    s/%J_PROJ%/${J_PROJ//\//\\/}/g

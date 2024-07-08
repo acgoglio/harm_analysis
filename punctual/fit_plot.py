@@ -27,6 +27,8 @@ from mpl_toolkits.basemap import Basemap
 from matplotlib.colors import LogNorm
 from operator import itemgetter # to order lists
 from statsmodels.distributions.empirical_distribution import ECDF # empirical distribution functions
+import matplotlib as mpl
+mpl.use('Agg')
 #
 # Import ttide code for Forman harmonic analysis
 import ttide
@@ -49,14 +51,14 @@ from lit_tpxo import *
 #---------------------
 # Work dir path:
 # WARNING: the inputs must be here, the outputs will be moved to subdirs   
-workdir='/work/oda/ag15419/tmp/HA_twd/2017/p_ctrl_2/'
+workdir='/work/cmcc/ag15419/OUTPUT_QUID/HA/point/'
 # input files:
-emodnettg_coo_file = '/users_home/oda/ag15419/harm_analysis/punctual/emodnet_TGb_newTGb_all.coo'
-model_bathy='/work/oda/ag15419/PHYSW24_DATA/TIDES/DATA0/bathy_meter.nc'
+emodnettg_coo_file = '/users_home/cmcc/ag15419/harm_analysis/punctual/emodnet_TGb_newTGb_all.coo'
+model_bathy='/data/cmcc/mfs/Med_static/MFS_EAS7_STATIC_V1/NEMO_DATA0/bathy_meter.nc'
 #
 
 # Domain (Med or AtlBox)
-where_box='AtlBox'
+where_box='Med'
 
 # Option for phase plots
 cos_pha = 0 
@@ -69,7 +71,7 @@ cos_pha = 0
 #--------------------
 # MODEL DATASET
 # WARNING: this must be the same as in p_extr.ini file (var ANA_INTAG)
-mod_file_template='simu_ctrl0_EAS6_v8' #'eas6_v8_simu_3' #'simu_EAS6_v8' #'Tides8_v31' 'eas6'
+mod_file_template='EAS7' #'eas6_v8_simu_3' #'simu_EAS6_v8' #'Tides8_v31' 'eas6'
 
 # Fields to be analized
 grid = 'T' # Choose T, U, V or uv2t grid
@@ -181,7 +183,7 @@ snr_thershold=0.1
 
 # OPTIONS ON NAMES AND ERROR BARS
 # Flag to avoid TG names/numbers in the lin reg plots (set linreg_name_flag = 0 to avoid the strings..)
-linreg_name_flag = 1
+linreg_name_flag = 0
 # To avoid fit error bars in Amp, Pha and lin reg plots set errbar_flag = 0 
 errbar_flag = 1
 

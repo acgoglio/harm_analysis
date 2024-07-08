@@ -3,7 +3,8 @@
 #BSUB -J %J_NAME%          # Name of the job.
 #BSUB -o %J_OUT%  # Appends std output to file %J.out.
 #BSUB -e %J_ERR%  # Appends std error to file %J.err.
-#BSUB -cwd %J_CWD%
+##BSUB -cwd %J_CWD%
+#BSUB -M %J_MEM%
 #BSUB -q %J_QUEUE%
 #BSUB -n %J_CPUS%    # Number of CPUs
 #BSUB -P %J_PROJ%
