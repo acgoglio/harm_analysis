@@ -4,7 +4,8 @@
 #BSUB -e /work/oda/ag15419/job_scratch/fit_%J.err  # Appends std error to file %J.err.
 #BSUB -q s_long
 #BSUB -n 1
-#BSUB -P 0284 # Project number
+#BSUB -P 0510 # Project number
+#BSUB -M 20G
 #
 # by AC Goglio (CMCC)
 # annachiara.goglio@cmcc.it

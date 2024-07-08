@@ -67,19 +67,20 @@ set -x
 
         echo "Date: $IDX_DATE"
         ANA_INFILE=$( echo ${ANA_INFILES_TPL[${IDX_IN}]} | sed -e s/%YYYYMMDD%/$IDX_DATE/g  )
-	ANA_INPATHS_2=$( echo ${ANA_INPATHS_2[${IDX_IN}]} | sed -e s/%YYYYMMDD%/$IDX_DATE/g  )
+	#ANA_INPATHS_2=$( echo ${ANA_INPATHS_2[${IDX_IN}]} | sed -e s/%YYYYMMDD%/$IDX_DATE/g  )
 
         FOUND_NUM=0
         NOT_FOUND_NUM=0
-        if [[ -e ${ANA_INPATHS[$IDX_IN]}/${ANA_INPATHS_2[$IDX_IN]}/$ANA_INFILE ]]; then 
+	ANA_INPATHS_2="/$IDX_DATE/model/"
+        if [[ -e ${ANA_INPATHS[$IDX_IN]}/${ANA_INPATHS_2}/$ANA_INFILE ]]; then 
            FOUND_NUM=$(( $FOUND_NUM + 1 ))
            if [[ ${MOD_FLAG} != 0 ]]; then
               echo "Found infile: $ANA_INFILE"
-              ln -sf ${ANA_INPATHS[$IDX_IN]}/${ANA_INPATHS_2[$IDX_IN]}/$ANA_INFILE .
+              ln -sf ${ANA_INPATHS[$IDX_IN]}/${ANA_INPATHS_2}/$ANA_INFILE .
            fi
         else
            NOT_FOUND_NUM=$(( $NOT_FOUND_NUM + 1 ))
-           echo "NOT Found infile: $ANA_INFILE in path: ${ANA_INPATHS[$IDX_IN]}/${ANA_INPATHS_2[$IDX_IN]}/$ANA_INFILE"
+           echo "NOT Found infile: $ANA_INFILE in path: ${ANA_INPATHS[$IDX_IN]}/${ANA_INPATHS_2}/$ANA_INFILE"
         fi
 
       FOUNDNOTFOUND_NUM=$(( ${FOUNDNOTFOUND_NUM} +1 ))

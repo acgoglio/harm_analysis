@@ -44,17 +44,17 @@ from scipy import interpolate
 # General run parameters:
 #---------------------
 # work dir path and bathymetry path/name
-workdir_path = '/work/oda/ag15419/tmp/HA_twd/2018/a_eas6_v8_simu_1/'
-model_bathy='/work/oda/ag15419/PHYSW24_DATA/TIDES/DATA0/bathy_meter.nc'
+workdir_path = '/work/cmcc/ag15419/OUTPUT_QUID/HA/area_EAS9/'
+model_bathy='/data/cmcc/mfs/Med_static/MFS_EAS7_STATIC_V1/NEMO_DATA0/bathy_meter.nc'
 model_meshmask='/work/oda/ag15419/PHYSW24_DATA/TIDES/DATA0/mesh_mask.nc'
 #
 # Dates
 # Choose start and end dates of the period (format dd/mm/yyyy)
-inidate = '01/07/2018'
-enddate = '31/12/2018'
+inidate = '01/07/2016'
+enddate = '31/12/2016'
 
 # TPXO9 path
-tpxo9_path='/work/oda/ag15419/OTPS/OTPSnc/DATA/NC/'
+tpxo9_path='/data/cmcc/ag15419/TPXO9_DATA/'
 
 # FLAGS for different analysis (set 1 to activate the tasks)
 

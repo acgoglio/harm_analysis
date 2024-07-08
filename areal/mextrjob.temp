@@ -5,6 +5,7 @@
 #BSUB -q %J_QUEUE%
 #BSUB -n %J_CPUS%
 #BSUB -P %J_PROJ% # Project number
+#BSUB -M %J_MEM%
 #
 #
 # by AC Goglio (CMCC)
@@ -70,15 +71,16 @@ set -e
 
         echo "Date: $IDX_DATE"
         ANA_INFILE=$( echo ${ANA_INFILES_TPL[${IDX_IN}]} | sed -e s/%YYYYMMDD%/$IDX_DATE/g  )
+	ANA_INPATHS_2="$IDX_DATE/model"
 
         FOUND_NUM=0
         if [[ $GRID_TO_EXTRACT != "uv2t" ]]; then
-           if [[ -e ${ANA_INPATHS[$IDX_IN]}/${IDX_DATE:0:6}/$ANA_INFILE ]]; then
+           if [[ -e ${ANA_INPATHS[$IDX_IN]}/${ANA_INPATHS_2}/$ANA_INFILE ]]; then
               FOUND_NUM=$(( $FOUND_NUM + 1 ))
               echo "Found infile: $ANA_INFILE"
-              ln -sf ${ANA_INPATHS[$IDX_IN]}/${IDX_DATE:0:6}/$ANA_INFILE .
+              ln -sf ${ANA_INPATHS[$IDX_IN]}/${ANA_INPATHS_2}/$ANA_INFILE .
            else
-              echo "NOT Found infile: $ANA_INFILE in path: ${ANA_INPATHS[$IDX_IN]}/${IDX_DATE:0:6}/"
+              echo "NOT Found infile: ${ANA_INPATHS[$IDX_IN]}/${ANA_INPATHS_2}/$ANA_INFILE"
            fi
         else
            if [[ -e ${ANA_INPATHS[$IDX_IN]}/$ANA_INFILE ]]; then

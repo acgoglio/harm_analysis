@@ -31,12 +31,12 @@ import ttide
 #################################################################
 
 # General run parameters:
-workdir_path = '/work/oda/ag15419/tmp/eas6_v2/HA_area_last/'
+workdir_path = '/work/cmcc/ag15419/OUTPUT_QUID/HA/area_EAS9/'
 
 # Dates
 # Choose start and end dates of the period (format dd/mm/yyyy)
-inidate = '01/01/2020'
-enddate = '30/06/2020'
+inidate = '07/01/2016'
+enddate = '31/12/2016'
 
 ########################################################
 # DO NOT CHANGE THE CODE BELOW THIS LINES
@@ -48,7 +48,7 @@ enddate = '30/06/2020'
 # Path and name of inputs datasets
 # Currently the extraction of nc is done externally by another script
 model_fileprename='map' # DO NOT change this
-model_postname='eas6' # WARNING: Use the same string as in map_extr.ini (ANA_INTAG var)
+model_postname='medfs-eas9' # WARNING: Use the same string as in map_extr.ini (ANA_INTAG var)
 model_path=workdir_path
 
 # Dates
