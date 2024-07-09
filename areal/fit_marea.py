@@ -35,7 +35,7 @@ workdir_path = '/work/cmcc/ag15419/OUTPUT_QUID/HA/area_EAS9/'
 
 # Dates
 # Choose start and end dates of the period (format dd/mm/yyyy)
-inidate = '07/01/2016'
+inidate = '01/07/2016'
 enddate = '31/12/2016'
 
 ########################################################

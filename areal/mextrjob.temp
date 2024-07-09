@@ -212,10 +212,10 @@ set -e
       IDX_NC=$(( $IDX_NC + 1 ))
       done
 
-      # Cat extracted files and create the new file with the same grid and time vars
+      # Cat extracted files and create the new file with the same grid and time vars and 0 on land
       echo "Cat extracted files.."
       cdo mergetime name_tmp_*.nc $MAP2D_OUTFILE 
-      cp name_tmp_0.nc ${AMPPHA_NEWFILE}_ini
+      cdo setmissval,0 name_tmp_0.nc ${AMPPHA_NEWFILE}_ini
       rm name_tmp_*.nc
   
     done

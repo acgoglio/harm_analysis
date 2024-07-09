@@ -28,6 +28,8 @@ from matplotlib.colors import LogNorm
 from pyresample.geometry import SwathDefinition
 from pyresample.kd_tree import resample_nearest
 from scipy import interpolate
+import matplotlib as mpl
+mpl.use('Agg')
 #
 #
 # by AC Goglio (CMCC)
@@ -46,7 +48,7 @@ from scipy import interpolate
 # work dir path and bathymetry path/name
 workdir_path = '/work/cmcc/ag15419/OUTPUT_QUID/HA/area_EAS9/'
 model_bathy='/data/cmcc/mfs/Med_static/MFS_EAS7_STATIC_V1/NEMO_DATA0/bathy_meter.nc'
-model_meshmask='/work/oda/ag15419/PHYSW24_DATA/TIDES/DATA0/mesh_mask.nc'
+model_meshmask='/work/cmcc/ag15419/VAA_paper/DATA0/mesh_mask.nc'
 #
 # Dates
 # Choose start and end dates of the period (format dd/mm/yyyy)
@@ -71,13 +73,13 @@ amppha_flag=1
 # ) Pha_Ar to compare phase maps wrt Arabelos et al 
 # ) AmpPha_Ag to compare amplitude/phase maps wrt Agresti 
 
-ampha_tpxo=0
+ampha_tpxo=1
 # For TPXO9 Amplitude/Phase maps on TPXO grid (1 map per tidal component)
 
-pha_tpxo=0
+pha_tpxo=1
 # For TPXO9 Phase maps on TPXO grid (1 map per tidal component)
 
-ampha_tpxo_atlamph=0
+ampha_tpxo_atlamph=1
 # For TPXO9 Amplitude/Phase maps on TPXO grid in North Atlantic (ONLY M2 component, to be extended..)
 
 doseong_flag=1 # TO compute Do-Seong factor for EAS system
@@ -86,10 +88,10 @@ doseong_flag=1 # TO compute Do-Seong factor for EAS system
 # Tidal Envelope Factor [Do-Seong] E=(A_M2+A_N2)/(A_M2+A_S2)
 # Tidal envelope asymmetric factor [Do-Seong] Ea=cos(P_K1+P_O1-P_M2)
 # WARNING: the following fields are needed: A_K1 A_O1 A_M2 A_S2 A_N2 P_K1 P_O1 P_M2
-doseong_tpxo=0
+doseong_tpxo=1
 # For computing DoSeong factor from TPXO9 model on TPXO grid
 
-tpxo2eas_flag=0
+tpxo2eas_flag=1
 # To interpolate tpxo9 1/30 to MED24 grid and plot Amplitude/Phase maps
 
 diff_tpxoeas_flag=1
@@ -98,7 +100,7 @@ diff_tpxoeas_flag=1
 vectorial_dist_flag=1
 # For vectorial distances between eas and tpxo9 on MED24 grid
 
-bathy_diff_flag=0
+bathy_diff_flag=1
 # For diffs between bathymethries eas vs tpxo on MED24 grid
 
 ########################################################
@@ -110,7 +112,7 @@ bathy_diff_flag=0
 # MODEL DATASETS
 model_path=workdir_path
 model_fileprename='amppha' # DO NOT change this
-model_postname='eas6_v8_simu_3' # WARNING: Use the same string as in fit_marea.py
+model_postname='medfs-eas9' # WARNING: Use the same string as in fit_marea.py
 model_postname='mod_'+model_postname
 
 bathylim4RMSE=0 # Bathymetry threshold for RMSE (only grid points with bathy>bathylim4RMSE are taken into account)
