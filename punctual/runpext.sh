@@ -25,7 +25,7 @@ fi
 if [[ ${TG_DATASET_TYPE} == "website" ]]; then
    JOB_TEMPLATE='pextrjob_oldTG.temp'
 else
-   JOB_TEMPLATE='pextrjob_newTG.temp'
+   JOB_TEMPLATE='pextrjob_newTG_opt.temp'
 fi
 echo "JOB_TEMPLATE=$JOB_TEMPLATE"
 
