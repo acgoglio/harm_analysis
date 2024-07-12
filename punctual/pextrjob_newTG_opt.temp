@@ -180,7 +180,7 @@ set -x
   IDX_IN=0
   while [[ $IDX_IN -lt $INSET_NUM ]]; do
 
-    echo "I am workin on ${ANA_INTAG[$IDX_IN]} dataset..."
+    echo "I am working on ${ANA_INTAG[$IDX_IN]} dataset..."
 
     for VAR in ${FIELDS[@]}; do
 
@@ -188,56 +188,43 @@ set -x
 
      EXT_INS=$(  echo "${ANA_INFILES_TPL[${IDX_IN}]}" | sed -e "s/%YYYYMMDD%/"*"/g"  )
      
+     # Loop on the TGs
      TS_IDX=0
      while [[ $TS_IDX -lt $COO_IDX ]]; do
 
-      NC_TS_OUTFILE_TPL="%STZ%_mod_${ANA_INTAG[$IDX_IN]}.nc"
-      NC_TS_OUTFILE=$( echo "$NC_TS_OUTFILE_TPL" | sed -e "s/%IDX%/$IDX_IN/g" -e "s/%FIELD%/${VAR}/g" -e "s/%STZ%/${COO_TS_NAME[$TS_IDX]}/g" )
+        echo "I am going to write and submit: ${ANA_WORKDIR}/TG_${TS_IDX}.job"
+ 
+        # Built the job from the template
+        echo "I am building the job.."
+        # Sed file creation and sobstitution of parematers in the templates  
+        SED_FILE=sed_file.txt
+        cat << EOF > ${ANA_WORKDIR}/${SED_FILE}
+   s/%ANA_INTAG%/${ANA_INTAG[${IDX_IN}]}/g
+   s/%ANA_WORKDIR%/${ANA_WORKDIR//\//\\/}/g
+   s/%TS_IDX%/${TS_IDX}/g
+   s/%NC_TS_OUTFILE_TPL%/${NC_TS_OUTFILE_TPL//\//\\/}/g
+   s/%IDX_IN%/${IDX_IN}/g
+   s/%VAR%/${VAR}/g
+   s/%COO_TS_NAME%/${COO_TS_NAME[${TS_IDX}]}/g
+   s/%EXTR_POINT_NUM%/${EXTR_POINT_NUM}/g
+   s/%COO_TS_LON%/${COO_TS_LON[${TS_IDX}]}/g
+   s/%COO_TS_LAT%/${COO_TS_LAT[${TS_IDX}]}/g
+   s/%IDX_NC%/${IDX_NC}/g
+   s/%LAT_INT%/${LAT_INT}/g
+   s/%LON_INT%/${LON_INT}/g
+   s/%EXT_INS%/${EXT_INS//\//\\/}/g
+   #
+EOF
 
-      echo "# TS extraction from ${ANA_INTAG[$IDX_IN]}" 
-      echo "# STZ: ${COO_TS_NAME[$TS_IDX]}" 
-      echo "# VAR: ${VAR}" 
+      sed -f ${ANA_WORKDIR}/${SED_FILE} pextr_TGs_job.temp > ${ANA_WORKDIR}/TG_${TS_IDX}.job
+      rm ${ANA_WORKDIR}/${SED_FILE}
+echo ".. Done"
+echo "Job path/name: ${ANA_WORKDIR}/TG_${TS_IDX}.job"
 
-      # Extraction
-      IDX_NC=0
-      for TSEXT in $EXT_INS; do
-
-        # nearest 4 POINTS (if land)
-        if [[ $EXTR_POINT_NUM == 4 ]]; then
-        # Point selection With land/sea mask (Nan)
-	   cdo remapdis,lon=${COO_TS_LON[$TS_IDX]}/lat=${COO_TS_LAT[$TS_IDX]} -setctomiss,0.0000 $TSEXT tsext_tmp_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}_${IDX_NC}.nc
-	   
-        # nearest sea point
-        elif [[ $EXTR_POINT_NUM == 1 ]]; then
-           LON_TOCUT=${COO_TS_LON[$TS_IDX]}
-           LAT_TOCUT=${COO_TS_LAT[$TS_IDX]}
-           LON_INT=$( echo $LON_TOCUT | cut -f 1 -d"." )
-           LAT_INT=$( echo $LAT_TOCUT | cut -f 1 -d"." )
-
-	   cdo remapnn,lon=${COO_TS_LON[$TS_IDX]}/lat=${COO_TS_LAT[$TS_IDX]} -setmisstonn -setctomiss,0.0000 -sellonlatbox,$(( ${LON_INT} - 2 )),$(( ${LON_INT} + 2 )),$(( ${LAT_INT} - 2 )),$(( ${LAT_INT} + 2 )) $TSEXT tsext_tmp_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}_${IDX_NC}.nc
-
-        fi
-
-        IDX_NC=$(( ${IDX_NC} + 1 ))
-      done
-  
-        # Mean comp
-        if [[ ${RM_MEAN_FLAG} == 1 ]]; then
-           cdo mergetime tsext_tmp_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}_*.nc tsext_tmp_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}.nc
-           cdo timmean tsext_tmp_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}.nc mean_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}.nc
-           cdo sub tsext_tmp_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}.nc mean_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}.nc zero_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}.nc
-
-           cdo mergetime zero_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}*.nc $NC_TS_OUTFILE
-           
-           rm -v mean_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}.nc
-           rm -v tsext_tmp_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}*.nc
-           rm -v zero_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}.nc
-
-        elif [[ ${RM_MEAN_FLAG} == 0 ]]; then  
-           cdo mergetime tsext_tmp_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}_*.nc $NC_TS_OUTFILE
-
-           rm -v tsext_tmp_${TS_IDX}_${COO_TS_NAME[$TS_IDX]}*.nc
-        fi
+        # Run the job
+        echo "Submitting Single TGs jobs to queue ${J_QUEUE} (Good luck!).."
+	bsub -J TG_extr_${TS_IDX} -o ${ANA_WORKDIR}/extr_%J.out_${TS_IDX} -e ${ANA_WORKDIR}/extr_%J.err_${TS_IDX} -M 10G -q s_long -n 1 -P 0510  <${ANA_WORKDIR}/TG_${TS_IDX}.job
+        echo "Check the output in ${ANA_WORKDIR} and/or the errors in ${J_ERR}!"
 
 
      TS_IDX=$(( $TS_IDX + 1 ))
@@ -245,15 +232,16 @@ set -x
 
     done
 
-   IDX_IN=$(( $IDX_IN + 1 ))
-   done
+  IDX_IN=$(( $IDX_IN + 1 ))
+  done
 
    # Clean links to the mod
-   for TOBERM in $(ls ${EXT_INS}); do
-       rm -v $TOBERM
-   done
+   #for TOBERM in $(ls ${EXT_INS}); do
+   #    rm -v $TOBERM
+   #done
  fi
 
+ echo "End of Mod extraction"
  ############################## OBS EXTRACTION ########################
  if [[ $OBS_FLAG != 0 ]]; then
     echo "Obs extraction.."
@@ -482,6 +470,7 @@ set yrange ["-1":"10"]
 set ytics -1.0,1.0,10.0
 plot '${O_STZ}_infonqf.txt' using 3:9 with line lw 3 lt rgb '#d62728' title "${O_STZ} OBS QF" #, '${O_STZ}_infonposqf.txt' using 3:9 with line lw 3 lt rgb '#ff7f0e' title "${O_STZ} OBS POS QF"
 EOF
+
                 fi
                 gnuplot < ${ANA_WORKDIR}/${GPLQF_FILE} || echo "Problem with plot qfts_${O_STZ}_${ANA_STARTDATE:0:8}_${ANA_ENDDATE:0:8}.png.. Why?"
                 #rm ${ANA_WORKDIR}/${GPLQF_FILE}

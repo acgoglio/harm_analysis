@@ -49,6 +49,9 @@ else
    exit
 fi
 
+# copy single TGs job template
+cp ${PEXTR_INIFILE_SINGLE_TG} ${ANA_WORKDIR}/
+
 # Built the job from the template
 echo "I am building the job.."
 # Sed file creation and sobstitution of parematers in the templates  
