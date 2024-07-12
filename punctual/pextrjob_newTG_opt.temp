@@ -223,7 +223,7 @@ echo "Job path/name: ${ANA_WORKDIR}/TG_${TS_IDX}.job"
 
         # Run the job
         echo "Submitting Single TGs jobs to queue ${J_QUEUE} (Good luck!).."
-	bsub -J TG_extr_${TS_IDX} -o ${ANA_WORKDIR}/extr_%J.out_${TS_IDX} -e ${ANA_WORKDIR}/extr_%J.err_${TS_IDX} -M 10G -q s_long -n 1 -P 0510  <${ANA_WORKDIR}/TG_${TS_IDX}.job
+	bsub -J TG_extr_${TS_IDX} -o ${ANA_WORKDIR}/extr_%J.out_${TS_IDX} -e ${ANA_WORKDIR}/extr_%J.err_${TS_IDX} -M 10G -q ${J_QUEUE} -n 1 -P 0510  <${ANA_WORKDIR}/TG_${TS_IDX}.job
         echo "Check the output in ${ANA_WORKDIR} and/or the errors in ${J_ERR}!"
 
 
