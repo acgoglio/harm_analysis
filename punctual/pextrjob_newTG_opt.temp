@@ -213,6 +213,7 @@ set -x
    s/%LAT_INT%/${LAT_INT}/g
    s/%LON_INT%/${LON_INT}/g
    s/%EXT_INS%/${EXT_INS//\//\\/}/g
+   s/%RM_MEAN_FLAG%/${RM_MEAN_FLAG}/g
    #
 EOF
 

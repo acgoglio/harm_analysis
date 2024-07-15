@@ -16,6 +16,7 @@
       COO_TS_LON=%COO_TS_LON%
       COO_TS_LAT=%COO_TS_LAT%
       EXT_INS=%EXT_INS%
+      RM_MEAN_FLAG=%RM_MEAN_FLAG%
       
 
       NC_TS_OUTFILE_TPL="%STZ%_mod_${ANA_INTAG}.nc"
