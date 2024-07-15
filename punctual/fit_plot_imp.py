@@ -19,7 +19,7 @@ import pandas as pd
 import csv
 import math
 import datetime
-from datetime import datetime
+from datetime import datetime, timedelta
 from operator import itemgetter 
 import plotly
 from plotly import graph_objects as go # for bar plot
@@ -27,7 +27,9 @@ from mpl_toolkits.basemap import Basemap
 from matplotlib.colors import LogNorm
 from operator import itemgetter # to order lists
 from statsmodels.distributions.empirical_distribution import ECDF # empirical distribution functions
-import matplotlib as mpl
+from sklearn import datasets
+import matplotlib.patches as mpatches
+import matplotlib as mpl 
 mpl.use('Agg')
 #
 # Import ttide code for Forman harmonic analysis
@@ -51,7 +53,7 @@ from lit_tpxo import *
 #---------------------
 # Work dir path:
 # WARNING: the inputs must be here, the outputs will be moved to subdirs   
-workdir='/work/cmcc/ag15419/OUTPUT_QUID/HA/point_EAS9/'
+workdir='/work/cmcc/ag15419/OUTPUT_QUID/HA/point_EAS9_2017/'
 # input files:
 emodnettg_coo_file = '/users_home/cmcc/ag15419/harm_analysis/punctual/emodnet_TGb_newTGb_all.coo'
 model_bathy='/data/cmcc/mfs/Med_static/MFS_EAS7_STATIC_V1/NEMO_DATA0/bathy_meter.nc'
@@ -103,7 +105,7 @@ if grid == 'T':
 #--------------------
 # OTHER PARAM
 
-# Tidal components (WARNING: the script is set to work with the following 8 constituents in the following order: 'M2','S2','K1','O1','N2','P1','Q1','K2'!)
+# Tidal components (WARNING: the script is set to work with the following 8 constituents in the following order!)
 tidal_comp=['M2','S2','K1','O1','N2','P1','Q1','K2']
 
 # Colors for each sub area
@@ -124,7 +126,11 @@ def which_region(longitude,latitude):
            color=subregions_color[3]
        # ADRIACTIC SEA:
        elif (longitude < 20.000 and longitude > 12.000 and latitude < 46.000 and latitude > 42.000 ) or (longitude < 20.000 and longitude > 14.000 and latitude < 42.000 and latitude > 41.000 ) or (longitude < 20.000 and longitude > 16.000 and latitude < 42.000 and latitude > 40.000):
-           color=subregions_color[1]
+           # Rm Taranto Gulf
+           if (longitude < 18.030 and longitude > 16.000 and latitude < 40.600 and latitude > 40.000):
+              color=subregions_color[4]
+           else:
+              color=subregions_color[1]
        # MESSINA STRAIT AREA:
        elif longitude < 16.500 and longitude > 14.500 and latitude < 38.200 and latitude > 37.800:
            color=subregions_color[2]
@@ -177,6 +183,34 @@ def which_domain(longitude,latitude):
 
     return domain
 
+# Function for boxplot statistic
+def get_summary_statistics(dataset,BPfile):
+
+    dataset = np.array(dataset)    
+    mean = np.round(np.mean(dataset), 2)
+    std = np.round(np.std(dataset), 2)
+    median = np.round(np.median(dataset), 2)
+    min_value = np.round(dataset.min(), 2)
+    max_value = np.round(dataset.max(), 2)
+    quartile_1 = np.round(np.percentile(dataset,25), 2)
+    quartile_3 = np.round(np.percentile(dataset,75), 2)
+    iqr = np.round(quartile_3 - quartile_1, 2)
+    ttrimean = np.round((median+((quartile_1+quartile_3)/2)/2),2)
+    ykcoeff = np.round((quartile_1+quartile_3-2*median)/(iqr),2)
+
+    # Interquartile range
+    print('Min: %s' % min_value,file=BP_file)
+    print('Mean: %s' % mean,file=BP_file)
+    print('STD: %s' % std,file=BP_file)
+    print('Max: %s' % max_value,file=BP_file)
+    print('',file=BP_file)
+    print('25th percentile: %s' % quartile_1,file=BP_file)
+    print('Median: %s' % median,file=BP_file)
+    print('75th percentile: %s' % quartile_3,file=BP_file)
+    print('Interquartile range (IQR): %s' % iqr,file=BP_file)
+    print('Tukey trimean: %s' % ttrimean,file=BP_file)
+    print('Yule-Kendall coeff.: %s' % ykcoeff,file=BP_file)
+
 # Signal-to-noise ration threshold
 # WARNING: if any component shows a fit snr lower than this the fit is not perfomed
 snr_thershold=0.1
@@ -203,7 +237,7 @@ lit_fullname = 0
 # lit       --> Compare the common datasets with respect to literature 
 # anatpxo   --> Apply all the analysis and compare datasets with TPXO model results
 # all       --> Linear regression concerning all avalilable tide-gauges 
-for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
+for anatype_flag in ('lit','anatpxo','all'): #'all','lit','anatpxo'
 
    # Buil the dir and move in it
    workdir_path = workdir+'/'+anatype_flag+'_'+where_box+'/'
@@ -389,6 +423,7 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
           time_var_units = fT1_obs.variables[time_var_obs2].getncattr('units')
 
        time=datetime(NC.num2date(starttime,time_var_units).year,NC.num2date(starttime,time_var_units).month,NC.num2date(starttime,time_var_units).day,NC.num2date(starttime,time_var_units).hour,NC.num2date(starttime,time_var_units).minute,NC.num2date(starttime,time_var_units).second)
+
        tg_sdate.append(datetime(NC.num2date(starttime,time_var_units).year,NC.num2date(starttime,time_var_units).month,NC.num2date(starttime,time_var_units).day))
        print ('Extracting EMODnet obs.. TG LAT TIME', tg_name[stn] , latitudes, time )
    
@@ -565,6 +600,12 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
          time_var_units = fT1_mod.variables[time_var_mod2].getncattr('units')
 
        time=datetime(NC.num2date(starttime,time_var_units).year,NC.num2date(starttime,time_var_units).month,NC.num2date(starttime,time_var_units).day,NC.num2date(starttime,time_var_units).hour,NC.num2date(starttime,time_var_units).minute,NC.num2date(starttime,time_var_units).second)
+
+       # From CET to UTC
+       print ('BEFORE',time)
+       #time=time-timedelta(hours=1)
+       print ('AFTER',time)
+
        print ('Extracting.. TG LAT TIME', tg_name[stn] , latitudes, time)
    
        # run ttide script for the model
@@ -876,6 +917,7 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
    ##################################
    
    # Initialize the tables for Amp and Pha statistics
+
        # Table for TEX Amp
    if where_box=='Med':
       Amp_file = open(workdir_path+"amp_stats.txt","w")
@@ -932,10 +974,14 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
    GLOB_P_mod=[[ 0 for i in range(N_comp+1) ] for j in range(N_stz+1) ] 
    GLOB_A_obs=[[ 0 for i in range(N_comp+1) ] for j in range(N_stz+1) ] 
    GLOB_P_obs=[[ 0 for i in range(N_comp+1) ] for j in range(N_stz+1) ] 
+   GLOB_A_tpxo=[[ 0 for i in range(N_comp+1) ] for j in range(N_stz+1) ]
+   GLOB_P_tpxo=[[ 0 for i in range(N_comp+1) ] for j in range(N_stz+1) ]
    
    # Initialize global matrix for Foreman distances and Root Mean Square misfits
    d_foreman=[[ 0 for i in range(N_comp+1) ] for j in range(N_stz+1) ]
+   d_foreman_tpxo=[[ 0 for i in range(N_comp+1) ] for j in range(N_stz+1) ]
    RMSm=[0 for i in range(N_comp)]
+   RMSm_tpxo=[0 for i in range(N_comp)]
    
    ################### SORT the TG, PLOT MAP and TABLES #####################
 
@@ -1048,7 +1094,7 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
    plt.figure(figsize=(20,10))
    plt.rc('font', size=12)
    # Plot Title
-   plt.title ('Bathymetry [m] and Tide-Gauges location')
+   #plt.title ('Bathymetry [m] and Tide-Gauges location')
    lon_0 = lons.mean()
    llcrnrlon = lons.min()
    urcrnrlon = lons.max()
@@ -1082,7 +1128,8 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
    # Add tide-gauges
    for tg2plot_idx in range(0,len(ALL_tg_name)) :
      xp, yp = m(ALL_tg_lon[tg2plot_idx],ALL_tg_lat[tg2plot_idx])
-     plt.text(xp,yp,ALL_tg_lab[tg2plot_idx], fontsize=12,backgroundcolor=ALL_tg_col[tg2plot_idx],alpha=1,color='black')
+     #plt.text(xp,yp,ALL_tg_lab[tg2plot_idx], fontsize=16,backgroundcolor=ALL_tg_col[tg2plot_idx],alpha=1,color='black')
+     plt.scatter(xp,yp,alpha=1,color=ALL_tg_col[tg2plot_idx])
    # Save and close 
    plt.savefig(plotname)
    plt.clf()
@@ -1393,10 +1440,14 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
        wheremax_AmpPerc_col=TOT_tg_orcol[np.argmax(abs(pdiffA_mo))]
        perc95_pdiffA=np.percentile(abs(pdiffA_mo),95)
    
+       if tpxo_flag == 1:
+          TPXO_AMP=globals()['TPXO_'+comp]
+          TPXO_PHA=globals()['TPXO_P_'+comp]
+          TPXO_AMP=np.multiply(TPXO_AMP,100) # Want cm not m!
+
        # Table for TEX Amp
        print(comp,' &',str(round(max_diffA,2)),' cm ({\color{',wheremax_AmpAbs_col,'}{',wheremax_AmpAbs,'}})&',str(round(perc95_diffA,2)),' cm &',str(round(meanabs_diffA,1)),' cm &',str(round(max_pdiffA,2)),' \% ({\color{',wheremax_AmpPerc_col,'}{',wheremax_AmpPerc,'}})&',str(round(perc95_pdiffA,2)),' \% &',str(round(meanabs_pdiffA,1)),'\% \\\\ '+'\n', file=Amp_file)
        print('\hline'+'\n', file=Amp_file)
-   
    
        # diff Pha
        x_textP=[]
@@ -1458,9 +1509,9 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
        plt.errorbar(TOT_tg_lab,TOT_A_obs,yerr=np.array(TOT_EA_obs),fmt='-s', color = 'black' ,label = 'Obs')
        
        if tpxo_flag == 1:
-          TPXO_AMP=globals()['TPXO_'+comp]
-          TPXO_PHA=globals()['TPXO_P_'+comp]
-          TPXO_AMP=np.multiply(TPXO_AMP,100) # Want cm not m!
+       #   TPXO_AMP=globals()['TPXO_'+comp]
+       #   TPXO_PHA=globals()['TPXO_P_'+comp]
+       #   TPXO_AMP=np.multiply(TPXO_AMP,100) # Want cm not m!
           plt.plot(TPXO_AMP, '--v', color = 'black' ,label = 'TPXO')
    
        if howmany_Oarea != 0:
@@ -1604,6 +1655,276 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
           plt.savefig(workdir_path+comp+'_P_AB.jpg')
         plt.clf()
    
+        ########################
+        # Box-Plot AMP-PHA and diffs wrt obs 
+        print ('Boxplot')
+        fig = plt.figure(figsize=(24,10))
+        plt.rc('font', size=16)
+
+        if tpxo_flag == 1:
+          BP_colors = ['lightpink','lightblue','lightgray']
+          BPm_colors = ['red','navy','gray']
+          BP_A_array = [TOT_A_mod,TPXO_AMP,TOT_A_obs]
+          BP_P_array = [TOT_P_mod,TPXO_PHA,TOT_P_obs]
+          BP_A_title = comp+" Amplitudes"
+          BP_A_label = ['EAS7','TPXO','Obs']
+          BP_P_title = comp+" Phases"
+          BP_P_label = ['EAS7','TPXO','Obs']
+          #
+          BP_diff_colors = ['lightpink', 'lightblue']
+          BPm_diff_colors = ['red','navy']
+          BP_Adiff_array = [diffA_mo,TPXO_AMP-TOT_A_obs]
+          BP_Pdiff_array = [diffP_mo,TPXO_PHA-TOT_P_obs]
+          BP_Adiff_title = comp+" Amplitudes "
+          BP_Adiff_label = ['EAS7-Obs','TPXO-Obs']
+          BP_Pdiff_title = comp+" Phases"
+          BP_Pdiff_label = ['EAS7-Obs','TPXO-Obs']
+
+          # Print stats
+          BP_file = open(workdir_path+"stats_BP_"+comp+".txt","w")
+          #
+          print ('BX Amp stats',file=BP_file)
+          print ('---> EAS7',file=BP_file)
+          get_summary_statistics(dataset=TOT_A_mod,BPfile=BP_file)
+          print ('---> OBS',file=BP_file)
+          get_summary_statistics(dataset=TOT_A_obs,BPfile=BP_file)
+          print ('---> TPXO',file=BP_file)
+          get_summary_statistics(dataset=TPXO_AMP,BPfile=BP_file)
+          print ('###############',file=BP_file)
+          print ('BX Pha stats',file=BP_file)
+          print ('---> EAS7',file=BP_file)
+          get_summary_statistics(dataset=TOT_P_mod,BPfile=BP_file)
+          print ('---> OBS',file=BP_file)
+          get_summary_statistics(dataset=TOT_P_obs,BPfile=BP_file)
+          print ('---> TPXO',file=BP_file)
+          get_summary_statistics(dataset=TPXO_PHA,BPfile=BP_file)
+          print ('###############',file=BP_file)
+          print ('###############',file=BP_file)
+          #
+          print ('BX Amp diff stats',file=BP_file)
+          print ('---> EAS7-Obs',file=BP_file)
+          get_summary_statistics(dataset=diffA_mo,BPfile=BP_file)
+          print ('---> TPXO-Obs',file=BP_file)
+          get_summary_statistics(dataset=TPXO_AMP-TOT_A_obs,BPfile=BP_file)
+          print ('###############',file=BP_file)
+          print ('BX Pha diff stats',file=BP_file)
+          print ('---> EAS7-Obs',file=BP_file)
+          get_summary_statistics(dataset=diffP_mo,BPfile=BP_file)
+          print ('---> TPXO-Obs',file=BP_file)
+          get_summary_statistics(dataset=TPXO_PHA-TOT_P_obs,BPfile=BP_file)
+          print ('###############',file=BP_file)
+          print ('###############',file=BP_file)
+          BP_file.close()
+
+          # ecdf:
+          #ecdf_A_mod=ECDF(TOT_A_mod)
+          #ecdf_A_obs=ECDF(TOT_A_obs)
+          #ecdf_A_tpxo=ECDF(TPXO_AMP)
+          #BP_A_title = "Distributions of EAS7 Obs Tpxo Amplitudes"
+          #BP_A_label = ['EAS7','Obs','TPXO']
+          #ecdf_P_mod=ECDF(TOT_P_mod)
+          #ecdf_P_obs=ECDF(TOT_P_obs)
+          #ecdf_P_tpxo=ECDF(TPXO_PHA)
+          #BP_P_title = "Distributions of EAS7 Obs Tpxo Phases"
+          #BP_P_label = ['EAS7','Obs','TPXO']
+        else:
+          BP_colors = ['lightpink','lightgray']
+          BPm_colors = ['red','gray']
+          BP_A_array = [TOT_A_mod,TOT_A_obs]
+          BP_P_array = [TOT_P_mod,TOT_P_obs]
+          BP_A_title = comp+" Amplitudes "
+          BP_A_label = ['EAS7','Obs']
+          BP_P_title = comp+" Phases"
+          BP_P_label = ['EAS7','Obs']
+          #
+          BP_diff_colors = ['lightpink']
+          BPm_diff_colors = ['red']
+          BP_Adiff_array = [diffA_mo]
+          BP_Pdiff_array = [diffP_mo]
+          BP_Adiff_title = comp+" Amplitudes"
+          BP_Adiff_label = ['EAS7-Obs']
+          BP_Pdiff_title = comp+" Phases"
+          BP_Pdiff_label = ['EAS7-Obs']
+          BP_colors_diff = ['red']
+
+          if anatype_flag != 'lit':
+             # Print stats
+             BP_file = open(workdir_path+"stats_BP_"+comp+".txt","w")
+             #
+             print ('BX Amp stats',file=BP_file)
+             print ('---> EAS7',file=BP_file)
+             get_summary_statistics(dataset=TOT_A_mod,BPfile=BP_file)
+             print ('---> OBS',file=BP_file)
+             get_summary_statistics(dataset=TOT_A_obs,BPfile=BP_file)
+             print ('###############',file=BP_file)
+             print ('BX Pha stats',file=BP_file)
+             print ('---> EAS7',file=BP_file)
+             get_summary_statistics(dataset=TOT_P_mod,BPfile=BP_file)
+             print ('---> OBS',file=BP_file)
+             get_summary_statistics(dataset=TOT_P_obs,BPfile=BP_file)
+             print ('###############',file=BP_file)
+             print ('###############',file=BP_file)
+             #
+             print ('BX Amp diff stats',file=BP_file)
+             print ('---> EAS7-Obs',file=BP_file)
+             get_summary_statistics(dataset=diffA_mo,BPfile=BP_file)
+             print ('###############',file=BP_file)
+             print ('BX Pha diff stats',file=BP_file)
+             print ('---> EAS7-Obs',file=BP_file)
+             get_summary_statistics(dataset=diffP_mo,BPfile=BP_file)
+             print ('###############',file=BP_file)
+             print ('###############',file=BP_file)
+             BP_file.close()
+   
+             # ecdf:
+             #ecdf_A_mod=ECDF(TOT_A_mod)
+             #ecdf_A_obs=ECDF(TOT_A_obs)
+             #BP_A_title = "Distributions of EAS7 Obs Amplitudes - "+comp
+             #BP_A_label = ['EAS7','Obs']
+             #ecdf_P_mod=ECDF(TOT_P_mod)
+             #ecdf_P_obs=ECDF(TOT_P_obs)
+             #BP_P_title = "Distributions of EAS7 Obs Phases - "+comp
+             #BP_P_label = ['EAS7','Obs']
+
+        if anatype_flag == 'lit' and comp_idx < 4 :
+          print ('Appending lit!')
+          BP_colors = ['lightpink','lightgreen','lightyellow','lightgray']
+          BPm_colors = ['red','green','yellow','gray']
+          BP_A_array = [TOT_A_mod]
+          BP_A_array.append(globals()['TSIMPLIS_'+comp])
+          BP_A_array.append(globals()['PALMA_'+comp])
+          BP_A_array.append(TOT_A_obs)
+          BP_P_array = [TOT_P_mod]
+          BP_P_array.append(globals()['TSIMPLIS_P_'+comp])
+          BP_P_array.append(globals()['PALMA_P_'+comp])
+          BP_P_array.append(TOT_P_obs)
+          BP_A_title = comp+" Amplitudes"
+          BP_A_label = ['EAS7','Tsimplis','Palma','Obs']
+          BP_P_title = comp+" Phases"
+          BP_P_label = ['EAS7','Tsimplis','Palma','Obs']
+          #
+          BP_diff_colors = ['lightpink','lightgreen','lightyellow']
+          BPm_diff_colors = ['red','green','yellow']
+          BP_Adiff_array.append(globals()['TSIMPLIS_'+comp]-TOT_A_obs)
+          BP_Adiff_array.append(globals()['PALMA_'+comp]-TOT_A_obs)
+          BP_Pdiff_array.append(globals()['TSIMPLIS_P_'+comp]-TOT_P_obs)
+          BP_Pdiff_array.append(globals()['PALMA_P_'+comp]-TOT_P_obs)
+          BP_Adiff_title = comp+" Amplitudes"
+          BP_Adiff_label = ['EAS7-Obs','TSimplis-Obs','Palma-Obs']
+          BP_Pdiff_title = comp+" Phases"
+          BP_Pdiff_label = ['EAS7-Obs','TSimplis-Obs','Palma-Obs']
+
+          # Print stats
+          BP_file = open(workdir_path+"stats_BP_"+comp+".txt","w")
+          #
+          print ('BX Amp stats',file=BP_file)
+          print ('---> EAS7',file=BP_file)
+          get_summary_statistics(dataset=TOT_A_mod,BPfile=BP_file)
+          print ('---> OBS',file=BP_file)
+          get_summary_statistics(dataset=TOT_A_obs,BPfile=BP_file)
+          print ('---> TSIMPLIS',file=BP_file)
+          get_summary_statistics(dataset=globals()['TSIMPLIS_'+comp],BPfile=BP_file)
+          print ('---> PALMA',file=BP_file)
+          get_summary_statistics(dataset=globals()['PALMA_'+comp],BPfile=BP_file)
+          print ('###############',file=BP_file)
+          print ('BX Pha stats',file=BP_file)
+          print ('---> EAS7',file=BP_file)
+          get_summary_statistics(dataset=TOT_P_mod,BPfile=BP_file)
+          print ('---> OBS',file=BP_file)
+          get_summary_statistics(dataset=TOT_P_obs,BPfile=BP_file)
+          print ('---> TSIMPLIS',file=BP_file)
+          get_summary_statistics(dataset=globals()['TSIMPLIS_P_'+comp],BPfile=BP_file)
+          print ('---> PALMA',file=BP_file)
+          get_summary_statistics(dataset=globals()['PALMA_P_'+comp],BPfile=BP_file)
+          print ('###############',file=BP_file)
+          print ('###############',file=BP_file)
+          #
+          print ('BX Amp diff stats',file=BP_file)
+          print ('---> EAS7-Obs',file=BP_file)
+          get_summary_statistics(dataset=diffA_mo,BPfile=BP_file)
+          print ('---> TSIMPLIS-Obs',file=BP_file)
+          get_summary_statistics(dataset=globals()['TSIMPLIS_'+comp]-TOT_A_obs,BPfile=BP_file)
+          print ('---> PALMA-Obs',file=BP_file)
+          get_summary_statistics(dataset=globals()['PALMA_'+comp]-TOT_A_obs,BPfile=BP_file)
+          print ('###############',file=BP_file)
+          print ('BX Pha diff stats',file=BP_file)
+          print ('---> EAS7-Obs',file=BP_file)
+          get_summary_statistics(dataset=diffP_mo,BPfile=BP_file)
+          print ('---> TSIMPLIS-Obs',file=BP_file)
+          get_summary_statistics(dataset=globals()['TSIMPLIS_P_'+comp]-TOT_P_obs,BPfile=BP_file)
+          print ('---> PALMA-Obs',file=BP_file)
+          get_summary_statistics(dataset=globals()['PALMA_P_'+comp]-TOT_P_obs,BPfile=BP_file)
+          print ('###############',file=BP_file)
+          print ('###############',file=BP_file)
+          BP_file.close()
+
+
+          # ecdf:
+          #ecdf_A_mod=ECDF(TOT_A_mod)
+          #ecdf_A_obs=ECDF(TOT_A_obs)
+          #ecdf_A_lit1=ECDF(globals()['TSIMPLIS_'+comp])
+          #ecdf_A_lit2=ECDF(globals()['PALMA_'+comp])
+          #BP_A_title = "Distributions of EAS7 Obs Tsimplis Palma Amplitudes - "+comp
+          #BP_A_label = ['EAS7','Obs','Tsimplis','Palma']
+          #ecdf_P_mod=ECDF(TOT_P_mod)
+          #ecdf_P_obs=ECDF(TOT_P_obs)
+          #ecdf_P_lit1=ECDF(globals()['TSIMPLIS_P_'+comp])
+          #ecdf_P_lit2=ECDF(globals()['PALMA_P_'+comp])
+          #BP_P_title = "Distributions of EAS7 Obs Tsimplis Palma Amplitudes - "+comp
+          #BP_P_label = ['EAS7','Obs','Tsimplis','Palma']
+
+        ax1, ax2, ax3, ax4 = fig.subplots(4)
+
+        plt.subplot(2,2,1)
+        plt.title(BP_A_title)
+        bplot1=plt.boxplot(BP_A_array,whis=1.5,labels=BP_A_label,patch_artist=True)
+        #for artist, color in zip(bplot1['boxes'], BP_colors):
+        #        patch = mpatches.PathPatch(artist.get_path(), color=color)
+        #        ax1.add_artist(patch)
+        #for artist, color in zip(bplot1['medians'], BPm_colors):
+        #        patch = mpatches.PathPatch(artist.get_path(), color=color)
+        #        ax1.add_artist(patch)
+
+        plt.ylabel('Amplitude [cm]')
+        plt.grid ()
+
+        plt.subplot(2,2,2)
+        plt.title(BP_Adiff_title)
+        bplot2=plt.boxplot(BP_Adiff_array,whis=1.5,labels=BP_Adiff_label,patch_artist=True) 
+        plt.axhline(y=0, color='black')
+        plt.ylabel('Amplitude diff [cm]')
+        plt.grid ()
+
+        plt.subplot(2,2,3)
+        plt.title(BP_P_title)
+        bplot3=plt.boxplot(BP_P_array,whis=1.5,labels=BP_P_label,patch_artist=True)
+        plt.ylabel('Phase [deg]')
+        plt.grid ()
+
+        plt.subplot(2,2,4)
+        plt.title(BP_Pdiff_title)
+        bplot4=plt.boxplot(BP_Pdiff_array,whis=1.5,labels=BP_Pdiff_label,patch_artist=True)
+        plt.axhline(y=0, color='black')
+        plt.ylabel('Phase diff [deg]')
+        plt.grid ()
+
+        # fill BP with colors
+        for bplot in (bplot1,bplot2,bplot3,bplot4):
+            for patch, color in zip(bplot['boxes'], BP_colors):
+                patch.set_facecolor(color)
+        #for bplot in (bplot1,bplot2,bplot3,bplot4):
+        #    for patch, color in zip(bplot['medians'], BPm_colors):
+        #        patch.set_facecolor(color)
+
+        if where_box=='Med' and tpxo_flag == 1 :
+           plt.savefig(workdir_path+comp+'_BP_tpxo.jpg')
+        elif where_box=='Med' and tpxo_flag == 0 :
+           plt.savefig(workdir_path+comp+'_BP.jpg')
+        elif where_box=='AtlBox':
+           plt.savefig(workdir_path+comp+'_BP_AB.jpg')
+        plt.clf()
+
+
        elif cos_pha == 1:
         # WARNING: in this case should be added the Pha error..
         plt.figure(figsize=(24,10))
@@ -1679,17 +2000,16 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
         plt.clf()
    
    
-   
    ######### LINEAR REGRESSIONS
    
-      # Plot ( Lin reg mod Vs obs x A and P x stz )
+       # Plot ( Lin reg mod Vs obs x A and P x stz )
        if cos_pha == 0:
-          plt.figure(figsize=(6,12))
+          plt.figure(figsize=(12,12))
        elif cos_pha == 1:
           plt.figure(figsize=(7,12))
        plt.rc('font', size=12)
        #
-       plt.subplot(2,1,1)
+       plt.subplot(2,2,1)
        plt.title(mod_file_template+' '+comp+' Amplitude [cm] ')
        plt.grid ()
        # Arrays defn
@@ -1700,7 +2020,7 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
        y_text=np.array(TOT_A_mod)
        top=np.maximum(x_text,y_text)
        top=max(top[:])
-       # Linear regression
+       # Linear regression (Least Square Method)
        slope, intercept, r_value, p_value, std_err = stats.linregress(x_text,y_text)
        m_A=[]
        q_A=[]
@@ -1718,7 +2038,7 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
        m_Ae_approx=round(perr[0],2)
        r_A=round(r_value,2)
        lr_leg_str='( Slope='+str(m_A_approx)+'; R2='+str(r_A)+')'
-   
+
        # Arrays defn
        x_text=[]
        x_text=np.array(TOT_A_obs)
@@ -1754,13 +2074,26 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
        # Legend
        plt.legend( loc='upper left' )
        # point label (stn names)
-       if linreg_name_flag != 0: 
+       if linreg_name_flag != 0 : 
          i=0
          for word in TOT_tg_lab:
              plt.text(x_text[i]+.03,y_text[i]+.03,word,fontsize=12,color = 'black')
              i=i+1
-   
-       plt.subplot(2,1,2)
+       # Plot of residuals for Amp
+       plt.subplot(2,2,2)
+       plt.title(mod_file_template+' '+comp+' Amplitude residuals [cm] ')
+       plt.grid ()
+       #
+       res_A=[]
+       res_A=y_text-(m_A*x_text+q_A)
+       plt.scatter(range(0,len(x_text)),res_A,c=TOT_tg_orcol)
+       #plt.scatter(x_text,res_A,c=TOT_tg_orcol)
+       #plt.scatter(m_A*x_text+q_A,res_A,c=TOT_tg_orcol)
+       #
+       # Ax settings
+       plt.ylabel ('Amplitude Residuals [cm]')
+       plt.xlabel ('TG index')
+       plt.subplot(2,2,3)
        ### Pha linear reg
        if cos_pha == 0:
         plt.title(mod_file_template+' '+comp+' Phase [deg] ')
@@ -1780,6 +2113,7 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
         retta_P=slopeP*rx+interceptP
         lr_leg_str='( Slope='+str(round(slopeP,2))+'; R2='+str(round(r_valueP,2))+')'
         plt.plot(rx,retta_P,color = 'red',label=lr_leg_str)
+
         if howmany_Oarea != 0:
            plt.errorbar(np.array(TOT_P_obs_Oarea), np.array(TOT_P_mod_Oarea),xerr=np.array(TOT_EP_obs_Oarea),yerr=np.array(TOT_EP_mod_Oarea),fmt='go', label = 'Other areas')
         if howmany_Marea != 0:
@@ -1808,6 +2142,18 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
                plt.text(x_text[i]+.03,y_text[i]+.03,word,fontsize=12,color = 'black')
                i=i+1
    
+        # Plot of residuals for Amp
+        plt.subplot(2,2,4)
+        plt.title(mod_file_template+' '+comp+' Phase residuals [cm] ')
+        plt.grid ()
+        #
+        res_P=[]
+        res_P=y_text-(slopeP*x_text+interceptP)
+        plt.scatter(range(0,len(x_text)),res_P,c=TOT_tg_orcol)
+        #plt.scatter(x_text,res_P,c=TOT_tg_orcol)
+        # Ax settings
+        plt.ylabel ('Amplitude Residuals [cm]')
+        plt.xlabel ('TG index')
         if where_box=='Med':
           plt.savefig(workdir_path+comp+'_lr.jpg')
         elif where_box=='AtlBox':
@@ -1866,7 +2212,144 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
    
        print(comp,' & ',str(m_A_approx),' & ',str(r_A),' & ',str(round(slopeP,2)),' & ',str(round(r_valueP,2)),' \\\\ '+'\n', file=LinReg_file)
    
+
+       ########
+       # linear reg. with respect to TPXO 
+       if tpxo_flag == 1 :
+          # Plot ( Lin reg mod Vs TPXO x A and P x stz )
+          if cos_pha == 0:
+             plt.figure(figsize=(12,12))
+          elif cos_pha == 1:
+             plt.figure(figsize=(7,12))
+          plt.rc('font', size=12)
+          #
+          plt.subplot(2,2,1)
+          plt.title(mod_file_template+' '+comp+' Amplitude [cm] ')
+          plt.grid ()
+          # Arrays defn
+          x_text=[]
+          y_text=[]
+          y_text2=[]
+          x_text=np.array(TPXO_AMP)
+          y_text=np.array(TOT_A_mod)
+          top=np.maximum(x_text,y_text)
+          top=max(top[:])
+          # Linear regression (Least Square Method)
+          slope, intercept, r_value, p_value, std_err = stats.linregress(x_text,y_text)
+          m_A=[]
+          q_A=[]
+          fitted_A=[]
+          cov_A=[]
+          def line_A(x, m_A, q_A):
+              return (m_A*x+q_A)
+          fitted_A, cov_A = curve_fit(line_A,x_text[:],y_text[:])
+          m_A=fitted_A[0]
+          q_A=fitted_A[1]
+          rx=np.linspace(0.0,top)
+          retta_A=m_A*rx+q_A
+          m_A_approx=round(m_A,2)
+          perr = np.abs(np.diag(cov_A))
+          m_Ae_approx=round(perr[0],2)
+          r_A=round(r_value,2)
+          lr_leg_str='( Slope='+str(m_A_approx)+'; R2='+str(r_A)+')'
    
+          # Plot points
+          plt.scatter(np.array(TPXO_AMP), np.array(TOT_A_mod), label = 'All areas',c=TOT_tg_orcol)
+          # Ax settings
+          plt.xlabel ('TPXO Amplitude [cm]')
+          plt.ylabel ('MOD Amplitude [cm]')
+          bottom_ax, top_ax = plt.xlim()
+          bottom_ay, top_ay = plt.ylim()
+          top_a=np.maximum(top_ax,top_ay)
+          bottom_a=np.minimum(bottom_ax,bottom_ay)
+          plt.ylim(bottom_a, top_a)
+          plt.xlim(bottom_a, top_a)
+          # Plot Lines
+          plt.plot(rx,retta_A,color = 'red',label=lr_leg_str)
+          plt.plot([bottom_a,top_a], [bottom_a,top_a], 'k-', color = 'black')
+          # Legend
+          plt.legend( loc='upper left' )
+          # point label (stn names)
+          if linreg_name_flag != 0 : 
+            i=0
+            for word in TOT_tg_lab:
+                plt.text(x_text[i]+.03,y_text[i]+.03,word,fontsize=12,color = 'black')
+                i=i+1
+          # Plot of residuals for Amp
+          plt.subplot(2,2,2)
+          plt.title(mod_file_template+' '+comp+' Amplitude residuals [cm] ')
+          plt.grid ()
+          #
+          res_A=[]
+          res_A=y_text-(m_A*x_text+q_A)
+          plt.scatter(range(0,len(x_text)),res_A,c=TOT_tg_orcol)
+          #plt.scatter(x_text,res_A,c=TOT_tg_orcol)
+          #plt.scatter(m_A*x_text+q_A,res_A,c=TOT_tg_orcol)
+          #
+          # Ax settings
+          plt.ylabel ('Amplitude Residuals [cm]')
+          plt.xlabel ('TG index')
+          #
+          plt.subplot(2,2,3)
+          # Arrays defn
+          x_text=[]
+          x_text=np.array(TPXO_PHA)
+
+          ### Pha linear reg
+          if cos_pha == 0:
+           plt.title(mod_file_template+' '+comp+' Phase [deg] ')
+           plt.grid ()
+           if where_box == 'AtlBox':
+              plt.ylim(0.0, 360.0)
+           else:
+              plt.ylim(-50.0, 400.0)
+           plt.xlim(-50.0, 400.0)
+           plt.plot([-50.0, 400.0], [-50.0, 400.0], 'k-', color = 'black')
+           x_text=[]
+           y_text=[]
+           x_text=np.array(TPXO_PHA)
+           y_text=np.array(TOT_P_mod)
+           slopeP, interceptP, r_valueP, p_valueP, std_errP = stats.linregress(x_text,y_text)
+           rx=np.linspace(-50.0,400.0)
+           retta_P=slopeP*rx+interceptP
+           lr_leg_str='( Slope='+str(round(slopeP,2))+'; R2='+str(round(r_valueP,2))+')'
+           plt.plot(rx,retta_P,color = 'red',label=lr_leg_str)
+           plt.scatter(np.array(TPXO_PHA), np.array(TOT_P_mod), label = 'All areas',c=TOT_tg_orcol)
+           # Ax settings
+           plt.xlabel ('TG index')
+           plt.ylabel ('Amplitude residuals [cm]')
+           # Axes
+           plt.xlabel ('TPXO Phase [deg]')
+           plt.ylabel ('MOD Phase [deg]')
+           # Legend
+           plt.legend( loc='upper left' )
+           if linreg_name_flag != 0:
+              i=0
+              for word in TOT_tg_lab:
+                  plt.text(x_text[i]+.03,y_text[i]+.03,word,fontsize=12,color = 'black')
+                  i=i+1
+      
+           # Plot of residuals for Amp
+           plt.subplot(2,2,4)
+           plt.title(mod_file_template+' '+comp+' Phase residuals [cm] ')
+           plt.grid ()
+           #
+           res_P=[]
+           res_P=y_text-(slopeP*x_text+interceptP)
+           plt.scatter(range(0,len(x_text)),res_P,c=TOT_tg_orcol)
+           #plt.scatter(x_text,res_P,c=TOT_tg_orcol)
+           # Ax settings
+           plt.xlabel ('TG index')
+           plt.ylabel ('Phase residuals [deg]')
+           if where_box=='Med':
+             plt.savefig(workdir_path+comp+'_lrT.jpg')
+           elif where_box=='AtlBox':
+             plt.savefig(workdir_path+comp+'_lrT_AB.jpg')
+           plt.clf()
+   
+ 
+       ###########################
+       ###########################  
        # Save val in GLOBAL arrays 
    
        # Components names
@@ -1874,8 +2357,11 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
        GLOB_P_mod[0][comp_idx+1]=comp
        GLOB_A_obs[0][comp_idx+1]=comp
        GLOB_P_obs[0][comp_idx+1]=comp
+       GLOB_A_tpxo[0][comp_idx+1]=comp
+       GLOB_P_tpxo[0][comp_idx+1]=comp
    
        d_foreman[0][comp_idx+1]=comp 
+       d_foreman_tpxo[0][comp_idx+1]=comp
    
        # Stations labels
        for nnn_stz in range (0,len(TOT_tg_lab_ord)): 
@@ -1883,8 +2369,11 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
          GLOB_P_mod[nnn_stz+1][0]=TOT_tg_lab_ord[nnn_stz]
          GLOB_A_obs[nnn_stz+1][0]=TOT_tg_lab_ord[nnn_stz]
          GLOB_P_obs[nnn_stz+1][0]=TOT_tg_lab_ord[nnn_stz]
-   
+         GLOB_A_tpxo[nnn_stz+1][0]=TOT_tg_lab_ord[nnn_stz]
+         GLOB_P_tpxo[nnn_stz+1][0]=TOT_tg_lab_ord[nnn_stz]  
+
          d_foreman[nnn_stz+1][0]=TOT_tg_lab_ord[nnn_stz]
+         d_foreman_tpxo[nnn_stz+1][0]=TOT_tg_lab_ord[nnn_stz]
    
        # Put right numbers in the matrix!
        for nnn_AP in range (0,len(TOT_tg_lab_ord)):
@@ -1892,15 +2381,25 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
          GLOB_P_mod[nnn_AP+1][comp_idx+1]=TOT_P_mod_ord[nnn_AP]
          GLOB_A_obs[nnn_AP+1][comp_idx+1]=TOT_A_obs_ord[nnn_AP]
          GLOB_P_obs[nnn_AP+1][comp_idx+1]=TOT_P_obs_ord[nnn_AP]
+         if anatype_flag == 'anatpxo':
+            GLOB_A_tpxo[nnn_AP+1][comp_idx+1]=TPXO_AMP[nnn_AP]
+            GLOB_P_tpxo[nnn_AP+1][comp_idx+1]=TPXO_PHA[nnn_AP]
    
    
          # Compute Distances in the complex plane [Foreman et al. 93]
          d_foreman[nnn_AP+1][comp_idx+1]=np.sqrt((TOT_A_obs_ord[nnn_AP]*np.cos((np.pi/180.0)*TOT_P_obs_ord[nnn_AP])-(TOT_A_mod_ord[nnn_AP]*np.cos((np.pi/180.0)*TOT_P_mod_ord[nnn_AP])))**2+((TOT_A_obs_ord[nnn_AP]*np.sin((np.pi/180.0)*TOT_P_obs_ord[nnn_AP])-(TOT_A_mod_ord[nnn_AP]*np.sin((np.pi/180.0)*TOT_P_mod_ord[nnn_AP])))**2))
+         if anatype_flag == 'anatpxo':
+            d_foreman_tpxo[nnn_AP+1][comp_idx+1]=np.sqrt((TOT_A_obs_ord[nnn_AP]*np.cos((np.pi/180.0)*TOT_P_obs_ord[nnn_AP])-(TPXO_AMP[nnn_AP]*np.cos((np.pi/180.0)*TPXO_PHA[nnn_AP])))**2+((TOT_A_obs_ord[nnn_AP]*np.sin((np.pi/180.0)*TOT_P_obs_ord[nnn_AP])-(TPXO_AMP[nnn_AP]*np.sin((np.pi/180.0)*TPXO_PHA[nnn_AP])))**2))
    
          # Root Mean Square misfits
          RMSm[comp_idx]=RMSm[comp_idx]+(TOT_A_obs_ord[nnn_AP]*np.cos((np.pi/180.0)*TOT_P_obs_ord[nnn_AP])-(TOT_A_mod_ord[nnn_AP]*np.cos((np.pi/180.0)*TOT_P_mod_ord[nnn_AP])))**2+((TOT_A_obs_ord[nnn_AP]*np.sin((np.pi/180.0)*TOT_P_obs_ord[nnn_AP])-(TOT_A_mod_ord[nnn_AP]*np.sin((np.pi/180.0)*TOT_P_mod_ord[nnn_AP])))**2)
+    
+         if anatype_flag == 'anatpxo':
+            RMSm_tpxo[comp_idx]=RMSm_tpxo[comp_idx]+(TOT_A_obs_ord[nnn_AP]*np.cos((np.pi/180.0)*TOT_P_obs_ord[nnn_AP])-(TPXO_AMP[nnn_AP]*np.cos((np.pi/180.0)*TPXO_PHA[nnn_AP])))**2+((TOT_A_obs_ord[nnn_AP]*np.sin((np.pi/180.0)*TOT_P_obs_ord[nnn_AP])-(TPXO_AMP[nnn_AP]*np.sin((np.pi/180.0)*TPXO_PHA[nnn_AP])))**2)
    
        RMSm[comp_idx]=np.sqrt((1/(2*len(TOT_tg_lab_ord)))*RMSm[comp_idx]) 
+       if anatype_flag == 'anatpxo':
+          RMSm_tpxo[comp_idx]=np.sqrt((1/(2*len(TOT_tg_lab_ord)))*RMSm_tpxo[comp_idx])
    
        comp_idx=comp_idx+1
    
@@ -1944,10 +2443,11 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
      Tab_file.write(' TG Name & $A_{mod}$ [cm] & $A_{obs}$ [cm] & $A_{lit}$ [cm] & $A_{tpxo}$ [cm] & $\\alpha$ & $P_{mod}$ [deg] & $P_{obs}$ [deg] & $P_{lit}$ [deg]  & $P_{tpxo}$ [deg]& $d_{mod/obs}$ [cm]  & $d_{lit}$ [cm] \\\\'+'\n')
      Tab_file.write('     \hline'+'\n')
      Tab_file.write('     \hline'+'\n')
-   
+
      for i in range(1,N_stz+1): # Loop on stz
        ALPHA=GLOB_A_mod[i][j]/GLOB_A_obs[i][j]
        print (TOT_tg_name_ord[i-1],'&',end =" ",file=Tab_file)
+
        if j > 4:
           print(np.round(np.array(GLOB_A_mod[i][j]),1),'&',np.round(np.array(GLOB_A_obs[i][j]),1),'&',np.round(np.array(TPXO_AMP[i-1])*100,1),'&',np.round(ALPHA,2),'&',np.round(np.array(GLOB_P_mod[i][j]),1),'&',np.round(np.array(GLOB_P_obs[i][j]),1),'&',np.round(np.array(TPXO_PHA[i-1]),1),'&',np.round(np.array(d_foreman[i][j]),1),'\\\\'+'\n',file=Tab_file)
        else:
@@ -1960,11 +2460,39 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
           #
           #
           print(np.round(np.array(GLOB_A_mod[i][j]),1),'&',np.round(np.array(GLOB_A_obs[i][j]),1),'&',A_lit1[i-1],'/',A_lit2[i-1],'&',np.round(np.array(TPXO_AMP[i-1])*100,1),'&',np.round(ALPHA,2),'&',np.round(np.array(GLOB_P_mod[i][j]),1),'&',np.round(np.array(GLOB_P_obs[i][j]),1),'&',P_lit1[i-1],'/',P_lit2[i-1],'&',np.round(np.array(TPXO_PHA[i-1]),1),'&',np.round(np.array(d_foreman[i][j]),1),'&',d_lit1[i-1],'/',d_lit2[i-1],'\\\\'+'\n',file=Tab_file)
+          
      Tab_file.write('\hline'+'\n')
      print ('RMSm [cm] &&&&&&&&&&&',np.round(RMSm[j-1],2),'\\\\'+'\n',file=Tab_file)
      Tab_file.close() 
+
+    # Tabs AmpPha
+   #for j in range (1,num_comp_1): # Loop on components
+     #if anatype_flag=='all':
+     AmpPha_file_mod_obs = open(workdir_path+"AmpPha_mod_obs_"+comp[j-1]+".txt","w")
+     print (comp[j-1]+' Tidal Component',file=AmpPha_file_mod_obs)
+     print ('TG_name TG_area A_mod[cm] A_obs[cm] P_mod[deg] P_obs[deg]',file=AmpPha_file_mod_obs)
+     for i in range(1,N_stz+1): # Loop on stz
+        print (TOT_tg_name_ord[i-1],' ',TOT_tg_orcol[i-1],' ',np.round(np.array(GLOB_A_mod[i][j]),1),' ',np.round(np.array(GLOB_A_obs[i][j]),1),' ',np.round(np.array(GLOB_P_mod[i][j]),1),' ',np.round(np.array(GLOB_P_obs[i][j]),1),file=AmpPha_file_mod_obs)
+     AmpPha_file_mod_obs.close()
+     #if anatype_flag=='anatpxo':
+     AmpPha_file_mod_tpxo = open(workdir_path+"AmpPha_mod_tpxo_"+comp[j-1]+".txt","w")
+     print (comp[j-1]+' Tidal Component',file=AmpPha_file_mod_tpxo)
+     print ('TG_name TG_area A_mod[cm] A_tpxo[cm] P_mod[deg] P_tpxo[deg]',file=AmpPha_file_mod_tpxo)
+     for i in range(1,N_stz+1): # Loop on stz
+       print (TOT_tg_name_ord[i-1],' ',TOT_tg_orcol[i-1],' ',np.round(np.array(GLOB_A_mod[i][j]),1),' ',np.round(np.array(TPXO_AMP[i-1])*100,1),' ',np.round(np.array(GLOB_P_mod[i][j]),1),' ',np.round(np.array(TPXO_PHA[i-1]),1),file=AmpPha_file_mod_tpxo)
+     AmpPha_file_mod_tpxo.close()
+
+     #if j < 4 and anatype_flag=='lit':
+     AmpPha_file_mod_lit = open(workdir_path+"AmpPha_mod_lit_"+comp[j-1]+".txt","w")
+     print (comp[j-1]+' Tidal Component',file=AmpPha_file_mod_lit)
+     print ('TG_name TG_area A_mod[cm] A_Tsimplis[cm] A_Palma[cm] P_mod[deg] P_Tsimplis[deg] P_Palma[deg]',file=AmpPha_file_mod_lit)
+     for i in range(1,N_stz+1): # Loop on stz
+        print (TOT_tg_name_ord[i-1],' ',TOT_tg_orcol[i-1],' ',np.round(np.array(GLOB_A_mod[i][j]),1),' ',A_lit1[i-1],' ',A_lit2[i-1],' ',np.round(np.array(GLOB_P_obs[i][j]),1),' ',P_lit1[i-1],' ',P_lit2[i-1],file=AmpPha_file_mod_lit)
+     AmpPha_file_mod_lit.close()
+
    
    ################### GLOBAL PLOTS ############
+   print ('Global Plots..')
    # Colors array
    TOT_color_stz=[]
    for idx_color in range (0,howmany_Oarea):
@@ -2183,10 +2711,10 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
    fig,ax=plt.subplots( figsize=(80,24))
    plt.rc('font', size=50)
 
-   rects2_SEMI = ax.bar(x, obsfrac_SEMIDIURNAL, width-0.05, color='#d62728', label='Semidiurnal %')
+   rects2_SEMI = ax.bar(x, obsfrac_SEMIDIURNAL, width-0.05, color='#1f77b4', label='Semidiurnal %')
 
    topbottom_O=obsfrac_SEMIDIURNAL
-   rects2_DIU = ax.bar(x, obsfrac_DIURNAL, width-0.05, bottom=topbottom_O, color='#1f77b4',label='Diurnal %')
+   rects2_DIU = ax.bar(x, obsfrac_DIURNAL, width-0.05, bottom=topbottom_O, color='#ff7f03',label='Diurnal %')
 
    zipped_lists_O = zip(topbottom_O,obsfrac_DIURNAL)
    topbottom_O=[x + y for (x, y) in zipped_lists_O]
@@ -2539,5 +3067,50 @@ for anatype_flag in ('all','anatpxo','lit'): #'all','lit','anatpxo'
    elif where_box=='AtlBox':
           plt.savefig(workdir_path+'GLOBAL_RMSm_AB.jpg')
    plt.clf()
+
+   if anatype_flag == 'anatpxo':
+     # Plot RMSm of TPXO
+   
+      plt.figure(figsize=(20,10))
+      plt.rc('font', size=20)
+   
+      labels=[ d_foreman_tpxo[0][j] for j in range(1,N_comp+1) ]
+   
+      x = np.arange(len(labels))  # the label locations
+      width = 0.45*2  # the width of the bars
+   
+      fig,ax=plt.subplots( figsize=(20,10))
+      #
+      comp_color=['#1f77b4','#ff7f03','#2ca02c','#d62728','#bcdb22','#17becf','#9467bd','#e377c2']
+      rects1 = ax.bar(x, RMSm_tpxo, width-0.05,color=comp_color)
+   
+   
+      # Add some text for labels, title and custom x-axis tick labels, etc.
+      ax.set_ylabel('TPXO RMSm [cm]')
+      ax.set_title('TPXO Root Mean Square misfits - '+where_box)
+      ax.set_xticks(x)
+      ax.set_xticklabels(labels,fontweight='bold')
+   
+      plt.grid ()
+   
+   
+      def autolabel(rects):
+          bin_idx=0
+          for rect in rects:
+              height = rect.get_height()
+              ax.annotate(round(RMSm_tpxo[bin_idx],2),
+                          xy=(rect.get_x() + rect.get_width() / 2, height ),
+                          xytext=(0, 3),  # 3 points vertical offset
+                          textcoords="offset points",
+                          ha='center', va='bottom')
+              bin_idx=bin_idx+1
+   
+      autolabel(rects1)
+      if where_box=='Med':
+             plt.savefig(workdir_path+'GLOBAL_TPXO_RMSm.jpg')
+      elif where_box=='AtlBox':
+             plt.savefig(workdir_path+'GLOBAL_TPXO_RMSm_AB.jpg')
+      plt.clf()
+
 
 print ('Output path: ',workdir_path)
