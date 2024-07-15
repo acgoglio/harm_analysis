@@ -23,6 +23,7 @@ import ttide
 # annachiara.goglio@cmcc.it
 #
 # Written: 01/02/2021
+# Last mod: 11/07/2024
 #
 # Script to fit sossheig filed by means of Foreman methodology
 #
@@ -31,12 +32,12 @@ import ttide
 #################################################################
 
 # General run parameters:
-workdir_path = '/work/cmcc/ag15419/OUTPUT_QUID/HA/area_EAS9/'
+workdir_path = '/work/cmcc/ag15419/OUTPUT_QUID/HA/area_EAS9_2017/'
 
 # Dates
 # Choose start and end dates of the period (format dd/mm/yyyy)
-inidate = '01/07/2016'
-enddate = '31/12/2016'
+inidate = '01/07/2017'
+enddate = '31/12/2017'
 
 ########################################################
 # DO NOT CHANGE THE CODE BELOW THIS LINES
