@@ -370,10 +370,7 @@ if amppha_flag == 1:
                thresh = 0.0000
                mask = np.abs(vals) == thresh
                vals_ma = np.ma.masked_where(mask, vals)
-               vals_max=np.nanmax(abs(vals_ma))
-               print ('vals_max',vals_ma)
                vals_max=np.max(np.abs(np.where(vals_ma<1000.0,vals_ma,0)))
-               print ('vals_max',vals_ma)
                vals_min=0
                text_max_x,text_max_y= m(32,29.0)
                plt.text(text_max_x,text_max_y,'max='+str(round(vals_max,1))+var_2d_udm, fontsize=12)
