@@ -36,7 +36,7 @@ mpl.use('Agg')
 # annachiara.goglio@cmcc.it
 #
 # Written: 01/11/2019
-# Modified: 12/03/2021
+# Modified: 11/07/2024
 #
 # Script to analize and plot the harmonic analisi reults on area
 #
@@ -46,14 +46,14 @@ mpl.use('Agg')
 # General run parameters:
 #---------------------
 # work dir path and bathymetry path/name
-workdir_path = '/work/cmcc/ag15419/OUTPUT_QUID/HA/area_EAS9/'
+workdir_path = '/work/cmcc/ag15419/OUTPUT_QUID/HA/area_EAS9_2017/'
 model_bathy='/data/cmcc/mfs/Med_static/MFS_EAS7_STATIC_V1/NEMO_DATA0/bathy_meter.nc'
 model_meshmask='/work/cmcc/ag15419/VAA_paper/DATA0/mesh_mask.nc'
 #
 # Dates
 # Choose start and end dates of the period (format dd/mm/yyyy)
-inidate = '01/07/2016'
-enddate = '31/12/2016'
+inidate = '01/07/2017'
+enddate = '31/12/2017'
 
 # TPXO9 path
 tpxo9_path='/data/cmcc/ag15419/TPXO9_DATA/'
@@ -73,22 +73,22 @@ amppha_flag=1
 # ) Pha_Ar to compare phase maps wrt Arabelos et al 
 # ) AmpPha_Ag to compare amplitude/phase maps wrt Agresti 
 
-ampha_tpxo=1
+ampha_tpxo=0
 # For TPXO9 Amplitude/Phase maps on TPXO grid (1 map per tidal component)
 
-pha_tpxo=1
+pha_tpxo=0
 # For TPXO9 Phase maps on TPXO grid (1 map per tidal component)
 
-ampha_tpxo_atlamph=1
+ampha_tpxo_atlamph=0
 # For TPXO9 Amplitude/Phase maps on TPXO grid in North Atlantic (ONLY M2 component, to be extended..)
 
-doseong_flag=1 # TO compute Do-Seong factor for EAS system
+doseong_flag=0 # TO compute Do-Seong factor for EAS system
 # For the following maps (1 map per factor):
 # Tidal Form Factor [Do-Seong] F=(A_K1+A_O1)/(A_M2+A_S2)
 # Tidal Envelope Factor [Do-Seong] E=(A_M2+A_N2)/(A_M2+A_S2)
 # Tidal envelope asymmetric factor [Do-Seong] Ea=cos(P_K1+P_O1-P_M2)
 # WARNING: the following fields are needed: A_K1 A_O1 A_M2 A_S2 A_N2 P_K1 P_O1 P_M2
-doseong_tpxo=1
+doseong_tpxo=0
 # For computing DoSeong factor from TPXO9 model on TPXO grid
 
 tpxo2eas_flag=1
@@ -100,7 +100,7 @@ diff_tpxoeas_flag=1
 vectorial_dist_flag=1
 # For vectorial distances between eas and tpxo9 on MED24 grid
 
-bathy_diff_flag=1
+bathy_diff_flag=0
 # For diffs between bathymethries eas vs tpxo on MED24 grid
 
 ########################################################
@@ -370,7 +370,10 @@ if amppha_flag == 1:
                thresh = 0.0000
                mask = np.abs(vals) == thresh
                vals_ma = np.ma.masked_where(mask, vals)
-               vals_max=np.amax(abs(vals_ma))
+               vals_max=np.nanmax(abs(vals_ma))
+               print ('vals_max',vals_ma)
+               vals_max=np.max(np.abs(np.where(vals_ma<1000.0,vals_ma,0)))
+               print ('vals_max',vals_ma)
                vals_min=0
                text_max_x,text_max_y= m(32,29.0)
                plt.text(text_max_x,text_max_y,'max='+str(round(vals_max,1))+var_2d_udm, fontsize=12)
