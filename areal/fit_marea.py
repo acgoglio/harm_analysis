@@ -30,14 +30,14 @@ import ttide
 #################################################################
 # The user should modify the following lines to set his run
 #################################################################
-
+argv=sys.argv
 # General run parameters:
-workdir_path = '/work/cmcc/ag15419/OUTPUT_QUID/HA/area_EAS9_2017/'
+workdir_path=argv[1] #'/work/cmcc/ag15419/OUTPUT_QUID/HA/area_EAS9_2019/'
 
 # Dates
 # Choose start and end dates of the period (format dd/mm/yyyy)
-inidate = '01/07/2017'
-enddate = '31/12/2017'
+inidate=argv[2] #'01/07/2019'
+enddate=argv[3] #'31/12/2019'
 
 ########################################################
 # DO NOT CHANGE THE CODE BELOW THIS LINES
@@ -49,7 +49,7 @@ enddate = '31/12/2017'
 # Path and name of inputs datasets
 # Currently the extraction of nc is done externally by another script
 model_fileprename='map' # DO NOT change this
-model_postname='medfs-eas9' # WARNING: Use the same string as in map_extr.ini (ANA_INTAG var)
+model_postname=argv[4] #'medfs-eas9' # WARNING: Use the same string as in map_extr.ini (ANA_INTAG var)
 model_path=workdir_path
 
 # Dates

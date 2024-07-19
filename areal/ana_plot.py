@@ -43,25 +43,26 @@ mpl.use('Agg')
 #################################################################
 # The user should modify the following lines to set his run
 #################################################################
+argv=sys.argv
 # General run parameters:
 #---------------------
 # work dir path and bathymetry path/name
-workdir_path = '/work/cmcc/ag15419/OUTPUT_QUID/HA/area_EAS9_2017/'
-model_bathy='/data/cmcc/mfs/Med_static/MFS_EAS7_STATIC_V1/NEMO_DATA0/bathy_meter.nc'
-model_meshmask='/work/cmcc/ag15419/VAA_paper/DATA0/mesh_mask.nc'
+workdir_path=argv[1] #'/work/cmcc/ag15419/OUTPUT_QUID/HA/area_EAS9_2017/'
+model_bathy=argv[2] #'/data/cmcc/mfs/Med_static/MFS_EAS7_STATIC_V1/NEMO_DATA0/bathy_meter.nc'
+model_meshmask=argv[3] #'/work/cmcc/ag15419/VAA_paper/DATA0/mesh_mask.nc'
 #
 # Dates
 # Choose start and end dates of the period (format dd/mm/yyyy)
-inidate = '01/07/2017'
-enddate = '31/12/2017'
+inidate=argv[4] #'01/07/2017'
+enddate=argv[5] #'31/12/2017'
 
 # TPXO9 path
-tpxo9_path='/data/cmcc/ag15419/TPXO9_DATA/'
+tpxo9_path=argv[6] #'/data/cmcc/ag15419/TPXO9_DATA/'
 
 # FLAGS for different analysis (set 1 to activate the tasks)
 
 # For Amplitude/Phase maps (1 map per tidal component)
-amppha_flag=1
+amppha_flag=argv[7] 
 # For the following maps (1 map per tidal component):
 # ) AmpPha to plot amplitude/phase maps
 # ) AtlBox to plot amplitude/phase maps with AtlOcean proper palette
@@ -73,34 +74,34 @@ amppha_flag=1
 # ) Pha_Ar to compare phase maps wrt Arabelos et al 
 # ) AmpPha_Ag to compare amplitude/phase maps wrt Agresti 
 
-ampha_tpxo=0
+ampha_tpxo=argv[8]
 # For TPXO9 Amplitude/Phase maps on TPXO grid (1 map per tidal component)
 
-pha_tpxo=0
+pha_tpxo=argv[9]
 # For TPXO9 Phase maps on TPXO grid (1 map per tidal component)
 
-ampha_tpxo_atlamph=0
+ampha_tpxo_atlamph=argv[10]
 # For TPXO9 Amplitude/Phase maps on TPXO grid in North Atlantic (ONLY M2 component, to be extended..)
 
-doseong_flag=0 # TO compute Do-Seong factor for EAS system
+doseong_flag=argv[11] # TO compute Do-Seong factor for EAS system
 # For the following maps (1 map per factor):
 # Tidal Form Factor [Do-Seong] F=(A_K1+A_O1)/(A_M2+A_S2)
 # Tidal Envelope Factor [Do-Seong] E=(A_M2+A_N2)/(A_M2+A_S2)
 # Tidal envelope asymmetric factor [Do-Seong] Ea=cos(P_K1+P_O1-P_M2)
 # WARNING: the following fields are needed: A_K1 A_O1 A_M2 A_S2 A_N2 P_K1 P_O1 P_M2
-doseong_tpxo=0
+doseong_tpxo=argv[12]
 # For computing DoSeong factor from TPXO9 model on TPXO grid
 
-tpxo2eas_flag=1
+tpxo2eas_flag=argv[13]
 # To interpolate tpxo9 1/30 to MED24 grid and plot Amplitude/Phase maps
 
-diff_tpxoeas_flag=1
+diff_tpxoeas_flag=argv[14]
 # For amplitude diffs between eas and tpxo on MED24 grid
 
-vectorial_dist_flag=1
+vectorial_dist_flag=argv[15]
 # For vectorial distances between eas and tpxo9 on MED24 grid
 
-bathy_diff_flag=0
+bathy_diff_flag=argv[16]
 # For diffs between bathymethries eas vs tpxo on MED24 grid
 
 ########################################################
@@ -112,7 +113,7 @@ bathy_diff_flag=0
 # MODEL DATASETS
 model_path=workdir_path
 model_fileprename='amppha' # DO NOT change this
-model_postname='medfs-eas9' # WARNING: Use the same string as in fit_marea.py
+model_postname=argv[17] #'medfs-eas9' # WARNING: Use the same string as in fit_marea.py
 model_postname='mod_'+model_postname
 
 bathylim4RMSE=0 # Bathymetry threshold for RMSE (only grid points with bathy>bathylim4RMSE are taken into account)

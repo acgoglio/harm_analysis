@@ -9,15 +9,17 @@
 #BSUB -n %J_CPUS%    # Number of CPUs
 #BSUB -P %J_PROJ%
 #
-# ACG 23/06/2019
-# Script for TS extraction  
+# Written: 23/06/2019
+# Last Mod: 17/07/2024 
+
+# Script for SSH TS extraction, harmonic analysis and pltot  
 # Ini file: p_extr.ini 
 #
 #set -u
 #set -e
 set -x 
 ######################################################
-
+# 1) EXTRACTION
 # Source ini file
   SRC_DIR=%SRC_DIR%
   source ${SRC_DIR}/p_extr.ini
@@ -625,3 +627,29 @@ EOF
   fi
 
 
+######################################################
+# 2) HARMONIC ANALYSIS AND PLOT
+
+IDX_IN=0
+while [[ $IDX_IN -lt $INSET_NUM ]]; do
+   echo "I am working on ${ANA_INTAG[$IDX_IN]} dataset..."
+ 
+   # If OBS not extracted then check the dataset and link it:
+   if [[ -d ${OBS_ARCH} ]]; then
+      ln -sv ${OBS_ARCH}/*_obs.nc ${WORKDIR}/
+   else
+      echo "Obs NOT found: I cannot validate the model!!!"
+      echo "Check OBS time series in the OBS_ARCH path: ${OBS_ARCH}.."
+      exit
+   fi
+
+   # Run the code!
+   echo "Work on the Med area:"
+   bsub -n 1 -q s_long -P 0510 -M 40G -e ${WORKDIR}/ha_plot.err -o ${WORKDIR}/ha_plot.out python fit_plot_imp.py ${WORKDIR} ${TS_COOFILE} ${BATHY_METER} Med ${ANA_INTAG[$IDX_IN]}
+
+   echo "Work on the AtlBox area:"
+   bsub -n 1 -q s_long -P 0510 -M 40G -e ${WORKDIR}/ha_plot.err -o ${WORKDIR}/ha_plot.out python fit_plot_imp.py ${WORKDIR} ${TS_COOFILE} ${BATHY_METER} AtlBox ${ANA_INTAG[$IDX_IN]}
+
+
+IDX_IN=$(( $IDX_IN + 1 ))
+done

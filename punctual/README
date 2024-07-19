@@ -27,6 +27,19 @@
 #
 # ---------- SELECTION OF TIDE GAUGES DATASETS -------------
 #
+# INFO: This script is partialy based on Climate Data Operators (CDO)!
+#
+# 0) Load the required environment, e.g.
+    module load intel-2021.6.0/netcdf-c-threadsafe/4.9.0-25h5k
+    module load intel-2021.6.0/cdo-threadsafe/2.1.1-lyjsw
+    module load intel-2021.6.0/nco/5.0.6-jp6y4
+    module load intel-2021.6.0/ncview/2.1.8-sds5t
+    module load intel-2021.6.0/netcdf-c/4.9.0-cjqig
+    module load intel-2021.6.0/cdo-threadsafe/2.1.1-lyjsw
+    module load intel-2021.6.0/imagemagick/7.0.8-7-2475g
+    module load anaconda/3-2022.10
+    source activate /work/cmcc/ag15419/environment/mappyenv
+#
 # 1) built a csv file (or modify the *.coo ones) with the following infos:
 #    TG lat ; TG lon ; TG name ; TG obs path tpl ; TG obs filename tpl ; flag tpxo comp ; flag lit comp
 #    where
@@ -61,7 +74,7 @@
 # The suggestion is to extract all the OBS time-series for all the tide-gauges with a number of GAPs lower than 10% and then choose for each time-serie the period with the lower num of NANs 
 #
 # 3) set the p_extr.ini file following the instructions in the file
-# 4) run the runpextr.sh that submits the extraction job (you do NOT need to modify anything in this scripts!)
+# 4) run the runpextr.sh that submits the extraction, harmonic analysis and plot jobs (you do NOT need to modify anything in this scripts!)
 #
 #
 # ------------ FOREMAN FIT, ANALYSIS AND PLOT OF THE HARMONIC ANALYSIS RESULTS -------------
@@ -71,12 +84,6 @@
 #          and conda-install in your environment the required ones!
 # The idea is to define the best time-series dataset looking at the time-series diagnostic results and then link these in a new directory and run the analysis on this last only. The script is conceived to handle time-series covering different time-periods but ONLY one period per tide-gauge can be included in the analysis. 
 #
-# 5) load the python environment:
-# module load anaconda 
-# source activate "your-virtual-environment"
-#
-# 6) set (following the instructions in the file) and run the fit_plot.py script
-# AUTOMATIC LOOP ex: for WH in Med AtlBox; do for EXP in simu_EAS6_v8 eas6_v8_simu_1 eas6_v8_simu_2 eas6_v8_simu_3 eas6_v8_simu_4 eas6_v8_simu_5 eas6_v8_simu_6 ; do echo "############### $EXP $WH G ##################" ; python fit_plot_loop.py $EXP $WH G ; done ; done
 #
 # =============================
 #  OUTPUTS:

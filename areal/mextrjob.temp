@@ -12,15 +12,16 @@
 # annachiara.goglio@cmcc.it
 #
 # Written: 11/02/2021
+# Last mod: 19/07/2024
 #
-# Script for map TS extraction 
+# Script for SSH map TS extraction and harmonic analysis of the 
 # Ini file: map_extr.ini 
 #
 set -u
 set -e
 #set -x 
 #################################################
-
+# 1) EXTRACTION
 # Source ini file
   SRC_DIR=%SRC_DIR%
   source ${SRC_DIR}/map_extr.ini
@@ -229,4 +230,25 @@ set -e
    done
 
  fi
+#################################################
+# 2) FIT
+# Loop on model datasets
+IDX_IN=0
+while [[ $IDX_IN -lt $INSET_NUM ]]; do
+
+    echo "I am working on ${ANA_INTAG[$IDX_IN]} dataset..."
+    bsub -n 1 -q s_long -P 0510 -M 40G -e ${ANA_WORKDIR}/fit.err -o ${ANA_WORKDIR}/fit.out  python ${SRC_DIR}/fit_marea.py ${ANA_WORKDIR} ${ANA_STARTDATE:6:2}/${ANA_STARTDATE:4:2}/${ANA_STARTDATE:0:4} ${ANA_ENDDATE:6:2}/${ANA_ENDDATE:4:2}/${ANA_ENDDATE:0:4} ${ANA_INTAG[$IDX_IN]}
+    IDX_IN=$(( $IDX_IN + 1 ))
+done
+#################################################
+# 3) PLOT
+# Loop on model datasets
+IDX_IN=0
+while [[ $IDX_IN -lt $INSET_NUM ]]; do
+    echo "I am working on ${ANA_INTAG[$IDX_IN]} dataset..."
+
+    bsub -n 1 -q s_long -P 0510 -M 40G -e ${ANA_WORKDIR}/plot.err -o ${ANA_WORKDIR}/plot.out python ana_plot.py ${ANA_WORKDIR} ${BATHY_METER} ${MESH_MASK} ${ANA_STARTDATE:6:2}/${ANA_STARTDATE:4:2}/${ANA_STARTDATE:0:4} ${ANA_ENDDATE:6:2}/${ANA_ENDDATE:4:2}/${ANA_ENDDATE:0:4} ${TPXO9_INPATH} 1 1 1 1 1 1 1 1 1 1 ${ANA_INTAG[$IDX_IN]}
+
+    IDX_IN=$(( $IDX_IN + 1 ))
+done
 

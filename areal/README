@@ -30,37 +30,36 @@
 #
 # --------- EXTRACTION ----------
 #
-# INFO: This script is based on Climate Data Operators (CDO)!
+# INFO: This script is partialy based on Climate Data Operators (CDO)!
 #
+# 0) Load the required environment, e.g.
+    module load intel-2021.6.0/netcdf-c-threadsafe/4.9.0-25h5k
+    module load intel-2021.6.0/cdo-threadsafe/2.1.1-lyjsw
+    module load intel-2021.6.0/nco/5.0.6-jp6y4 
+    module load intel-2021.6.0/ncview/2.1.8-sds5t
+    module load intel-2021.6.0/netcdf-c/4.9.0-cjqig 
+    module load intel-2021.6.0/cdo-threadsafe/2.1.1-lyjsw
+    module load intel-2021.6.0/imagemagick/7.0.8-7-2475g
+    module load anaconda/3-2022.10
+    source activate /work/cmcc/ag15419/environment/mappyenv
+
 # 1) set the map_extr.ini file following the instructions in the file
-# 2) run the runmapextr.sh that submits the extraction job (you do NOT need to modify anything in this scripts!)
+# 2) run the runmapextr.sh that submits the extraction/harmonic analysis and plot jobs (you do NOT need to modify anything in this scripts!)
 #
 #
 # --------- FOREMAN FIT ---------  
+# fit_marea.py script
 #
-# INFO: This script is based on the ttide software (a modified copy of the code is included in a specific directory)
+# INFO: The script is based on the ttide software (a modified copy of the code is included in a specific directory)
 # WARNING: the python script requires specific libraries: have a look to the imported ones in the first lines 
 #          and conda-install in your environment the required ones!
 #
-# 3) load the python environment:
-# module load anaconda 
-# source activate "your-virtual-environment"
-#
-# 4) set (following the instructions in the file) and run the fit_marea.py script
-# WARNING: since the run time on the whole domains requires a few hours, 
-# it is suggested to run the script in a job (e.g. fit.job, feel free to modify and use it! ) 
-#
 # --------- ANALYSIS AND VISUALIZATION OF THE RESULTS -----------
+# ana_plot.py script
 #
 # WARNING: the python script requires specific libraries: have a look to the imported ones in the first lines 
 #          and conda-install in your environment the required ones!
 # WARNING: in most of this tasks the TPXO is interpolated from its original grid to the eas system 1/24 grid
-#
-# 5) load the python environment:
-# module load anaconda 
-# source activate "your-virtual-environment"
-#
-# 6) set (following the instructions in the file) and run the ana_plot.py script
 #
 # ===============================
 # OUTPUTS:

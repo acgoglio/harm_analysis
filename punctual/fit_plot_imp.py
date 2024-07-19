@@ -49,18 +49,20 @@ from lit_tpxo import *
 #################################################################
 # The user should modify the following lines to set his run
 #################################################################
+argv=sys.argv
+
 # General run parameters:
 #---------------------
 # Work dir path:
 # WARNING: the inputs must be here, the outputs will be moved to subdirs   
-workdir='/work/cmcc/ag15419/OUTPUT_QUID/HA/point_EAS9_2017/'
+workdir=str(argv[1]) #'/work/cmcc/ag15419/OUTPUT_QUID/HA/point_EAS9_2017/'
 # input files:
-emodnettg_coo_file = '/users_home/cmcc/ag15419/harm_analysis_imp/punctual/emodnet_TGb_newTGb_all.coo'
-model_bathy='/data/cmcc/mfs/Med_static/MFS_EAS7_STATIC_V1/NEMO_DATA0/bathy_meter.nc'
+emodnettg_coo_file=str(argv[2]) #'/users_home/cmcc/ag15419/harm_analysis_imp/punctual/emodnet_TGb_newTGb_all.coo'
+model_bathy=str(argv[3]) #'/data/cmcc/mfs/Med_static/MFS_EAS7_STATIC_V1/NEMO_DATA0/bathy_meter.nc'
 #
 
 # Domain (Med or AtlBox)
-where_box='Med'
+where_box=argv[4]
 
 # Option for phase plots
 cos_pha = 0 
@@ -73,7 +75,7 @@ cos_pha = 0
 #--------------------
 # MODEL DATASET
 # WARNING: this must be the same as in p_extr.ini file (var ANA_INTAG)
-mod_file_template='medfs-eas9'
+mod_file_template=str(argv[5]) #'medfs-eas9'
 
 # Fields to be analized
 grid = 'T' # Choose T, U, V or uv2t grid
