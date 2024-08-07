@@ -1,4 +1,5 @@
 # harm_analysis repository
+# NEW BRANCH: juno_eas9 -> this branch contains the procedure to run the whole tool on juno for EAS9 system version 
 #
 # by AC Goglio (CMCC)
 # annachiara.goglio@cmcc.it
