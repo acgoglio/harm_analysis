@@ -1,4 +1,5 @@
 # harm_analysis repository
+# NEW BRANCH: juno_eas9_opt -> this branch contains a modified procedure to run the whole tool on juno for EAS9 system version in an optimized way: the punctual extraction is done in parallel
 #
 # by AC Goglio (CMCC)
 # annachiara.goglio@cmcc.it
