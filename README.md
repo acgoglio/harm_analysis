@@ -1,4 +1,5 @@
 # harm_analysis repository
+# OLD BRANCH: this branch contains the old procedure to run the tool on zeus for EAS7 and previous system versions
 #
 # by AC Goglio (CMCC)
 # annachiara.goglio@cmcc.it
