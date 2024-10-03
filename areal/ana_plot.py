@@ -46,14 +46,14 @@ mpl.use('Agg')
 # General run parameters:
 #---------------------
 # work dir path and bathymetry path/name
-workdir_path = '/work/cmcc/ag15419/OUTPUT_QUID/HA/area_EAS9_2017/'
+workdir_path = '/work/cmcc/ag15419/harmonic_analysis/barot/area_20_2015/'
 model_bathy='/data/cmcc/mfs/Med_static/MFS_EAS7_STATIC_V1/NEMO_DATA0/bathy_meter.nc'
 model_meshmask='/work/cmcc/ag15419/VAA_paper/DATA0/mesh_mask.nc'
 #
 # Dates
 # Choose start and end dates of the period (format dd/mm/yyyy)
-inidate = '01/07/2017'
-enddate = '31/12/2017'
+inidate = '01/07/2015'
+enddate = '31/12/2015'
 
 # TPXO9 path
 tpxo9_path='/data/cmcc/ag15419/TPXO9_DATA/'
@@ -91,7 +91,7 @@ doseong_flag=0 # TO compute Do-Seong factor for EAS system
 doseong_tpxo=0
 # For computing DoSeong factor from TPXO9 model on TPXO grid
 
-tpxo2eas_flag=1
+tpxo2eas_flag=0
 # To interpolate tpxo9 1/30 to MED24 grid and plot Amplitude/Phase maps
 
 diff_tpxoeas_flag=1
@@ -112,7 +112,7 @@ bathy_diff_flag=0
 # MODEL DATASETS
 model_path=workdir_path
 model_fileprename='amppha' # DO NOT change this
-model_postname='medfs-eas9' # WARNING: Use the same string as in fit_marea.py
+model_postname='barot_90_9_pstep_lin_253' # WARNING: Use the same string as in fit_marea.py
 model_postname='mod_'+model_postname
 
 bathylim4RMSE=0 # Bathymetry threshold for RMSE (only grid points with bathy>bathylim4RMSE are taken into account)

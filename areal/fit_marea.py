@@ -32,12 +32,12 @@ import ttide
 #################################################################
 
 # General run parameters:
-workdir_path = '/work/cmcc/ag15419/OUTPUT_QUID/HA/area_EAS9_2017/'
+workdir_path = '/work/cmcc/ag15419/harmonic_analysis/barot/area_20_2015/'
 
 # Dates
 # Choose start and end dates of the period (format dd/mm/yyyy)
-inidate = '01/07/2017'
-enddate = '31/12/2017'
+inidate = '01/07/2015'
+enddate = '31/12/2015'
 
 ########################################################
 # DO NOT CHANGE THE CODE BELOW THIS LINES
@@ -49,7 +49,7 @@ enddate = '31/12/2017'
 # Path and name of inputs datasets
 # Currently the extraction of nc is done externally by another script
 model_fileprename='map' # DO NOT change this
-model_postname='medfs-eas9' # WARNING: Use the same string as in map_extr.ini (ANA_INTAG var)
+model_postname='barot_90_9_pstep_lin_253' # WARNING: Use the same string as in map_extr.ini (ANA_INTAG var)
 model_path=workdir_path
 
 # Dates
