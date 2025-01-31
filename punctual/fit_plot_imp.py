@@ -53,9 +53,9 @@ from lit_tpxo import *
 #---------------------
 # Work dir path:
 # WARNING: the inputs must be here, the outputs will be moved to subdirs   
-workdir='/work/cmcc/ag15419/harmonic_analysis/barot/point_20_2015/'
+workdir='/work/cmcc/med-dev/harm_analysis/EAS9_2023/point/'
 # input files:
-emodnettg_coo_file = '/users_home/cmcc/ag15419/harm_analysis_imp/punctual/emodnet_TGb_newTGb_all.coo'
+emodnettg_coo_file = '/users_home/cmcc/ag15419/harm_analysis_opt/punctual/emodnet_TGb_newTGb_all.coo'
 model_bathy='/data/cmcc/mfs/Med_static/MFS_EAS7_STATIC_V1/NEMO_DATA0/bathy_meter.nc'
 #
 
@@ -73,7 +73,7 @@ cos_pha = 0
 #--------------------
 # MODEL DATASET
 # WARNING: this must be the same as in p_extr.ini file (var ANA_INTAG)
-mod_file_template='barot_90_9_pstep_lin_253'
+mod_file_template='EAS9'
 
 # Fields to be analized
 grid = 'T' # Choose T, U, V or uv2t grid
@@ -1340,7 +1340,7 @@ for anatype_flag in ('lit','anatpxo','all'): #'all','lit','anatpxo'
            an_idx=an_idx+1
 
        ###### TPXO and LIT extraction ######
-       if tpxo_flag == 1:
+       if tpxo_flag == 1 or anatype_flag == 'lit':
           globals()['TPXO_'+comp]=[]
           globals()['TPXO_P_'+comp]=[]
           for tg2beadded in TOT_tg_name:
@@ -1440,7 +1440,7 @@ for anatype_flag in ('lit','anatpxo','all'): #'all','lit','anatpxo'
        wheremax_AmpPerc_col=TOT_tg_orcol[np.argmax(abs(pdiffA_mo))]
        perc95_pdiffA=np.percentile(abs(pdiffA_mo),95)
    
-       if tpxo_flag == 1:
+       if tpxo_flag == 1 or anatype_flag == 'lit':
           TPXO_AMP=globals()['TPXO_'+comp]
           TPXO_PHA=globals()['TPXO_P_'+comp]
           TPXO_AMP=np.multiply(TPXO_AMP,100) # Want cm not m!
@@ -2388,7 +2388,7 @@ for anatype_flag in ('lit','anatpxo','all'): #'all','lit','anatpxo'
    
          # Compute Distances in the complex plane [Foreman et al. 93]
          d_foreman[nnn_AP+1][comp_idx+1]=np.sqrt((TOT_A_obs_ord[nnn_AP]*np.cos((np.pi/180.0)*TOT_P_obs_ord[nnn_AP])-(TOT_A_mod_ord[nnn_AP]*np.cos((np.pi/180.0)*TOT_P_mod_ord[nnn_AP])))**2+((TOT_A_obs_ord[nnn_AP]*np.sin((np.pi/180.0)*TOT_P_obs_ord[nnn_AP])-(TOT_A_mod_ord[nnn_AP]*np.sin((np.pi/180.0)*TOT_P_mod_ord[nnn_AP])))**2))
-         if anatype_flag == 'anatpxo':
+         if anatype_flag == 'anatpxo' or anatype_flag == 'lit':
             d_foreman_tpxo[nnn_AP+1][comp_idx+1]=np.sqrt((TOT_A_obs_ord[nnn_AP]*np.cos((np.pi/180.0)*TOT_P_obs_ord[nnn_AP])-(TPXO_AMP[nnn_AP]*np.cos((np.pi/180.0)*TPXO_PHA[nnn_AP])))**2+((TOT_A_obs_ord[nnn_AP]*np.sin((np.pi/180.0)*TOT_P_obs_ord[nnn_AP])-(TPXO_AMP[nnn_AP]*np.sin((np.pi/180.0)*TPXO_PHA[nnn_AP])))**2))
    
          # Root Mean Square misfits
@@ -2938,6 +2938,17 @@ for anatype_flag in ('lit','anatpxo','all'): #'all','lit','anatpxo'
    mod_P1 = [ d_foreman[j][6] for j in range (1,N_stz+1)]
    mod_Q1 = [ d_foreman[j][7] for j in range (1,N_stz+1)]
    mod_K2 = [ d_foreman[j][8] for j in range (1,N_stz+1)]
+
+   if anatype_flag == 'lit':
+      tpxo_M2 = [ d_foreman_tpxo[j][1] for j in range (1,N_stz+1)]
+      tpxo_S2 = [ d_foreman_tpxo[j][2] for j in range (1,N_stz+1)]
+      tpxo_K1 = [ d_foreman_tpxo[j][3] for j in range (1,N_stz+1)]
+      tpxo_O1 = [ d_foreman_tpxo[j][4] for j in range (1,N_stz+1)]
+      #
+      tpxo_N2 = [ d_foreman_tpxo[j][5] for j in range (1,N_stz+1)]
+      tpxo_P1 = [ d_foreman_tpxo[j][6] for j in range (1,N_stz+1)]
+      tpxo_Q1 = [ d_foreman_tpxo[j][7] for j in range (1,N_stz+1)]
+      tpxo_K2 = [ d_foreman_tpxo[j][8] for j in range (1,N_stz+1)]
    
    # Compute and print statistics on vectorial distances
    if flag_15stats == 1:
@@ -2948,18 +2959,22 @@ for anatype_flag in ('lit','anatpxo','all'): #'all','lit','anatpxo'
       print ('M2 EAS: ', round(np.mean(mod_M2),2), round(np.max(mod_M2),2),'(',labels[np.argmax(mod_M2)],')',file=Lit_file)
       print ('M2 PALMA: ', round(np.mean(PALMA_d_M2),2), round(np.max(PALMA_d_M2),2),'(',labels[np.argmax(PALMA_d_M2)],')',file=Lit_file)
       print ('M2 TSIMPLIS: ', round(np.mean(TSIMPLIS_d_M2),2), round(np.max(TSIMPLIS_d_M2),2),'(',labels[np.argmax(TSIMPLIS_d_M2)],')',file=Lit_file)
+      print ('M2 TPXO: ', round(np.mean(tpxo_M2),2), round(np.max(tpxo_M2),2),'(',labels[np.argmax(tpxo_M2)],')',file=Lit_file)
       print ('---',file=Lit_file)
       print ('S2 EAS: ', round(np.mean(mod_S2),2), round(np.max(mod_S2),2),'(',labels[np.argmax(mod_S2)],')',file=Lit_file)
       print ('S2 PALMA: ', round(np.mean(PALMA_d_S2),2), round(np.max(PALMA_d_S2),2),'(',labels[np.argmax(PALMA_d_S2)],')',file=Lit_file)
       print ('S2 TSIMPLIS: ', round(np.mean(TSIMPLIS_d_S2),2), round(np.max(TSIMPLIS_d_S2),2),'(',labels[np.argmax(TSIMPLIS_d_S2)],')',file=Lit_file)
+      print ('S2 TPXO: ', round(np.mean(tpxo_S2),2), round(np.max(tpxo_S2),2),'(',labels[np.argmax(tpxo_S2)],')',file=Lit_file)
       print ('---',file=Lit_file)
       print ('K1 EAS: ', round(np.mean(mod_K1),2), round(np.max(mod_K1),2),'(',labels[np.argmax(mod_K1)],')',file=Lit_file)
       print ('K1 PALMA: ', round(np.mean(PALMA_d_K1),2), round(np.max(PALMA_d_K1),2),'(',labels[np.argmax(PALMA_d_K1)],')',file=Lit_file)
       print ('K1 TSIPLIS: ', round(np.mean(TSIMPLIS_d_K1),2), round(np.max(TSIMPLIS_d_K1),2),'(',labels[np.argmax(TSIMPLIS_d_K1)],')',file=Lit_file)
+      print ('K1 TPXO: ', round(np.mean(tpxo_K1),2), round(np.max(tpxo_K1),2),'(',labels[np.argmax(tpxo_K1)],')',file=Lit_file)
       print ('---',file=Lit_file)
       print ('O1 EAS: ', round(np.mean(mod_O1),2), round(np.max(mod_O1),2),'(',labels[np.argmax(mod_O1)],')',file=Lit_file)
       print ('O1 PALMA: ', round(np.mean(PALMA_d_O1),2), round(np.max(PALMA_d_O1),2),'(',labels[np.argmax(PALMA_d_O1)],')',file=Lit_file)
-      print ('K1 TSIPLIS: ', round(np.mean(TSIMPLIS_d_O1),2), round(np.max(TSIMPLIS_d_O1),2),'(',labels[np.argmax(TSIMPLIS_d_O1)],')',file=Lit_file)
+      print ('O1 TSIPLIS: ', round(np.mean(TSIMPLIS_d_O1),2), round(np.max(TSIMPLIS_d_O1),2),'(',labels[np.argmax(TSIMPLIS_d_O1)],')',file=Lit_file)
+      print ('O1 TPXO: ', round(np.mean(tpxo_O1),2), round(np.max(tpxo_O1),2),'(',labels[np.argmax(tpxo_O1)],')',file=Lit_file)
       #try:
       #   print ('O1 TSIMPLIS: ', round(np.mean(i for i in TSIMPLIS_d_O1 if i != ''),2), round(np.max(i for i in TSIMPLIS_d_O1 if i != ''),2),'(',labels[np.nanargmax(i for i in TSIMPLIS_d_O1 if i != '')],')',file=Lit_file)
       #except:
