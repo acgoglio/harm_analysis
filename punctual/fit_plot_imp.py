@@ -53,7 +53,7 @@ from lit_tpxo import *
 #---------------------
 # Work dir path:
 # WARNING: the inputs must be here, the outputs will be moved to subdirs   
-workdir='/work/cmcc/ag15419/harmonic_analysis/quid_EAS10/point/'
+workdir='/work/cmcc/ag15419/harmonic_analysis/beth/'
 # input files:
 emodnettg_coo_file = '/users_home/cmcc/ag15419/harm_analysis_opt/punctual/emodnet_TGb_newTGb_all.coo'
 model_bathy='/data/cmcc/mfs/Med_static/MFS_EAS7_STATIC_V1/NEMO_DATA0/bathy_meter.nc'
@@ -73,7 +73,7 @@ cos_pha = 0
 #--------------------
 # MODEL DATASET
 # WARNING: this must be the same as in p_extr.ini file (var ANA_INTAG)
-mod_file_template='EAS10'
+mod_file_template='EAS6_internal-tide'
 
 # Fields to be analized
 grid = 'T' # Choose T, U, V or uv2t grid

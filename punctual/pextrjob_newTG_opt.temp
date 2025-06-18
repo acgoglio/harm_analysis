@@ -71,7 +71,6 @@ set -x
 
         FOUND_NUM=0
         NOT_FOUND_NUM=0
-	ANA_INPATHS_2="/$IDX_DATE/model/"
 
         if [[ -e ${ANA_INPATHS[$IDX_IN]}/${ANA_INPATHS_2}/$ANA_INFILE ]]; then 
            FOUND_NUM=$(( $FOUND_NUM + 1 ))
@@ -214,6 +213,7 @@ set -x
    s/%LON_INT%/${LON_INT}/g
    s/%EXT_INS%/${EXT_INS//\//\\/}/g
    s/%RM_MEAN_FLAG%/${RM_MEAN_FLAG}/g
+   s/%INFILES_DIM%/${INFILES_DIM}/g
    #
 EOF
 

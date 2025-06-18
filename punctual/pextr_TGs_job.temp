@@ -17,8 +17,8 @@
       COO_TS_LAT=%COO_TS_LAT%
       EXT_INS=%EXT_INS%
       RM_MEAN_FLAG=%RM_MEAN_FLAG%
+      INFILES_DIM=%INFILES_DIM%
       
-
       NC_TS_OUTFILE_TPL="%STZ%_mod_${ANA_INTAG}.nc"
       NC_TS_OUTFILE=$( echo "$NC_TS_OUTFILE_TPL" | sed -e "s/%IDX%/$IDX_IN/g" -e "s/%FIELD%/${VAR}/g" -e "s/%STZ%/${COO_TS_NAME}/g" )
 
@@ -37,12 +37,19 @@
 	   
         # nearest sea point
         elif [[ $EXTR_POINT_NUM == 1 ]]; then
-           LON_TOCUT=${COO_TS_LON[$TS_IDX]}
-           LAT_TOCUT=${COO_TS_LAT[$TS_IDX]}
+           LON_TOCUT=${COO_TS_LON}
+           LAT_TOCUT=${COO_TS_LAT}
            LON_INT=$( echo $LON_TOCUT | cut -f 1 -d"." )
            LAT_INT=$( echo $LAT_TOCUT | cut -f 1 -d"." )
 
-	   cdo remapnn,lon=${COO_TS_LON}/lat=${COO_TS_LAT} -setmisstonn -setctomiss,0.0000 -sellonlatbox,$(( ${LON_INT} - 2 )),$(( ${LON_INT} + 2 )),$(( ${LAT_INT} - 2 )),$(( ${LAT_INT} + 2 )) $TSEXT tsext_tmp_${TS_IDX}_${COO_TS_NAME}_${IDX_NC}.nc
+           if [[ ${INFILES_DIM} == "3D" ]]; then
+	      cdo remapnn,lon=${COO_TS_LON}/lat=${COO_TS_LAT} -setmisstonn -setctomiss,0.0000 -sellonlatbox,$(( ${LON_INT} - 2 )),$(( ${LON_INT} + 2 )),$(( ${LAT_INT} - 2 )),$(( ${LAT_INT} + 2 )) -select,levidx=1 $TSEXT tsext_tmp_${TS_IDX}_${COO_TS_NAME}_${IDX_NC}.nc
+           elif [[ ${INFILES_DIM} == "2D" ]]; then
+              cdo remapnn,lon=${COO_TS_LON}/lat=${COO_TS_LAT} -setmisstonn -setctomiss,0.0000 -sellonlatbox,$(( ${LON_INT} - 2 )),$(( ${LON_INT} + 2 )),$(( ${LAT_INT} - 2 )),$(( ${LAT_INT} + 2 )) $TSEXT tsext_tmp_${TS_IDX}_${COO_TS_NAME}_${IDX_NC}.nc
+           else
+              echo "INFILES_DIM must be 2D or 3D..not $INFILES_DIM !"
+              exit
+           fi
 
         fi
 
